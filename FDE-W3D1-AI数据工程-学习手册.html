@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W3D1 学习手册 · AI 数据工程（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W3D1 学习手册</span>
+  <a href="#s1">1.全景</a><a href="#s2">2.Doc/Chunk</a><a href="#s3">3.Hash/状态</a><a href="#s4">4.版本</a><a href="#s5">5.血缘</a>
+  <span class="sep"></span>
+  <a href="#s6">6.摄取</a><a href="#s7">7.LangChain</a><a href="#s8">8.解析</a><a href="#s9">9.Golden</a><a href="#s10">10.评测集</a>
+  <span class="sep"></span>
+  <a href="#s11">11.可观测</a><a href="#s12">达标①</a><a href="#s13">达标②</a><a href="#s14">自测</a><a href="#s15">速记</a>
+</div>
+
+<h1>FDE W3D1 学习手册 · AI 数据工程（元数据 / 血缘 / Golden Case）</h1>
+<p class="sub">W3 Day1 · A 级（必须掌握，面试核心）· 5h · 学完能讲透"企业 RAG 的数据底座：从一份 PDF 到可追溯、可重跑、可评测的索引"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W2 讲的是怎么把"问题"和"知识"对齐（检索/重排），W3 回到最底层——数据本身。企业 RAG 能不能跑稳，80% 取决于数据工程：元数据设计、血缘、版本、评测集。这是你 36 岁 Java+大数据+医疗背景最能打出来的差异化优势。<br>
+  <strong>学完能回答：</strong>① 企业 RAG 的元数据（Doc/Chunk ID、File Hash、版本、状态）为什么必须设计；② Golden Case 怎么造、评测集怎么从 10 个长到 50 个；③ 怎么把 ETL/数据治理经验迁移到 RAG 血缘。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「🔧工程含义」「🎤面试话术」「⚠易错点」→ 做自测清单 → 配合《FDE-W3D1-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 全景 ============ -->
+<h2 id="s1">一、企业 RAG 数据工程全景：为什么元数据是地基</h2>
+<p>很多人以为 RAG = "切 chunks → 灌向量库 → 检索"，但企业级 RAG 真正的难点不在模型，而在<strong>数据底座</strong>。一份《特药理赔手册》PDF 从上传到可检索，要经历「摄取（Ingestion）→ 解析 → 切片 → 向量化 → 入库 → 版本管理 → 评测」一长串环节，每一步都可能丢失信息或引入错误。</p>
+<p>如果阶段之间没有可靠的<strong>元数据</strong>串联，就会出现：查到一个 chunk 却不知道它来自哪份文件、哪个版本；文件更新后旧向量还在；评测出错了却无法定位是哪份源文档导致的。元数据的本质就是<strong>数据血缘（Data Lineage）</strong>。</p>
+<div class="info"><strong>一句话定位：</strong>元数据是 RAG 的"身份证 + 户口本"。没有它，检索结果不可溯源、更新不可重跑、评测不可归因——这在医疗保险这种强合规、强审计场景里是硬伤。</div>
+<div class="eng">工程含义：数据工程是 RAG 质量的天花板。模型再强，喂进去的 chunk 如果错了、旧了、对不上版本，答案必然错。医疗理赔场景一个错 chunk 可能导致错误赔付，所以<strong>可溯源（traceability）</strong>是刚需，不是锦上添花。</div>
+<div class="iv">企业 RAG 的稳定性 80% 靠数据工程，不是模型。我要做的是给每一份文档、每一个 chunk 发"身份证"（ID）、贴"指纹"（Hash）、标"版本"（Version）、记"状态"（Status），这样任何一条检索结果都能回溯到"哪份文件、哪个版本、什么时候切的"，出问题能定位、能重跑。</div>
+<div class="warn">① 别以为"切完灌库就完事"。没有 ID/Hash/版本，文件一更新你就分不清线上跑的是新还是旧向量。② 元数据不是越多越好，但<strong>Doc ID、Chunk ID、File Hash、版本、状态</strong>这五个是底线，缺一不可。③ 很多人把 Chunk ID 简单用"递增数字"，一旦删除中间某个 chunk，下游引用全错位——要用稳定全局唯一 ID（如 UUID 或 内容Hash 派生）。</div>
+
+<!-- ============ 2. Doc/Chunk ============ -->
+<h2 id="s2">二、Document ID 与 Chunk ID：血缘的最小单元</h2>
+<h3>2.1 设计原则</h3>
+<table>
+<tr><th>字段</th><th>作用</th><th>推荐方案</th></tr>
+<tr><td><strong>document_id</strong></td><td>一份源文档（一份 PDF/一篇网页）的稳定主键</td><td>首次摄取时生成 UUID，长期不变；可同时存业务编号（如 policy_doc_no）</td></tr>
+<tr><td><strong>chunk_id</strong></td><td>一个切片 chunk 的稳定主键</td><td>由 <code>document_id + 切片序号</code> 或 <code>内容 Hash</code> 派生，保证可追溯、可重建</td></tr>
+<tr><td><strong>chunk_index</strong></td><td>该 chunk 在原文档中的顺序位置</td><td>整数，便于还原上下文、合并相邻 chunk</td></tr>
+</table>
+<h3>2.2 为什么 Chunk ID 不能简单用自增</h3>
+<p>如果用数据库自增主键，删除一个 chunk 后重建会改变所有后续 ID，导致已存的"评测标注""用户反馈"引用失效。正确做法是让 chunk_id 与<strong>内容强绑定</strong>（如 <code>sha1(document_id + chunk_index + text)</code>），内容不变 ID 就不变。</p>
+<div class="formula">
+chunk_id = hash(document_id ‖ chunk_index ‖ content)  →  内容不变则 ID 不变，可追溯可重建
+</div>
+<h3>2.3 Chunk 还要挂哪些元数据</h3>
+<pre><code>{
+  "chunk_id": "c_8f3a...",
+  "document_id": "d_1b2c...",
+  "chunk_index": 12,
+  "content": "特药『奥希替尼』限用于 EGFR 突变阳性...",
+  "source_file": "特药理赔手册_2025Q2.pdf",
+  "page_no": 38,
+  "section": "第三章 靶向药报销范围",
+  "doc_version": "v2025Q2",
+  "embedding_version": "bge-large-zh-v1.5",
+  "ingest_task_id": "task_20250701_009",
+  "created_at": "2025-07-01T10:22:00Z"
+}</code></pre>
+<div class="eng">工程含义：chunk 不是孤立文本，它是带"出生证明"的数据单元。下游检索命中后，能立刻拿到 page_no、section、doc_version——这些对"引用溯源""答案可审计"至关重要，医疗合规尤其要吃这一套。</div>
+<div class="iv">Document ID 是一份文件的主键，Chunk ID 是一个切片的主键，而且 Chunk ID 最好由"文档ID+序号+内容"派生，这样内容不变 ID 就不变，删了重建也不会让评测标注和引用错位。每个 chunk 还要挂 source、page、版本、任务号这些血缘字段。</div>
+<div class="warn">① Chunk ID 千万别用自增整数，删除/重建就会全错位。② chunk 里只存 text 是常见错误——丢了 page/section/version，答案出来你没法告诉用户"这条来自手册第38页第三章"，医疗合规场景不可接受。③ embedding_version 一定要随 chunk 存，否则你不知道这个向量是旧模型生成的还是新模型。</div>
+
+<!-- ============ 3. Hash/状态 ============ -->
+<h2 id="s3">三、文件 Hash 与摄取任务状态机</h2>
+<h3>3.1 文件 Hash：去重与变更检测</h3>
+<p>对源文件计算 <strong>内容 Hash</strong>（如 SHA-256），是判断"要不要重新摄取"的唯一可靠依据。文件名相同、内容改了，Hash 不同 → 触发更新；文件名不同、内容一样 → Hash 相同 → 跳过重复。</p>
+<div class="formula">
+file_hash = sha256(raw_bytes)  →  同 Hash 跳过、异 Hash 触发重新摄取 / 失效旧版本
+</div>
+<h3>3.2 摄取任务状态机</h3>
+<p>一个摄取任务从提交到完成，应有明确状态，便于可观测与失败重试：</p>
+<table>
+<tr><th>状态</th><th>含义</th><th>触发动作</th></tr>
+<tr><td><code>PENDING</code></td><td>已入队，等待处理</td><td>入消息队列</td></tr>
+<tr><td><code>PARSING</code></td><td>解析中（PDF/HTML 抽取）</td><td>调用 PyMuPDF / unstructured</td></tr>
+<tr><td><code>CHUNKING</code></td><td>切片中</td><td>分块策略执行</td></tr>
+<tr><td><code>EMBEDDING</code></td><td>向量化中</td><td>调 embedding 服务</td></tr>
+<tr><td><code>INDEXING</code></td><td>写入向量库</td><td>bulk 写入 ES</td></tr>
+<tr><td><code>SUCCESS</code></td><td>全部成功</td><td>标记 doc.status=ready</td></tr>
+<tr><td><code>FAILED</code></td><td>失败</td><td>进死信 / 告警 / 重试</td></tr>
+</table>
+<div class="eng">工程含义：状态机能让你回答"这份手册现在到底能不能被检索到"。医疗知识库上线新手册时，运营要知道是 PARSING 卡住还是 EMBEDDING 超时，而不是"用户说搜不到"。状态 + 任务号是排查的入口。</div>
+<div class="iv">文件 Hash 用来判断要不要重新摄取——同一份内容不重复算；摄取任务做成状态机（PENDING→PARSING→CHUNKING→EMBEDDING→INDEXING→SUCCESS/FAILED），这样任一环节挂了都能定位、能重试、能告警，而不是一坨黑盒。</div>
+<div class="warn">① 用"文件名+修改时间"判断变更不可靠——手动 copy 会改时间，Git 上的时间也不代表内容。一定要用内容 Hash。② 状态机不能只在内存里，要落库（任务表），否则进程重启状态就丢了，分布式多 worker 还会重复摄取。③ FAILED 后必须有去向（重试/死信），不能静默消失。</div>
+
+<!-- ============ 4. 版本 ============ -->
+<h2 id="s4">四、文档版本与 Embedding 版本：变更可追踪</h2>
+<h3>4.1 两套版本</h3>
+<ul>
+  <li><strong>document_version</strong>：源文档内容的版本。如《特药理赔手册》2025Q1 → 2025Q2 因目录调整改版。改版后应保留旧版本可回滚，且新版本上线要失效旧 chunk。</li>
+  <li><strong>embedding_version</strong>：向量模型的版本。如 bge-large-zh v1.5 → v2。模型升级后<strong>所有 chunk 的向量都要重算</strong>，否则新模型检索空间里混着旧向量，召回质量崩。</li>
+</ul>
+<h3>4.2 版本与 Hash 的关系</h3>
+<div class="formula">
+document_version 变化 ⟹ file_hash 通常变 ⟹ 触发重新摄取 + 旧 chunk 失效
+embedding_version 变化 ⟹ 同 content 但要重算向量 ⟹ 全量重 embed
+</div>
+<h3>4.3 旧版本怎么失效</h3>
+<p>不能物理删除旧 doc（要保留审计），而是把旧 version 的 chunk 标记为 <code>status=deprecated</code>，检索时 <code>filter status=active</code> 即可。回滚时把新版本标 deprecated、旧版本恢复 active。</p>
+<div class="eng">工程含义：版本管理让"知识库更新"变成可逆操作。医疗保险条款随时可能修订，运营必须能"一键回滚到上周版本"应对监管质疑，而不是去翻备份磁带。</div>
+<div class="iv">文档版本跟踪内容改了没，Embedding 版本跟踪向量模型换没换。内容改版要重摄取并失效旧 chunk；模型升级要对所有 chunk 重算向量，不能新旧混用。旧版本用 deprecated 软失效而不是物理删，方便回滚和审计。</div>
+<div class="warn">① 只换 embedding 模型却不重算旧向量，是最隐蔽的坑——检索空间一半旧一半新，召回率莫名下跌，还不好查。② 失效旧 chunk 用软标记（status 字段），别直接物理删，否则审计追溯断链。③ 版本号别用"日期字符串"偷懒，要有明确的语义化版本与生效时间。</div>
+
+<!-- ============ 5. 血缘 ============ -->
+<h2 id="s5">五、结合 ETL / 数据治理经验设计血缘（医疗保险场景）</h2>
+<p>你有 Java + 大数据 + 医疗保险（ETL/数据治理）背景，这正是 RAG 数据工程的"现成资产"。把传统数仓血缘思想平移过来：</p>
+<table>
+<tr><th>数仓 ETL 概念</th><th>RAG 数据工程对应</th></tr>
+<tr><td>源系统 / ODS 贴源层</td><td>原始 PDF / 网页 / 理赔工单（raw_bytes）</td></tr>
+<tr><td>主键 / 代理键</td><td>document_id / chunk_id</td></tr>
+<tr><td>checksum 校验</td><td>file_hash 去重与变更检测</td></tr>
+<tr><td>任务调度状态（成功/失败/重跑）</td><td>摄取任务状态机</td></tr>
+<tr><td>数据血缘（ lineage 图）</td><td>源文件 → 解析 → chunk → 向量 → 索引 全链路可追溯</td></tr>
+<tr><td>元数据管理 / 数据资产目录</td><td>文档元数据表 + 评测集版本管理</td></tr>
+</tbody>
+</table>
+<h3>5.1 一个医疗理赔血缘示例</h3>
+<pre><code>特药理赔手册_2025Q2.pdf
+  └─ file_hash: 9f2a...            (去重/变更检测)
+  └─ ingest_task: task_0701_009    (PARSING→CHUNKING→EMBEDDING→SUCCESS)
+      └─ document_id: d_1b2c...   (doc_version=v2025Q2)
+          ├─ chunk_12 (page 38, §靶向药报销范围) ─┐
+          ├─ chunk_13 (page 39)                   ├─ embedding_version=bge-large-zh-v1.5
+          └─ chunk_14 (page 39) ──────────────────┘      → vectors 写入 ES index=claim_kb
+                                                      （全部挂 ingest_task_id，可整体回滚）
+</code></pre>
+<div class="eng">工程含义：你以前做 ETL 的"一次跑错全表重算""字段血缘追溯"经验，在 RAG 里是同一套方法论。面试时把"数仓血缘"和"RAG 血缘"对齐讲，能立刻拉开和纯算法候选人的差距——企业最缺"能让数据可信"的工程能力。</div>
+<div class="iv">我之前做医疗数仓 ETL，核心就是"主键 + checksum + 任务状态 + 血缘可追溯"。这套原样平移到 RAG：源 PDF 是 ODS 贴源层，document_id/chunk_id 是代理键，file_hash 是 checksum，摄取任务状态机是调度状态，整条"文件→解析→chunk→向量→索引"就是血缘图。比如一份特药理赔手册，从 PDF 到每个 chunk 都挂 ingest_task_id，出问题时能定位到是哪个任务的哪一步，甚至整体回滚。</div>
+<div class="warn">① 别把"RAG 数据工程"当成全新领域——它就是 ETL + 元数据治理 + 版本管理，概念一一对应，别被"AI"吓到重新造轮子。② 血缘要端到端，很多人只记到 chunk 这一层，忘了把 ingest_task_id 也挂上，结果"哪个任务产生的向量"答不上来。③ 医疗合规要的是"可审计证据链"，血缘设计要能回答监管"这条答案依据的是哪版文件"。</div>
+
+<!-- ============ 6. 摄取 ============ -->
+<h2 id="s6">六、摄取管道骨架与解析策略（PDF / 特药手册）</h2>
+<h3>6.1 典型摄取管道</h3>
+<div class="formula">
+源文件 → 落盘 + 算 Hash → 解析(extract) → 清洗 → 切片(chunk) → 向量化(embed) → 写库(index) → 状态置 SUCCESS
+</div>
+<h3>6.2 切片策略（医疗手册特有关注）</h3>
+<ul>
+  <li><strong>固定窗口 + 重叠</strong>：通用做法，overlap 保留跨段语义。医疗条款常跨页，overlap 要够大。</li>
+  <li><strong>按结构切</strong>：保留标题层级（§章/节），避免把"报销范围"和"免责条款"切到一个 chunk 而丢失上下文。</li>
+  <li><strong>表格单独处理</strong>：理赔比例表、药品目录表要保留为结构化 chunk 或存为表格字段，别让模型从 OCR 噪声里猜数字。</li>
+</ul>
+<pre><code>def chunk_document(doc, max_tokens=512, overlap=64):
+    blocks = doc.structure_aware_blocks()   # 保留 §章节 结构
+    chunks, buf, idx = [], [], 0
+    for b in blocks:
+        if len(buf) + len(b) > max_tokens:
+            chunks.append(build_chunk(doc.doc_id, idx, buf))
+            buf = buf[-overlap:]; idx += 1
+        buf += b
+    if buf: chunks.append(build_chunk(doc.doc_id, idx, buf))
+    return chunks</code></pre>
+<div class="eng">工程含义：切片直接决定召回质量。医疗手册结构复杂（条款嵌套、表格多），"无脑按 512 token 切"会切断"条件-例外"逻辑，导致模型只看到半句免责条款而错误赔付。结构感知切片是医疗 RAG 的硬要求。</div>
+<div class="iv">摄取管道就是"文件→落盘算Hash→解析→清洗→切片→向量化→写库→置 SUCCESS"。切片别无脑按 token 数切，医疗手册要结构感知、保留章节层级、表格单独存，不然一段"报销范围"和"免责条款"被切碎，模型就只看到半句，容易赔错。</div>
+<div class="warn">① overlap 太小跨页条款会断；太大则向量库膨胀、召回重复。要按文档密度调（医疗手册建议 ≥ 64~128 token）。② 表格被当纯文本切是最常见丢信息点，应单独结构化存储或配多模态解析。③ 解析后必须做"空 chunk / 超短 chunk"过滤，噪声 chunk 会污染检索。</div>
+
+<!-- ============ 7. LangChain ============ -->
+<h2 id="s7">七、LangChain Document 元数据规范</h2>
+<p>LangChain 的 <code>Document</code> 对象天然是 <code>{ page_content, metadata }</code> 结构，正好承载我们的血缘字段。规范好 metadata schema 是团队协力的前提。</p>
+<pre><code>from langchain_core.documents import Document
+
+doc = Document(
+    page_content="特药『奥希替尼』限用于 EGFR 突变阳性...",
+    metadata={
+        "document_id": "d_1b2c...",
+        "chunk_id": "c_8f3a...",
+        "chunk_index": 12,
+        "source_file": "特药理赔手册_2025Q2.pdf",
+        "page_no": 38,
+        "section": "第三章 靶向药报销范围",
+        "doc_version": "v2025Q2",
+        "embedding_version": "bge-large-zh-v1.5",
+        "file_hash": "9f2a...",
+        "ingest_task_id": "task_0701_009",
+        "status": "active"
+    }
+)</code></pre>
+<h3>7.1 为什么要收敛 metadata schema</h3>
+<ul>
+  <li><strong>检索可过滤</strong>：metadata 是后续 <code>metadata_filter</code>（按部门/版本/状态过滤）的数据基础（W3D3 权限章节要用到）。</li>
+  <li><strong>可观测</strong>：所有 chunk 字段一致，监控系统才能统一统计。</li>
+  <li><strong>可迁移</strong>：换向量库（ES→Milvus）时 schema 稳定，迁移成本低。</li>
+</ul>
+<div class="info">官方参考：<a href="https://python.langchain.com/docs/concepts/document/">LangChain Document 概念文档</a> — 明确 <code>Document</code> 的 <code>page_content</code> 与 <code>metadata</code> 设计；<a href="https://docs.langchain.com/oss/python/langchain/text-splitters">Text Splitters</a> 详述切分策略。</div>
+<div class="eng">工程含义：LangChain 只是载体，真正值钱的是你定的 metadata schema。把它当成"数据契约"来管——改字段要走评审，别谁写代码谁加字段，否则下游过滤和评测全乱。</div>
+<div class="iv">LangChain 的 Document 就是 {page_content, metadata}，我们所有血缘字段都塞进 metadata：document_id、chunk_id、版本、hash、task_id、status 等。关键是把 metadata schema 当成"数据契约"统一管理，这样后面做 metadata 过滤、做监控、换向量库都不会乱。</div>
+<div class="warn">① 不要把所有信息塞进 page_content（如把 page_no 写进正文），会污染语义检索。metadata 归 metadata。② 不同数据源的 metadata 字段要对齐，否则检索过滤条件写不齐。③ LangChain 只是工具，元数据设计思想与框架无关，别被框架绑定。</div>
+
+<!-- ============ 8. 解析 ============ -->
+<h2 id="s8">八、PyMuPDF / unstructured 解析实战</h2>
+<h3>8.1 PyMuPDF（pymupdf）：精确控制 PDF</h3>
+<ul>
+  <li>优点：快、能精确拿到 <strong>page number、坐标、表格</strong>，适合结构化要求高的医疗手册。</li>
+  <li>用法：逐页 <code>page.get_text("dict")</code> 拿到带层级的文本块，可保留章节结构。</li>
+</ul>
+<pre><code>import fitz  # PyMuPDF
+doc = fitz.open("特药理赔手册_2025Q2.pdf")
+for i, page in enumerate(doc):
+    blocks = page.get_text("dict")["blocks"]   # 带层级结构
+    for b in blocks:
+        if b["type"] == 0:   # 文本块
+            text = b["text"]
+            # 记 page_no=i+1，可定位到手册页码
+</code></pre>
+<h3>8.2 unstructured：多格式统一抽取</h3>
+<ul>
+  <li>优点：一套 API 处理 PDF/HTML/Word/图片，自动做标题识别、表格提取，适合数据源杂的企业。</li>
+  <li>用法：<code>partition_pdf(..., strategy="hi_res")</code> 配合 OCR 处理扫描件（医疗理赔常遇扫描件）。</li>
+</ul>
+<pre><code>from unstructured.partition.pdf import partition_pdf
+elements = partition_pdf("特药理赔手册.pdf", strategy="hi_res",
+                         infer_table_structure=True)
+for el in elements:
+    print(el.category, el.text)   # Title / NarrativeText / Table
+</code></pre>
+<div class="info">官方文档：<a href="https://pymupdf.readthedocs.io/">PyMuPDF 官方文档</a>（精确文本/坐标/表格提取）；<a href="https://unstructured-io.github.io/unstructured/">unstructured 官方文档</a>（多格式统一分区）。</div>
+<div class="eng">工程含义：选解析器看数据源。规则强、要精确页码表格的（如理赔手册）→ PyMuPDF；格式杂、要快速统一的 → unstructured。扫描件必须走 OCR 路径，否则文本块为空，整本手册变噪声。</div>
+<div class="iv">PDF 解析两个常用库：PyMuPDF 精确、能拿页码和表格结构，适合医疗手册这种要准的场景；unstructured 一套 API 通吃多种格式、自动识别标题表格，适合数据源杂的企业。遇到扫描件都得走 OCR，不然抽出来是空的。</div>
+<div class="warn">① 扫描版 PDF 不配 OCR 会抽出空文本，整本手册变噪声 chunk，检索时永远召不回。② PyMuPDF 的 "text" 模式会丢结构，"dict" 模式才保留层级，别图省事用错 API。③ 解析结果要落盘存档（后面 W3D3 一致性校验要用"原文件 vs 解析结果"）。</div>
+
+<!-- ============ 9. Golden ============ -->
+<h2 id="s9">九、Golden Case 的构成与采集方法</h2>
+<p><strong>Golden Case（黄金样本）</strong>是人工精心构造的"标准答案评测对"，是评测集的种子。一个合格的 Golden Case 至少包含：</p>
+<table>
+<tr><th>字段</th><th>说明</th></tr>
+<tr><td>query（问题）</td><td>真实用户会问的，如"EGFR 突变的肺癌患者用奥希替尼能报多少？"</td></tr>
+<tr><td>expected_answer（标准答案）</td><td>人工撰写的参考答案，可带引用</td></tr>
+<tr><td>expected_chunks / references</td><td>应该被检索到的 chunk_id 列表（评测召回用）</td></tr>
+<tr><td>标签</td><td>难度、场景（特药/住院/拒赔）、应拒答 should_refuse 等</td></tr>
+</table>
+<h3>9.1 怎么"造"前 10 个</h3>
+<ol>
+  <li><strong>从真实日志挖</strong>：翻客服工单、搜索日志，挑高频 + 有代表性的问题。</li>
+  <li><strong>从业务规则反推</strong>：每条理赔条款写 1~2 个对应问题（如"靶向药报销范围"→ 问奥希替尼）。</li>
+  <li><strong>覆盖边界与拒答</strong>：至少 2 个"知识库没有"应拒答的 case，测拒答能力。</li>
+  <li><strong>双人标注 + 评审</strong>：医疗答案不能一人说了算，答案要可解释、可引用条款。</li>
+</ol>
+<div class="info"><strong>前 10 个 Golden Case 的"配方"：</strong>6 个高频正常问答（覆盖靶向药/住院/门急诊）+ 2 个边界值 + 2 个应拒答。先小而精，保证每条都能当"标尺"。</div>
+<div class="eng">工程含义：Golden Case 是评测的"锚"。没有它，你改了切片策略、换了 reranker，根本不知道变好还是变坏。前 10 个不求多但求准，是每个改动都能对标的基准线。</div>
+<div class="iv">Golden Case 就是人工精心写的"问题+标准答案+应该召回的chunk+标签"。怎么造前 10 个？从客服日志挖高频问题、从理赔条款反推问题、再补边界和应拒答 case，最后双人标注评审。医疗答案不能一人说了算。这 10 条是后续所有改动的"标尺"。</div>
+<div class="warn">① 别用 LLM 自动生成 Golden Case 当标准答案——答案本身可能错，污染评测。标准答案必须人工写。② 漏了"应拒答"类 case 是通病，导致系统"什么都敢答"。③ 标签不全（难度/场景）后续没法做分层分析。④ 前 10 个要覆盖不同章节，别 10 个都问同一种药。</div>
+
+<!-- ============ 10. 评测集 ============ -->
+<h2 id="s10">十、评测集从 10 → 50 的演进策略</h2>
+<p>Golden Case 是种子，评测集（Evaluation Set）要长大才能反映真实分布。演进路径：</p>
+<div class="formula">
+10 个人工 Golden（标尺） ──→ 30 个（加变体+边界，W3D3 目标）──→ 50 个（覆盖全场景+历史 badcase）
+</div>
+<h3>10.1 增长手段</h3>
+<table>
+<tr><th>手段</th><th>做法</th><th>作用</th></tr>
+<tr><td>问题改写（paraphrase）</td><td>同一意图换说法/口语化/错别字</td><td>测鲁棒性，扩到 20~30</td></tr>
+<tr><td>badcase 回收</td><td>线上答错的、用户点"没帮助"的</td><td>针对性补强，扩到 40</td></tr>
+<tr><td>规则穷举</td><td>按理赔条款矩阵逐条造</td><td>覆盖全业务，扩到 50</td></tr>
+<tr><td>LLM 辅助造问</td><td>LLM 生成候选问题，人工筛</td><td>提效，但答案仍人工定</td></tr>
+</table>
+<h3>10.2 评测集要像代码一样版本化</h3>
+<p>评测集本身也要有版本（<code>eval_v1 / eval_v2</code>），每次改 RAG 链路都跑同一版本评测集，才能横向对比。这就是"评测即回归测试"。</p>
+<div class="eng">工程含义：评测集是 RAG 的"测试套件"。从 10 到 50 不是堆数量，而是覆盖度提升——分布要贴近真实用户。每加一个 case 都要想"它在测什么短板"，否则只是数字好看。</div>
+<div class="iv">评测集从 10 长大到 50，靠四种手段：问题改写（一种意图多种问法测鲁棒）、回收线上 badcase、按理赔条款矩阵穷举、LLM 辅助造问但答案人工定。关键是评测集要版本化，每次改链路都跑同一版，才能横向比"这次到底是变好还是变差"。</div>
+<div class="warn">① 别用 LLM 生成答案当标准答案（同 9.1）。② 数量涨了但分布偏（比如 50 个里 40 个问同一种药）没意义。③ 评测集不版本化，前后两次分数不可比，等于白测。④ 改写问题别只加同义词，要加口语/错别字/多轮指代，才贴近真实。</div>
+
+<!-- ============ 11. 可观测 ============ -->
+<h2 id="s11">十一、数据质量与血缘可观测性</h2>
+<p>数据工程上线后要有"体检指标"，否则你不知道知识库是健康还是腐烂。</p>
+<table>
+<tr><th>指标</th><th>含义</th><th>告警阈值（参考）</th></tr>
+<tr><td>摄取成功率</td><td>SUCCESS / 总任务</td><td>&lt; 99% 告警</td></tr>
+<tr><td>平均摄取时延</td><td>PARSING→SUCCESS 耗时</td><td>超基线 2x 告警</td></tr>
+<tr><td>死信堆积</td><td>FAILED 且进 DLQ 的数量</td><td>&gt; 0 即处理</td></tr>
+<tr><td>向量覆盖度</td><td>active chunk 中有向量的比例</td><td>&lt; 100% 异常</td></tr>
+<tr><td>hash 冲突/重复</td><td>相同 hash 的 doc 数</td><td>应=去重后数</td></tr>
+<tr><td>版本漂移</td><td>混用 embedding_version 的 chunk 占比</td><td>应 = 0</td></tr>
+</table>
+<div class="eng">工程含义：可观测性让"数据腐烂"可见。医疗知识库若 silently 混了旧 embedding 向量或丢了某个 chunk，业务侧要很久才发现答案变差。指标 + 告警把问题暴露在萌芽期。</div>
+<div class="iv">数据工程要有"体检指标"：摄取成功率、时延、死信堆积、向量覆盖度、embedding 版本漂移率。尤其版本漂移（同一索引里混了不同模型向量）要为 0，否则召回质量莫名下跌还查不出原因。这些指标接告警，问题早暴露。</div>
+<div class="warn">① 只盯"摄取成功"不够，要盯"向量覆盖度 100%"——成功入库但 embed 失败会留空向量。② 版本漂移是最隐蔽的，要定期扫 index 检查 embedding_version 分布。③ 指标不接告警等于没监控，人不会天天看面板。</div>
+
+<!-- ============ 12. 达标线① ============ -->
+<h2 id="s12">十二、面试达标线①：企业 RAG 数据工程的元数据设计为什么重要</h2>
+<table>
+<tr><th>元数据</th><th>解决的痛点</th><th>没有它的后果</th></tr>
+<tr><td>document_id / chunk_id</td><td>精准定位每个切片来源</td><td>检索结果无法溯源，答案不可审计</td></tr>
+<tr><td>file_hash</td><td>去重 + 变更检测</td><td>重复摄取浪费、改了内容却不更新</td></tr>
+<tr><td>ingest_task_id + 状态</td><td>追踪摄取进度、失败定位</td><td>用户搜不到却不知哪步挂了</td></tr>
+<tr><td>doc_version / embedding_version</td><td>变更可回滚、向量可重算</td><td>新旧混用、召回率莫名下跌</td></tr>
+<tr><td>status（active/deprecated）</td><td>软失效旧版本</td><td>旧条款仍被召回，导致错赔</td></tr>
+</table>
+<div class="iv">核心一句话：元数据是 RAG 的"身份证+户口本+血缘图"。Doc/Chunk ID 让结果可溯源，Hash 让变更可检测，版本让更新可回滚，状态让过程可观测。没有这套，企业 RAG 在医疗这种强合规场景根本不可信——你答出来的每句话都经不起"依据哪版文件"的追问。</div>
+
+<!-- ============ 13. 达标线② ============ -->
+<h2 id="s13">十三、面试达标线②：Golden Case 怎么造、评测集怎么从 10 长到 50</h2>
+<div class="formula">
+造：真实日志挖 + 业务条款反推 + 边界/拒答补充 + 双人标注评审（答案人工定）
+长：问题改写(paraphrase) → 回收 badcase → 按条款矩阵穷举 → LLM 辅助造问(答案仍人工) → 评测集版本化做回归
+</div>
+<ol>
+  <li><strong>Golden Case 构成</strong>：query + 标准答案（人工）+ 应召回 chunk_id + 标签（场景/难度/should_refuse）。</li>
+  <li><strong>前 10 个配方</strong>：6 正常 + 2 边界 + 2 拒答，覆盖不同章节，双人评审。</li>
+  <li><strong>长到 50</strong>：改写扩鲁棒、badcase 补强、条款矩阵穷举、LLM 造问人工筛；评测集版本化，每次改动跑同版做回归对比。</li>
+  <li><strong>铁律</strong>：标准答案必须人工写，绝不用 LLM 生成答案当 ground truth；评测集分布要贴近真实，不为凑数。</li>
+</ol>
+
+<!-- ============ 14. 自测清单 ============ -->
+<h2 id="s14">十四、W3D1 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清企业 RAG 数据工程为什么是质量天花板，元数据/血缘解决什么痛点。</li>
+<li>能设计 document_id / chunk_id，讲清为什么 chunk_id 要用"文档ID+序号+内容"派生而非自增。</li>
+<li>能解释 file_hash 在去重与变更检测中的作用，以及为什么不能靠文件名/时间。</li>
+<li>能画出摄取任务状态机（PENDING→...→SUCCESS/FAILED）并说明每态动作。</li>
+<li>能区分 document_version 与 embedding_version，讲清两者变化各触发什么、旧版本怎么软失效。</li>
+<li>能把 ETL/数据治理经验（主键/checksum/血缘/任务状态）平移到 RAG 数据工程。</li>
+<li>能讲清切片策略（结构感知、overlap、表格单独处理）对医疗手册的意义。</li>
+<li>能写出 LangChain Document 的 metadata 设计，说清为什么 metadata schema 要当"数据契约"管。</li>
+<li>能对比 PyMuPDF 与 unstructured 的取舍，以及扫描件必须 OCR。</li>
+<li>能讲清 Golden Case 的构成、前 10 个怎么造、评测集怎么从 10 长到 50、为什么答案必须人工定。</li>
+<li>能列出数据质量可观测指标（摄取成功率/向量覆盖度/版本漂移等）。</li>
+<li>能讲清达标线①（元数据设计为什么重要）与达标线②（Golden Case 与评测集长大）。</li>
+</ul>
+</div>
+
+<!-- ============ 15. 速记卡 ============ -->
+<h2 id="s15">十五、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：企业 RAG 为什么数据工程比模型更重要？</div><div class="a">检索到的 chunk 错了/旧了/版本不对，模型再强答案也错。数据底座决定质量天花板，医疗强合规场景尤其要可溯源。</div></div>
+<div class="qcard"><div class="q">Q：Chunk ID 为什么不能自增？</div><div class="a">删除/重建会让后续 ID 全错位，评测标注与引用失效。应让 chunk_id 由 document_id+序号+内容派生，内容不变则 ID 不变。</div></div>
+<div class="qcard"><div class="q">Q：file_hash 和版本号有什么区别？</div><div class="a">hash 是内容指纹，用于去重和变更检测（内容变 hash 变）；版本号是语义标签。改内容通常 hash 变，需重摄取并失效旧 chunk。</div></div>
+<div class="qcard"><div class="q">Q：embedding 模型升级为什么必须重算所有向量？</div><div class="a">不同模型向量空间不同，新旧混用会让召回率莫名下跌。要按 embedding_version 全量重 embed，版本漂移率应为 0。</div></div>
+<div class="qcard"><div class="q">Q：你之前做 ETL，和 RAG 数据工程有什么关系？</div><div class="a">同一套方法论：主键=Doc/Chunk ID，checksum=file_hash，任务状态=摄取状态机，血缘图=文件→chunk→向量→索引全链路可追溯。</div></div>
+<div class="qcard"><div class="q">Q：Golden Case 能直接用 LLM 生成答案当标准答案吗？</div><div class="a">不能。标准答案必须人工写，否则答案本身可能错会污染评测。LLM 只能辅助造"问题"，答案仍人工定。</div></div>
+<div class="qcard"><div class="q">Q：前 10 个 Golden Case 怎么配？</div><div class="a">6 个高频正常问答 + 2 个边界值 + 2 个应拒答，覆盖不同章节，双人标注评审，先小而精当标尺。</div></div>
+<div class="qcard"><div class="q">Q：评测集从 10 长到 50 靠什么？</div><div class="a">问题改写（鲁棒）、回收线上 badcase、按理赔条款矩阵穷举、LLM 辅助造问（答案人工），评测集版本化做回归对比。</div></div>
+<div class="qcard"><div class="q">Q：扫描件 PDF 直接解析会怎样？</div><div class="a">不配 OCR 会抽出空文本，整本手册变噪声 chunk，检索永远召不回。必须走 OCR 路径。</div></div>
+<div class="qcard"><div class="q">Q：怎么做摄取失败的可观测？</div><div class="a">任务状态机落库 + 死信队列 + 指标告警（摄取成功率/时延/向量覆盖度/版本漂移），问题早暴露。</div></div>
+
+<div class="ft">FDE W3D1 学习手册 · AI 数据工程（面试级）· 配合《FDE-W3D1-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w3d1_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W3D1 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W3D1-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

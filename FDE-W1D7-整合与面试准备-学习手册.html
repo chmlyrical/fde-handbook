@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W1D7 学习手册 · 整合与面试准备（W1 收尾）（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W1D7 学习手册</span>
+  <a href="#s1">1.周回顾</a><a href="#s2">2.网关v1</a><a href="#s3">3.Adapter</a><a href="#s4">4.Prompt</a><a href="#s5">5.决策树</a>
+  <span class="sep"></span>
+  <a href="#s6">6.YOYO</a><a href="#s7">7.Java</a><a href="#s8">8.Java角色</a><a href="#s9">9.资源</a><a href="#s10">10.准备</a>
+  <span class="sep"></span>
+  <a href="#s11">达标①</a><a href="#s12">达标②</a><a href="#s13">自测</a><a href="#s14">速记</a>
+</div>
+
+<h1>FDE W1D7 学习手册 · 整合与面试准备（W1 收尾）</h1>
+<p class="sub">W1 Day7 · 整合周 · 4h · 学完能把 W1 全部产出串成"轻量模型网关"，并讲清 Java 恢复计划与 AI 项目里 Java 的角色</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W1 最后一天，把前面零散的产出（W1D3 选型、W1D4 Adapter、D6 本地模型体验）整合为一个能讲清楚的故事线——"轻量模型网关 v1"。同时启动 Java 技术栈恢复，为 AI 工程岗里 Java 的硬角色做准备。<br>
+  <strong>学完能回答：</strong>① W1 的整体产出如何串成"轻量模型网关"，各天贡献了什么；② Java 恢复计划是什么、Java 在 AI 项目里到底扮演什么角色（不是"调 API 的胶水"）。<br>
+  <strong>使用方法：</strong>先读 s1 周回顾建立全貌 → 重点读 s2 网关架构与两条达标线 → 结合 YOYO 项目写复盘初稿 → 做 Java 恢复练习 → 做自测清单 → 配合《FDE-W1D7-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 周回顾 ============ -->
+<h2 id="s1">一、W1 整体回顾与产出盘点</h2>
+<table>
+<tr><th>天</th><th>主题</th><th>核心产出（可讲的故事点）</th></tr>
+<tr><td>D1</td><td>模型与 Token 基础</td><td>懂 token 计费、上下文窗口、模型能力边界</td></tr>
+<tr><td>D2</td><td>采样参数与结构化输出</td><td>Temperature/TopP/TopK、JSON Schema、校验重试</td></tr>
+<tr><td>D3</td><td>模型选型决策</td><td>选型维度（效果/成本/延迟/合规）、决策树雏形</td></tr>
+<tr><td>D4</td><td>Adapter 模式</td><td>统一不同模型 API 的适配层，屏蔽差异</td></tr>
+<tr><td>D5</td><td>评测体系（推测）</td><td>如何量化模型好坏、对比实验规范</td></tr>
+<tr><td>D6</td><td>本地模型体验</td><td>Ollama + 量化（int4/int8/fp16）、本地 vs API 权衡</td></tr>
+<tr><td>D7</td><td>整合与面试准备</td><td>网关 v1、Prompt 管理、选型决策树、Java 恢复</td></tr>
+</table>
+<div class="info"><strong>一条故事线：</strong>W1 不是 7 个孤立知识点，而是逐步搭起一个"轻量模型网关"——D3 决定"用哪个模型"、D4 决定"怎么统一接模型"、D6 决定"哪些跑本地"、D7 把它们编排成网关 + 配 Prompt 管理 + 选型决策树。</div>
+<div class="iv">W1 的主线是从"会调一个模型"走向"能管理一批模型"：选型（D3）定策略、Adapter（D4）做接入、本地体验（D6）扩边界、整合（D7）成网关。所有产出都能映射到网关的一个模块，这就是面试时能串起来的叙事。</div>
+
+<!-- ============ 2. 网关v1 ============ -->
+<h2 id="s2">二、轻量模型网关 v1 架构（整合 W1D4 Adapter）</h2>
+<h3>2.1 网关解决什么问题</h3>
+<p>业务代码不应直接耦合某家模型 API。网关是<strong>介于业务与模型之间的一层</strong>：统一接口、统一鉴权、统一重试/降级、并做<strong>模型路由</strong>——根据请求特征把流量分给本地模型或 API 大模型。</p>
+<h3>2.2 模块划分</h3>
+<div class="formula">
+业务层 → 网关 v1 → [Prompt 管理] → [路由决策（D3 决策树）]
+                        → [Adapter 层（D4，统一各模型接口）]
+                        → [本地模型（Ollama, D6）/ 远程 API]
+                        → [重试 / 降级 / 观测]
+</div>
+<ul>
+  <li><strong>Prompt 管理</strong>：模板集中存储、版本化（见 s4）。</li>
+  <li><strong>路由决策</strong>：用 D3 的选型维度判断走本地还是 API（见 s5）。</li>
+  <li><strong>Adapter 层</strong>：用 D4 的 Adapter 屏蔽 Ollama / 各家 API 差异。</li>
+  <li><strong>观测</strong>：记录延迟、token、成本、失败率，对应 D5 评测思想。</li>
+</ul>
+<h3>2.3 为什么叫"轻量"</h3>
+<p>v1 不追求 K8s + 多副本 + 限流网关的完整能力，而是<strong>一个进程内/单服务</strong>的轻量编排：足以在面试里讲清"我怎么统一管理多模型"，也为后续接 vLLM、Spring Boot（见 s7）留扩展点。</p>
+<div class="eng">网关是 FDE 把"零散模型调用"工程化的关键一跃：业务只认网关接口，模型无论本地/远程、哪家、什么参数都藏在 Adapter 后。它带来的价值是——切换模型零改业务、统一可观测、按场景路由省成本。这是 Day4 Adapter 的用武之地。</div>
+<div class="iv">网关 v1 = 业务与模型之间的一层：统一接口 + 模型路由 + 重试降级 + 可观测。它把 D3 选型、D4 Adapter、D6 本地模型全编排进去。业务只认网关，换模型不碰业务代码。</div>
+<div class="warn">① 别把"网关"说成"又包了一层 HTTP"——它核心价值是<strong>路由 + 统一抽象 + 可观测</strong>，不是简单转发。② v1 可以很轻，但要讲清"后续怎么长成生产网关"（接 vLLM、限流、多租户），否则显得没规划。③ Adapter 是网关的"接入底座"，别在讲网关时忘了 D4 的 Adapter 是它的一部分。</div>
+
+<!-- ============ 3. Adapter ============ -->
+<h2 id="s3">三、Adapter 模式回顾（W1D4 整合）</h2>
+<h3>3.1 模式本质</h3>
+<p>Adapter（适配器）把<strong>不同模型的异构接口</strong>（请求格式、响应结构、错误码）统一成一个<strong>内部标准接口</strong>，让上层（网关/业务）无感知地调用任意模型。</p>
+<pre><code>// 内部统一接口
+interface ModelAdapter {
+  ModelResponse complete(ModelRequest req);
+}
+// 各家实现
+class OllamaAdapter implements ModelAdapter { ... }   // 本地
+class ApiVendorAAdapter implements ModelAdapter { ... } // 远程</code></pre>
+<h3>3.2 在网关里的位置</h3>
+<ul>
+  <li>网关路由决定"调谁"，Adapter 决定"怎么调"。</li>
+  <li>新增模型只需加一个 Adapter 实现，<strong>开闭原则</strong>：对扩展开放、对修改封闭。</li>
+  <li>响应统一成 <code>ModelResponse</code> 后，上层校验/重试逻辑可复用。</li>
+</ul>
+<div class="iv">Adapter 在网关里是"接入底座"：把 Ollama 和各家 API 的差异（参数名、返回结构、错误码）统一成内部接口。新增模型只加一个实现类，业务代码一行不改——这就是开闭原则。</div>
+<div class="warn">① Adapter 不是"把请求转成 JSON 发出去"就完事，还要<strong>归一化响应和错误</strong>（如把各家的 429/限流统一成网关的限流异常）。② 别在 Adapter 里写业务路由逻辑，那是网关/决策树的职责，分层要清晰。</div>
+
+<!-- ============ 4. Prompt ============ -->
+<h2 id="s4">四、Prompt 模板管理代码</h2>
+<h3>4.1 为什么要管理</h3>
+<p>Prompt 散落在代码里会<strong>无法版本化、无法 A/B、无法复用</strong>。管理模板 = 把 Prompt 当"代码资产"：集中存储、变量占位、版本号、可按场景加载。</p>
+<h3>4.2 模板结构与加载</h3>
+<pre><code>// 模板（存文件 / 配置中心，带版本）
+// claim_review_v1.tmpl
+// 你是保险理赔初审助手。根据以下特药条款与理赔材料，判断是否符合：
+// 条款：{clause}
+// 材料：{material}
+// 输出 JSON：{{"result":"pass|reject|need_review","reason":""}}
+
+class PromptTemplate {
+  load(name, version) { ... }            // 按名+版本取
+  render(vars) { return tmpl.replace(/{(\w+)}/g, (_,k)=>vars[k]); }
+}
+// 网关调用：prompt = templates.load("claim_review","v1").render({clause, material});</code></pre>
+<h3>4.3 管理要点</h3>
+<ul>
+  <li><strong>版本化</strong>：<code>claim_review_v1</code> / <code>_v2</code>，回滚可追。</li>
+  <li><strong>变量占位</strong>：用 <code>{var}</code> 占位，运行时注入，避免字符串拼接。</li>
+  <li><strong>与评测联动</strong>：模板变了要重跑 D5 评测集，确认效果不退化。</li>
+</ul>
+<div class="eng">Prompt 管理是"把 Prompt 当可维护资产"。工程收益：① 版本可追溯、可回滚；② 多场景复用同一模板骨架；③ 改 Prompt 不影响业务代码，且能 A/B 对比。这在有几十个业务 Prompt 的保险系统里尤其重要。</div>
+<div class="iv">Prompt 模板管理 = 集中存储 + 变量占位 + 版本号。核心是"Prompt 当代码资产"：可版本化、可回滚、可 A/B、改 Prompt 不碰业务代码。模板一变就要重跑评测防退化。</div>
+<div class="warn">① 别用字符串拼接塞变量（易注入、易错格式），用占位符 + 转义。② 模板变更后<strong>必须重跑评测</strong>，否则"悄悄变差"没人知道。③ 模板版本和模型版本最好一起管，不同模型可能对同一模板响应不同。</div>
+
+<!-- ============ 5. 决策树 ============ -->
+<h2 id="s5">五、模型选型决策树（整合 W1D3）</h2>
+<h3>5.1 决策树（ interview 可直接画）</h3>
+<div class="formula">
+请求进来 → 数据是否敏感/需不出域？
+  ├ 是 → 本地模型（Ollama, int8）→ 复杂推理? → 是则本地+API复核
+  └ 否 → 看调用量与成本：
+        ├ 量大+简单 → 本地（省成本）
+        ├ 量小+复杂/长上下文 → API 大模型
+        └ 混合 → 网关路由：简单本地 / 复杂 API
+</div>
+<h3>5.2 决策维度（来自 D3）</h3>
+<table>
+<tr><th>维度</th><th>倾向本地</th><th>倾向 API</th></tr>
+<tr><td>数据合规</td><td>敏感/不出域</td><td>可上云</td></tr>
+<tr><td>调用量级</td><td>大、高频</td><td>小、低频</td></tr>
+<tr><td>任务复杂度</td><td>抽取/分类/匹配</td><td>复杂推理/长上下文</td></tr>
+<tr><td>延迟要求</td><td>不敏感</td><td>要快</td></tr>
+<tr><td>运维能力</td><td>有 GPU/内网</td><td>无运维团队</td></tr>
+</table>
+<div class="iv">选型决策树从"数据是否敏感"开始分叉：敏感→本地；否则看量/复杂度/延迟/运维。核心价值不是背结论，而是展示"我能用一个结构化框架做模型选型决策"，这正是 FDE 的活儿。</div>
+
+<!-- ============ 6. YOYO ============ -->
+<h2 id="s6">六、YOYO 项目技术复盘初稿</h2>
+<h3>6.1 复盘结构（STAR + 技术维度）</h3>
+<ul>
+  <li><strong>背景 S</strong>：YOYO 项目是什么、业务目标（如某保险 AI 辅助理赔/知识库）。</li>
+  <li><strong>任务 T</strong>：我负责什么（如"搭模型调用层，统一多家模型"）。</li>
+  <li><strong>行动 A</strong>：做了什么（Adapter 接入、Prompt 管理、评测集、本地化尝试）。</li>
+  <li><strong>结果 R</strong>：量化指标（准确率、成本降幅、延迟）。</li>
+  <li><strong>复盘</strong>：哪些可复用进 W1 网关 v1，哪些坑要避。</li>
+</ul>
+<h3>6.2 与 W1 的衔接</h3>
+<div class="info">把 YOYO 里"模型调用散落、换模型要改多处、Prompt 无版本"的痛点，对应到 W1 的网关 v1 + Adapter + Prompt 管理，作为"为什么我要做这套东西"的真实故事。面试官爱听"从真实项目痛点长出来的方案"。</div>
+<div class="iv">YOYO 复盘按 STAR + 技术维度写，重点把项目里的真实痛点（模型调用散落、无 Prompt 版本）映射到 W1 的网关/Adapter/Prompt 管理，让方案"有出处"而不是凭空设计。</div>
+
+<!-- ============ 7. Java ============ -->
+<h2 id="s7">七、Java 恢复计划（2h：Spring Boot 骨架 / REST API / 依赖注入）</h2>
+<h3>7.1 为什么 FDE 还要 Java</h3>
+<p>保险业核心系统（保单、理赔、账务）绝大多数是 Java 技术栈。AI 能力要<strong>嵌入现有 Java 系统</strong>，而不是另起炉灶。FDE 的 Java 角色是把模型网关作为<strong>微服务/模块</strong>落进 Spring Boot 体系。</p>
+<h3>7.2 三件套练习目标</h3>
+<table>
+<tr><th>内容</th><th>要能做到</th><th>和网关的关系</th></tr>
+<tr><td>Spring Boot 骨架</td><td>用 start.spring.io 起项目、配依赖、能跑起来</td><td>网关 v1 跑在 Spring Boot 里</td></tr>
+<tr><td>REST API</td><td>写 @RestController 暴露 <code>POST /v1/chat</code></td><td>网关对外接口</td></tr>
+<tr><td>依赖注入</td><td>用 @Service/@Component + @Autowired 注入 Adapter</td><td>路由/Adapter 由容器管理</td></tr>
+</table>
+<h3>7.3 最小骨架</h3>
+<pre><code>@SpringBootApplication
+public class GatewayApplication { public static void main(String[] a){ SpringApplication.run(GatewayApplication.class,a);} }
+
+@RestController
+@RequestMapping("/v1")
+public class ChatController {
+  @Autowired private ModelRouter router;          // 依赖注入
+  @PostMapping("/chat")
+  public ModelResponse chat(@RequestBody ChatReq req){
+    return router.route(req);                      // 交给路由
+  }
+}
+@Service
+public class ModelRouter {
+  @Autowired private List<ModelAdapter> adapters;  // 所有 Adapter 注入
+  public ModelResponse route(ChatReq req){ ... }
+}</code></pre>
+<div class="eng">Java 恢复不是"重温语法"，而是确认"我能把 W1 的网关用 Spring Boot 落地成可部署服务"。REST API 是网关对外的门面，依赖注入让 Adapter/路由可被容器管理、易测试、易替换——这正是 D4 开闭原则在 Java 里的落地。</div>
+<div class="iv">Java 恢复三件套：Spring Boot 骨架（起项目）、REST API（@RestController 暴露网关接口）、依赖注入（@Autowired 把 Adapter/路由交给容器管理）。目标是确认"我能把 W1 网关用 Java 落地成服务"。</div>
+<div class="warn">① 别把 Java 恢复当成"背概念"，要<strong>真跑一个能启动的 Spring Boot 项目</strong>，面试官一问"你网关怎么部署"就能答"Spring Boot 服务 + 容器化"。② 依赖注入别说成"new 对象"，要说清它带来的解耦/可测/可替换价值。③ 别忽视 Java 在保险业是<strong>存量主力</strong>，AI 是嵌入而非替代，这点姿态要摆对。</div>
+
+<!-- ============ 8. Java角色 ============ -->
+<h2 id="s8">八、Java 在 AI 项目中的角色</h2>
+<h3>8.1 不是"胶水"，是"承载系统"</h3>
+<table>
+<tr><th>角色</th><th>说明</th></tr>
+<tr><td>系统承载</td><td>保险核心业务在 Java，AI 能力作为模块嵌入，不是 Python 另立山头</td></tr>
+<tr><td>网关/服务化</td><td>模型网关用 Spring Boot 暴露 REST，纳入现有微服务治理</td></tr>
+<tr><td>编排与集成</td><td>用 Java 调用模型 API、串接理赔流程、落库、对接消息队列</td></tr>
+<tr><td>工程化底座</td><td>事务、权限、日志、监控、限流——AI 要借 Java 的成熟基建</td></tr>
+</table>
+<h3>8.2 Python 与 Java 的分工</h3>
+<ul>
+  <li><strong>Python</strong>：模型实验、评测脚本、RAG 原型、算子层（擅长 AI 生态）。</li>
+  <li><strong>Java</strong>：把验证过的 AI 能力<strong>工程化、服务化、接入生产系统</strong>。</li>
+  <li>FDE 的竞争力恰恰是"既懂模型又能在 Java 生产系统里落地"，这是纯 Python 算法岗不具备的。</li>
+</ul>
+<div class="iv">Java 在 AI 项目里不是"调 API 的胶水"，而是"承载系统"——保险核心在 Java，AI 作为模块嵌入；网关用 Spring Boot 服务化、纳入微服务治理；工程化底座（事务/权限/监控）借 Java 成熟基建。我的差异化优势正是"模型 + Java 落地"。</div>
+
+<!-- ============ 9. 资源 ============ -->
+<h2 id="s9">九、学习资源（中文、非 OpenAI）</h2>
+<ul>
+  <li><strong>Spring Boot 官网</strong>：<a href="https://spring.io/projects/spring-boot" target="_blank">spring.io/projects/spring-boot</a>（快速起项目、官方指南）。</li>
+  <li><strong>B站 Spring AI 全套（第 1–17 集）</strong>：<a href="https://www.bilibili.com/video/BV1GfyGBqEm6" target="_blank">BV1GfyGBqEm6</a>（Spring AI 接入大模型、Prompt、调用链，适合边看边练）。</li>
+  <li><strong>Spring AI 官方文档</strong>：spring.io/projects/spring-ai（把 ChatClient、PromptTemplate、Adapter 概念与 W1 对应）。</li>
+</ul>
+<div class="info"><strong>Spring AI 与 W1 的映射：</strong>Spring AI 的 <code>ChatClient</code> ≈ 我们的 Adapter 抽象，<code>PromptTemplate</code> ≈ s4 的模板管理，<code>ChatModel</code> 的可切换实现 ≈ D4 的多 Adapter。学 Spring AI 是把 W1 概念落到 Java 生态的捷径。</div>
+
+<!-- ============ 10. 准备 ============ -->
+<h2 id="s10">十、面试准备清单（W1 闭环）</h2>
+<div class="checklist">
+<ul>
+<li>能一句话讲清 W1 主线：从"调一个模型"到"管一批模型"（选型→接入→本地→网关）。</li>
+<li>能画出网关 v1 架构图，并说清每个模块对应 W1 哪一天。</li>
+<li>能讲 Adapter 在网关里的位置与开闭原则价值。</li>
+<li>能写/讲 Prompt 模板管理的版本化与变量占位代码。</li>
+<li>能口述选型决策树，并对一个保险场景现场选型。</li>
+<li>能讲 YOYO 项目痛点如何催生这套方案（STAR）。</li>
+<li>能跑起一个 Spring Boot 骨架，写出 REST 接口与依赖注入。</li>
+<li>能讲清 Java 在 AI 项目里"承载系统"而非"胶水"的角色。</li>
+</ul>
+</div>
+
+<!-- ============ 11. 达标线① ============ -->
+<h2 id="s11">十一、面试达标线①：W1 产出如何串成"轻量模型网关"</h2>
+<div class="formula">
+D3 选型（定策略）→ D4 Adapter（做接入）→ D6 本地模型（扩边界）→ D7 编排成网关 v1
+网关 v1 = Prompt管理 + 路由决策 + Adapter层 + 本地/远程模型 + 重试降级 + 可观测
+</div>
+<table>
+<tr><th>产出</th><th>在网关里的角色</th></tr>
+<tr><td>D3 选型维度</td><td>路由决策树的依据</td></tr>
+<tr><td>D4 Adapter</td><td>接入底座，屏蔽模型差异</td></tr>
+<tr><td>D6 本地模型</td><td>路由的一个目标（敏感/高频走本地）</td></tr>
+<tr><td>D7 整合</td><td>把上述编排成统一网关 + Prompt 管理</td></tr>
+</table>
+<div class="iv">核心一句话：W1 不是零散知识点，而是逐步搭起"轻量模型网关"——D3 定策略、D4 做接入、D6 扩边界、D7 编排成网关。所有天的产出都能映射到网关的一个模块，这就是面试能串起来的叙事。</div>
+
+<!-- ============ 12. 达标线② ============ -->
+<h2 id="s12">十二、面试达标线②：Java 恢复计划与 AI 项目里 Java 的角色</h2>
+<div class="formula">
+Java 角色 = 系统承载（保险核心在 Java）+ 网关服务化（Spring Boot REST）+ 编排集成 + 工程化底座
+恢复计划 = Spring Boot 骨架 → REST API → 依赖注入（2h 实操，能跑起来）
+</div>
+<ul>
+  <li><strong>恢复计划</strong>：2h 实跑——start.spring.io 起项目、写 <code>@RestController</code> 暴露 <code>POST /v1/chat</code>、用 <code>@Autowired</code> 注入 Adapter/路由。目标是"能把 W1 网关用 Java 落地成可部署服务"。</li>
+  <li><strong>Java 角色</strong>：不是胶水，是承载系统——AI 能力作为模块嵌入存量 Java 保险系统；网关用 Spring Boot 服务化纳入微服务治理；事务/权限/监控借 Java 成熟基建。差异化优势 = 模型理解 + Java 落地。</li>
+</ul>
+<div class="iv">讲 Java 要两手都硬：① 恢复计划具体（2h 跑起 Spring Boot 三件套，网关能部署）；② 角色定位准确（承载系统而非胶水，AI 嵌入存量 Java）。我的竞争力是"既懂模型、又能在 Java 生产系统落地"，这是纯算法岗没有的。</div>
+
+<!-- ============ 13. 自测清单 ============ -->
+<h2 id="s13">十三、Day 7 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能一句话讲清 W1 主线（选模型 → 接模型 → 本地化 → 网关）。</li>
+<li>能画出网关 v1 架构图，并逐模块对应到 W1 各天产出。</li>
+<li>能讲清 Adapter 在网关里的位置，以及开闭原则（新增模型只加实现）。</li>
+<li>能写/讲 Prompt 模板管理的版本化、变量占位、与评测联动。</li>
+<li>能口述选型决策树，并对保险场景现场做"本地 vs API"选型。</li>
+<li>能按 STAR + 技术维度写 YOYO 复盘，并把痛点映射到 W1 方案。</li>
+<li>能跑起 Spring Boot 骨架、写出 REST 接口、用依赖注入管理 Adapter。</li>
+<li>能讲清 Java 在 AI 项目"承载系统"而非"胶水"的角色与 Python 分工。</li>
+<li>能讲 Spring AI 与 W1 概念的映射（ChatClient≈Adapter、PromptTemplate≈模板管理）。</li>
+<li>能完整复述两条达标线（网关串联 / Java 角色）。</li>
+</ul>
+</div>
+
+<!-- ============ 14. 速记卡 ============ -->
+<h2 id="s14">十四、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：W1 七天是怎么串起来的？</div><div class="a">主线：调一个模型→管一批模型。D3 选型定策略、D4 Adapter 做接入、D6 本地扩边界、D7 编排成网关 v1。</div></div>
+<div class="qcard"><div class="q">Q：轻量模型网关 v1 有哪些模块？</div><div class="a">Prompt 管理 + 路由决策（D3 树）+ Adapter 层（D4）+ 本地/远程模型（D6）+ 重试降级 + 可观测。</div></div>
+<div class="qcard"><div class="q">Q：Adapter 在网关里干什么？</div><div class="a">接入底座：把 Ollama 和各家 API 的差异（参数/响应/错误码）统一成内部接口；新增模型只加实现类，业务零改（开闭原则）。</div></div>
+<div class="qcard"><div class="q">Q：Prompt 为什么要管理？</div><div class="a">当代码资产：集中存储、变量占位、版本化、可回滚、可 A/B；改 Prompt 不碰业务，且变更后必须重跑评测防退化。</div></div>
+<div class="qcard"><div class="q">Q：选型决策树从哪开始分叉？</div><div class="a">先问"数据是否敏感/不出域"：敏感→本地；否则看量/复杂度/延迟/运维，混合则网关路由（简单本地/复杂 API）。</div></div>
+<div class="qcard"><div class="q">Q：Java 在 AI 项目里是什么角色？</div><div class="a">不是胶水，是承载系统：保险核心在 Java，AI 作模块嵌入；网关用 Spring Boot 服务化；借 Java 成熟基建做工程化。</div></div>
+<div class="qcard"><div class="q">Q：Java 恢复三件套是啥？</div><div class="a">Spring Boot 骨架（起项目）、REST API（@RestController 暴露 /v1/chat）、依赖注入（@Autowired 管 Adapter/路由）。</div></div>
+<div class="qcard"><div class="q">Q：为什么 FDE 还要 Java？</div><div class="a">保险核心系统多为 Java，AI 要嵌入存量系统而非另起炉灶；"模型理解+Java 落地"是纯算法岗没有的差异化优势。</div></div>
+<div class="qcard"><div class="q">Q：Spring AI 和 W1 怎么对应？</div><div class="a">ChatClient≈Adapter 抽象，PromptTemplate≈模板管理，ChatModel 可切换实现≈D4 多 Adapter。学它把 W1 概念落 Java 生态。</div></div>
+<div class="qcard"><div class="q">Q：YOYO 复盘怎么写？</div><div class="a">STAR+技术维度：背景/任务/行动/结果+复盘；把项目痛点（调用散落、无 Prompt 版本）映射到网关/Adapter/Prompt 管理，让方案有出处。</div></div>
+
+<div class="ft">FDE W1D7 学习手册 · 整合与面试准备（W1 收尾）（面试级）· 配合《FDE-W1D7-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w1d7_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W1D7 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W1D7-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

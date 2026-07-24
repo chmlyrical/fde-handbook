@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W2D4 学习手册 · MCP 核心（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W2D4 学习手册</span>
+  <a href="#s1">1.为什么</a><a href="#s2">2.三层模型</a><a href="#s3">3.握手</a><a href="#s4">4.Transport</a>
+  <span class="sep"></span>
+  <a href="#s5">5.版本</a><a href="#s6">6.原语</a><a href="#s7">7.发现</a><a href="#s8">8.Session</a>
+  <span class="sep"></span>
+  <a href="#s9">9.Annotation</a><a href="#s10">10.鉴权</a><a href="#s11">11.OAuth</a><a href="#s12">12.信任</a>
+  <span class="sep"></span>
+  <a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W2D4 学习手册 · MCP 核心</h1>
+<p class="sub">W2 Day4 · B 级（必须掌握，面试高频）· 4h · 学完能讲透"MCP 的 Host/Client/Server 模型、初始化握手、三种原语与安全边界"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W2 前三天铺垫了 Function Calling（Day1）、采样与结构化（Day2）、Agent 编排（Day3）。今天进入 MCP（Model Context Protocol）——它是"把工具/数据接给 LLM 的标准协议"，也是 FDE 面试必考。重点在"协议模型 + 初始化握手 + 三种原语 + 安全边界"。<br>
+  <strong>学完能回答：</strong>① MCP 的 Host/Client/Server 三层模型、初始化时怎么协商协议版本和能力；② MCP 和 Function Calling 的区别、Tool Annotation 为什么不能当鉴权；③ stdio 与 Streamable HTTP 两种 Transport 的适用场景。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「工程含义」「面试话术」「易错点」→ 做自测清单 → 配合《W2D4 评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 为什么 ============ -->
+<h2 id="s1">一、为什么需要 MCP：从 Function Calling 的痛点说起</h2>
+<p>Function Calling 解决了"模型能调一个函数"，但它是<strong>各家私有的、点对点的</strong>：每接一个数据源（保单库、OCR 服务、规则引擎）都要为每个模型写一套适配，N 个模型 × M 个工具 = N×M 集成。MCP 的价值是把"工具/数据提供方"和"模型/应用方"用<strong>统一协议</strong>解耦：工具按 MCP Server 标准实现一次，任何兼容 MCP 的 Client 都能用。</p>
+<div class="info"><strong>一句话定位：</strong>MCP = "LLM 世界的 USB-C 接口"。Server 暴露能力，Client 消费能力，Host 承载二者。候选人背景是 Java+大数据+医保，可以把 MCP 类比成"给保险系统接数据源做了一套标准 SPI/接口规范"。</div>
+<div class="eng">工程含义很清楚：MCP 把"工具集成"从 N×M 降到 N+M。对医保场景，保单查询、OCR、特药规则校验各做一个 MCP Server，前端 Agent（Host）按标准协议发现并调用，无需为每个模型重写适配。</div>
+<div class="iv">MCP 解决的是"工具/数据接入的标准化"问题——Function Calling 是"模型怎么调函数"，MCP 是"工具怎么按统一协议被任何模型调用"。它是 LLM 生态的"USB-C"：Server 实现一次，所有兼容 Client 通用。</div>
+<div class="warn">① 别把 MCP 当成"比 Function Calling 更强的能力"——它管的是<strong>传输与发现的标准</strong>，能力本身还是 Tool/Resource/Prompt。② MCP 不是替代模型能力，而是给模型"插上标准化的外接设备"。③ 固定验证版本 2025-11-25，面试被问"最新版本"要能答出来，别随口说 latest。</div>
+
+<!-- ============ 2. 三层模型 ============ -->
+<h2 id="s2">二、Host / Client / Server 三层模型</h2>
+<h3>2.1 角色定义</h3>
+<table>
+<tr><th>角色</th><th>是谁</th><th>职责</th><th>医保场景例子</th></tr>
+<tr><td><strong>Host</strong></td><td>承载 LLM 交互的"宿主应用"</td><td>管理会话、UI、把多个 Client 连到模型；负责用户授权与信任决策</td><td>理赔审核 Agent 应用（如自研 Web 后台）</td></tr>
+<tr><td><strong>Client</strong></td><td>Host 内每个 Server 连接对应的"连接器"</td><td>与单个 Server 维护 1:1 连接、转发请求、处理协议</td><td>理赔应用里"连接保单 MCP Server"的那个客户端实例</td></tr>
+<tr><td><strong>Server</strong></td><td>暴露能力的"服务端"</td><td>实现 Tools/Resources/Prompts，响应 Client 请求</td><td>保单查询 MCP Server、OCR MCP Server</td></tr>
+</table>
+<h3>2.2 关系</h3>
+<div class="formula">
+Host（1 个应用） ⇄ 多个 Client（每 Server 一个） ⇄ 多个 Server（每个能力一个）
+</div>
+<p>关键约束：<strong>一个 Client 只连一个 Server</strong>（1:1）；一个 Host 可有多个 Client；Server 不直接认识 Host，只跟 Client 通信。Host 是"总指挥"，Client 是"翻译官+传声筒"。</p>
+<div class="iv">Host 是跑模型的应用（如理赔 Agent），Client 是 Host 里连接某一个 Server 的 1:1 通道，Server 是暴露能力的服务。一个 Host 有多个 Client，每个 Client 只连一个 Server。记住"Host 管总、Client 管连、Server 管能力"。</div>
+<div class="warn">① 别混淆 Host 和 Client：Host 是应用本身（含 UI、会话、权限），Client 是 Host 内部为某个 Server 开的连接对象，不是独立进程。② Server 不直接对 Host 负责，它只跟 Client 说话——所以"信任/授权"问题多在 Host 这一层决策。③ 面试常考"Client 为什么 1:1"：因为连接、会话、能力协商都是按 Server 维度建立的，多路复用会破坏生命周期管理。</div>
+
+<!-- ============ 3. 握手 ============ -->
+<h2 id="s3">三、初始化握手：协议版本协商 + 能力发现</h2>
+<h3>3.1 握手流程</h3>
+<p>Client 连上 Server 后，第一步必须做 <code>initialize</code> 请求，双方交换元数据，再发 <code>initialized</code> 通知完成握手：</p>
+<div class="formula">
+Client → initialize{ protocolVersion, capabilities, clientInfo } → Server
+Server → result{ protocolVersion, capabilities, serverInfo }
+Client → notifications/initialized
+</div>
+<ul>
+  <li><strong>protocolVersion</strong>：双方协商出的协议版本（取 Client 支持、Server 也支持的那一个，固定验证用 <code>2025-11-25</code>）。</li>
+  <li><strong>capabilities</strong>：各自声明支持的能力（如 Server 声明支持 tools、resources、prompts；Client 声明支持哪些采样/根）。</li>
+  <li><strong>clientInfo / serverInfo</strong>：名字、版本，用于排障与兼容性。</li>
+</ul>
+<h3>3.2 版本协商规则</h3>
+<p>Client 在 <code>initialize</code> 里带上自己支持的最新版本；Server 回自己能支持的最高<strong>且 ≤ 客户端请求</strong>的版本（按规范取双方交集的最大值）。这是"协商"不是"客户端说了算"——若 Server 太旧不支持该版本，握手失败。</p>
+<div class="eng">工程上握手失败要快速失败（fail-fast）并给出清晰日志：明确是版本不匹配、能力不支持还是传输层断开。医保生产环境会把支持的协议版本写进配置并做启动自检，避免线上才暴露不兼容。</div>
+<div class="iv">初始化握手 = "先对暗号再干活"。Client 发 initialize（带自己支持的最高版本+能力），Server 回它能支持的最高版本+能力，最后 Client 回 initialized 通知。协议版本是"协商"出来的交集最大值，不是客户端单方面指定。</div>
+<div class="warn">① 握手必须先于任何工具调用——没 initialize 就直接 callTool 是协议错误。② 版本协商不是"取 Client 的版本"，是取双方都支持的最高版本；若 Server 版本过低会握手失败。③ 固定验证版本是 <code>2025-11-25</code>，面试要能答出具体版本号，体现你做过功课。</div>
+
+<!-- ============ 4. Transport ============ -->
+<h2 id="s4">四、Transport：stdio（Local）与 Streamable HTTP（Remote）</h2>
+<h3>4.1 两种标准 Transport</h3>
+<table>
+<tr><th>Transport</th><th>形态</th><th>适用</th><th>进程/网络</th></tr>
+<tr><td><strong>stdio</strong></td><td>本地子进程，通过标准输入/输出传 JSON-RPC</td><td>Local（同机、同宿主进程内）</td><td>无网络，走本地管道</td></tr>
+<tr><td><strong>Streamable HTTP</strong></td><td>基于 HTTP，服务端可 SSE 流式推送</td><td>Remote（跨网络、独立部署的 Server）</td><td>走网络，需考虑认证/TLS</td></tr>
+</table>
+<h3>4.2 关键差异</h3>
+<ul>
+  <li><strong>stdio</strong>：Server 作为 Host 的子进程拉起，通信走 stdin/stdout，<strong>无独立网络端口</strong>，天然隔离、启动快，适合本地工具（如本地 OCR、本地文件读取）。</li>
+  <li><strong>Streamable HTTP</strong>：Server 是独立 HTTP 服务，支持普通 POST + 可选 SSE 流；Remote 场景用，能跨越机器，但引入网络、鉴权、会话（Mcp-Session-Id）等复杂度。</li>
+</ul>
+<div class="eng">选 Transport 看部署：本地工具（保单库本地脚本、本地 OCR）用 stdio，省去网络与鉴权；跨团队/云上的能力（共享规则引擎、远程知识库）用 Streamable HTTP。医保场景里"本地病历解析"用 stdio，"中心化特药目录服务"用 HTTP。</div>
+<div class="iv">Local 用 stdio（子进程+stdin/stdout，无端口，安全简单）；Remote 用 Streamable HTTP（HTTP+可选 SSE 流，支持跨网络）。选型原则：能本地就本地（stdio），必须跨网络才上 HTTP 并补鉴权。</div>
+<div class="warn">① 旧版有 SSE Transport，但固定验证版本 2025-11-25 推荐/规范的是 <strong>Streamable HTTP</strong>，面试别把两者混为一谈。② stdio 不等于"不安全"——它只是没网络面，但 Server 进程本身的权限（能读哪些文件）仍要管控。③ HTTP Transport 必须配合鉴权（见 s11），裸奔上生产是事故。</div>
+
+<!-- ============ 5. 版本 ============ -->
+<h2 id="s5">五、固定验证版本：Protocol Version 2025-11-25</h2>
+<p>当前固定验证（面试/实现以之为准）的协议版本为 <code>2025-11-25</code>。该版本规范涵盖：初始化与能力协商、stdio 与 Streamable HTTP Transport、Tools/Resources/Prompts 原语、Tool Annotation 字段、Session 生命周期与 <code>Mcp-Session-Id</code> 头。</p>
+<div class="info">权威资源（中文/官方，非 OpenAI）：
+<ul>
+<li>MCP Transport 规范（2025-11-25）：<a href="https://modelcontextprotocol.io/specification/2025-11-25/basic/transports">modelcontextprotocol.io/specification/2025-11-25/basic/transports</a></li>
+<li>MCP 授权规范：modelcontextprotocol.io（Authorization 章节）</li>
+<li>MCP Schema（含 Tool Annotation）：modelcontextprotocol.io 的 schema 定义</li>
+<li>MCP 官网：modelcontextprotocol.io</li>
+</ul>
+</div>
+<div class="eng">实现/选型时把协议版本钉死在配置里（如 <code>protocolVersion: "2025-11-25"</code>），并对 Server 返回的版本做校验，避免 Server 悄悄升级导致行为漂移。代码里建议用 SDK 常量而非硬编码字符串。</div>
+<div class="iv">固定验证版本是 <code>2025-11-25</code>，覆盖 Transport、原语、Tool Annotation、Session 全部内容。面试被问"你按哪个版本实现"，要答具体版本号并知道它包含哪些能力，体现工程严谨。</div>
+<div class="warn">① 别答"我用最新版"——面试官要的是你<strong>验证过的具体版本</strong>，2025-11-25 是当前固定验证版。② 不同版本的原语/字段可能不同（如 Tool Annotation 定义），实现时要对齐版本，别跨版本套用。</div>
+
+<!-- ============ 6. 原语 ============ -->
+<h2 id="s6">六、三种原语：Tools / Resources / Prompts</h2>
+<h3>6.1 定义与区别</h3>
+<table>
+<tr><th>原语</th><th>谁触发</th><th>是什么</th><th>是否带副作用</th><th>医保例子</th></tr>
+<tr><td><strong>Tools</strong></td><td>模型决定调用</td><td>可执行的函数（查、算、写）</td><td>通常可写（有副作用）</td><td>保单查询 Tool、OCR Tool、规则校验 Tool</td></tr>
+<tr><td><strong>Resources</strong></td><td>应用/用户注入上下文</td><td>可被读取的数据/文档（类似文件、记录）</td><td>只读</td><td>保单 PDF 文档、特药目录表</td></tr>
+<tr><td><strong>Prompts</strong></td><td>用户选择模板</td><td>预置的提示词模板（带参数）</td><td>只读（生成提示）</td><td>"理赔审核"提示词模板</td></tr>
+</table>
+<h3>6.2 关键区别</h3>
+<ul>
+  <li><strong>Tools</strong> 由<strong>模型</strong>在推理中自主决定调用（model-controlled），是"行动"。</li>
+  <li><strong>Resources</strong> 由<strong>应用</strong>把数据塞进上下文（application-controlled），是"知识/上下文"。</li>
+  <li><strong>Prompts</strong> 由<strong>用户</strong>从列表选一个模板（user-controlled），是"可被复用的提问范式"。</li>
+</ul>
+<div class="eng">医保 Agent 里：Resources 提供"这份保单的原文"和"特药目录"，Tools 让模型"去查这张保单的状态/做 OCR/跑规则"，Prompts 提供"标准理赔审核话术模板"。三者分工明确——数据 vs 行动 vs 模板。</div>
+<div class="iv">Tools = 模型控制的"动作"（可调、可有副作用）；Resources = 应用控制的"只读数据/上下文"（如保单文档）；Prompts = 用户选择的"提示词模板"。一句话：Tool 做、Resource 给、Prompt 套。</div>
+<div class="warn">① 别把 Resource 当 Tool 用——Resource 是"读数据进上下文"，Tool 是"执行动作"，语义和权限不同。② 三者控制方不同（model/application/user），这决定了"谁能触发"和"要不要鉴权"。③ 面试常混淆 Tool 与 Resource，要能讲清"查询一个值"该做成 Tool 还是 Resource。</div>
+
+<!-- ============ 7. 发现 ============ -->
+<h2 id="s7">七、Tool Discovery（工具发现）</h2>
+<h3>7.1 机制</h3>
+<p>握手完成后，Client 通过 <code>tools/list</code> 拉取 Server 暴露的全部工具（含 name、description、inputSchema）；模型据此决定调用哪个，再用 <code>tools/call</code> 执行。</p>
+<div class="formula">
+握手完成 → tools/list（拿到全部 Tool 的 schema+描述） → 模型选 Tool → tools/call{ name, arguments }
+</div>
+<h3>7.2 输入 Schema</h3>
+<p>每个 Tool 的 <code>inputSchema</code> 是 JSON Schema，描述参数名、类型、必填、枚举。模型按它填参。发现机制让"Server 加了新工具、Client 无需改代码"成为可能——这是 MCP 解耦的核心红利。</p>
+<div class="eng">医保场景：保单 Server 上线"历史理赔查询"新 Tool，只要它实现符合 schema，前端 Agent 下次 tools/list 自动发现，无需改 Host 代码。生产上会对 tools/list 结果做缓存+版本号，避免每次请求都拉。</div>
+<div class="iv">工具发现 = 握手后 Client 调 tools/list 拿到所有 Tool 的 schema 和描述，模型按需选、用 tools/call 调用。好处是 Server 加工具、Client 零改造——这是 MCP"解耦 N×M"的关键。</div>
+<div class="warn">① 发现的是"schema 和描述"，模型<strong>靠 description 判断该不该调</strong>——所以 Tool 的 description 写得好不好直接决定调用准确率。② tools/list 有成本，生产要缓存，别每次推理都拉全量。③ 别以为"模型总能选对 Tool"，描述含糊/相似 Tool 多会选错，要做评测。</div>
+
+<!-- ============ 8. Session ============ -->
+<h2 id="s8">八、Session 生命周期</h2>
+<h3>8.1 生命周期阶段</h3>
+<ol>
+  <li><strong>建立连接</strong>：stdio 拉起子进程 / HTTP 建立连接。</li>
+  <li><strong>初始化握手</strong>：initialize + initialized（见 s3）。</li>
+  <li><strong>能力使用</strong>：tools/list、resources/read、tools/call 等正常交互。</li>
+  <li><strong>会话维护</strong>：HTTP 场景下用 <code>Mcp-Session-Id</code> 关联请求（同一会话的状态）。</li>
+  <li><strong>终止</strong>：Client 断开 / Server 关闭，释放资源。</li>
+</ol>
+<h3>8.2 HTTP 会话标识</h3>
+<p>Streamable HTTP 下，Server 在初始化响应里返回 <code>Mcp-Session-Id</code>，后续请求都要带这个头，否则 Server 不认。这保证了"有状态"交互（同一会话的上下文、已加载的资源）连贯。</p>
+<div class="eng">工程上会话要设超时与回收：长时间空闲的 MCP 会话要能安全关闭，医保生产环境会对会话数做上限与监控，防止 Server 被大量悬挂会话拖垮。</div>
+<div class="iv">Session 生命周期：连接 → 握手 → 使用 →（HTTP 下用 Mcp-Session-Id 关联）→ 终止。HTTP 传输靠 Session-Id 保持有状态；生产要做超时回收与连接数监控。</div>
+<div class="warn">① stdio 没有 Mcp-Session-Id 概念（进程级会话），别把 HTTP 的会话机制套到 stdio。② 会话不释放会泄漏资源，Server 要能处理 Client 异常断开（如子进程被杀）。③ 面试可能问"HTTP 怎么知道同一会话"——答 Mcp-Session-Id 头。</div>
+
+<!-- ============ 9. Annotation ============ -->
+<h2 id="s9">九、Tool Annotation（工具注解）</h2>
+<h3>9.1 是什么</h3>
+<p>Tool Annotation 是 Tool 定义上的一组<strong>元信息提示字段</strong>，用来给 Client/模型/UI 提供"这个工具大概是什么性质"的提示，例如：</p>
+<ul>
+  <li><code>title</code> / <code>readOnlyHint</code>：是否只读（无副作用）。</li>
+  <li><code>destructiveHint</code>：是否破坏性（删/覆盖）。</li>
+  <li><code>idempotentHint</code>：是否幂等（重复调用结果一致）。</li>
+  <li><code>openWorldHint</code>：是否面向开放世界（如任意 URL）。</li>
+</ul>
+<h3>9.2 作用</h3>
+<p>Annotation 帮助<strong>UI 决定要不要弹确认框</strong>（如 destructive 工具先问用户）、帮助 Host 做展示与风险提示。注意规范明确：这些是<strong>提示（hints）</strong>，不是强制约束。</p>
+<div class="eng">医保场景：规则校验 Tool 标 readOnlyHint=true（只读、可放心调），而"提交理赔结论"Tool 标 destructiveHint=true（要弹确认）。Annotation 让前端按性质决定交互，提升安全 UX。</div>
+<div class="iv">Tool Annotation 是工具上的"性质标签"（只读/破坏性/幂等/开放世界），作用是给 UI 和 Host 做<strong>提示</strong>——比如破坏性工具弹确认框。注意它只是 hint，不是强制约束。</div>
+<div class="warn">① Annotation 是<strong>提示不是保证</strong>，Server 完全可以不遵守（比如标了 readOnly 实际去写了库）。② 字段是 hint 语义，名字带 Hint 后缀本身就说明"仅供参考"。③ 别把 Annotation 当成"工具分类的权威来源"，真正的分类要看实现。</div>
+
+<!-- ============ 10. 鉴权 ============ -->
+<h2 id="s10">十、Tool Annotation 不可作为真实鉴权依据</h2>
+<p>这是面试高频坑：有人以为"看 Tool 的 readOnlyHint 就能决定要不要鉴权/放不放心调"。<strong>错。</strong>Annotation 是 Server 自报的提示，客户端<strong>不能信任</strong>它来做安全决策。</p>
+<div class="formula">
+安全决策（能否调用 / 要不要鉴权 / 是否允许写）必须基于 真实权限系统，而非 Tool Annotation
+</div>
+<ul>
+  <li>Annotation 可由 Server 随意填写或遗漏，恶意/有缺陷的 Server 会谎报（标 readOnly 实际删数据）。</li>
+  <li>鉴权（谁能调、能调什么）应落在 <strong>Host/Client 的权限策略 + Server 自身的访问控制</strong>上，而不是读 Annotation。</li>
+  <li>Annotation 只配合作"UX 提示"（是否弹确认），不配合作"安全边界"。</li>
+</ul>
+<div class="eng">医保生产：是否允许 Agent 调用"提交理赔"工具，由 Host 的权限配置（如当前用户角色、该保单状态）决定，绝不看 Tool 自己填的 hint。即便 Server 标成 readOnly，敏感写操作也要独立鉴权。</div>
+<div class="iv">Tool Annotation 不能当鉴权依据——它是 Server 自报的提示，可被谎报或漏填。是否允许调用、要不要鉴权，必须靠 Host/Client 的权限策略 + Server 真实访问控制，Annotation 只配合作 UX 提示（弹确认框）。</div>
+<div class="warn">① 这是核心易错点：把 hint 当安全边界 = 安全漏洞。② 面试若说"看 readOnlyHint 就知道这工具安全"，直接判错。③ 权限决策要"默认拒绝 + 显式授权"，不能"默认信 Annotation"。</div>
+
+<!-- ============ 11. OAuth ============ -->
+<h2 id="s11">十一、OAuth 在 HTTP Transport 中的适用边界</h2>
+<h3>11.1 适用场景</h3>
+<p>当 MCP 走 <strong>Streamable HTTP</strong>（Remote Server）时，传输层是标准 HTTP，因此<strong>可以套用标准 Web 授权（如 OAuth 2.0 / OIDC）</strong>来保护端点：Client 持 token 访问 Server，Server 校验 scope。</p>
+<h3>11.2 边界与注意</h3>
+<ul>
+  <li>OAuth 保护的是<strong>传输/端点访问</strong>，不是"每个 Tool 的细粒度业务授权"。</li>
+  <li>stdio（Local）通常<strong>不需要</strong> OAuth——它没网络面，靠进程/文件系统权限隔离即可。</li>
+  <li>MCP 授权规范把授权放在传输层（HTTP 时用标准 OAuth），但具体 scope 与策略由实现定义。</li>
+</ul>
+<div class="info">MCP 授权规范（modelcontextprotocol.io 的 Authorization 章节）明确：Remote Server 应使用标准 Web 授权框架；授权是"谁来连 Server"，细粒度"能否调某 Tool"仍由 Host/Server 策略决定。</div>
+<div class="eng">医保跨网络场景：中心化"特药目录 MCP 服务"用 HTTP + OAuth，只有持有效 token 的理赔系统能连；但"能否查某客户保单"这种细粒度权限，仍由 Server 内部按用户身份判定，OAuth 只管"门禁"。</li>
+<div class="iv">OAuth 适用于 Remote/HTTP 的 MCP Server，保护"谁能连端点"（门禁级）。它不替代细粒度业务授权（谁能调某 Tool/查某数据）；Local/stdio 一般无需 OAuth。OAuth 是传输层授权，Tool 级授权另算。</div>
+<div class="warn">① 别以为"上了 OAuth 就 Tool 级安全了"——OAuth 管端点准入，Tool 级权限是另一层。② 混淆"传输授权"与"业务授权"是常见错误。③ stdio 硬套 OAuth 是过度设计。</div>
+
+<!-- ============ 12. 信任 ============ -->
+<h2 id="s12">十二、MCP Server 来源信任</h2>
+<h3>12.1 信任问题</h3>
+<p>MCP Server 能执行动作、读数据，所以"<strong>这个 Server 从哪来、可不可信</strong>"是核心安全议题。Host 在连接前必须评估 Server 来源：官方维护 vs 第三方社区 vs 自建。</p>
+<h3>12.2 工程做法</h3>
+<ul>
+  <li><strong>来源白名单</strong>：只允许连接预核准的 Server（域名/包签名）。</li>
+  <li><strong>最小权限</strong>：Server 进程只给必要文件系统/网络/数据库权限。</li>
+  <li><strong>人工确认</strong>：首次连接陌生 Server 弹确认，展示它将暴露的能力。</li>
+  <li><strong>沙箱</strong>：对不可信 Server 放进沙箱/容器，限制它能触达的资源。</li>
+  <li><strong>能力审查</strong>：连接后审查 tools/list 暴露的能力，拦截高危工具。</li>
+</ul>
+<div class="eng">医保场景：连接一个第三方"医保政策爬虫 MCP Server"前，先在 Host 配置里加白名单 + 沙箱运行，限制它只能访问公开政策站点、不能碰内网保单库。不可信 Server 默认不连。</div>
+<div class="iv">MCP Server 来源信任 = "这个 Server 能不能连"。做法：来源白名单、最小权限、首次确认、沙箱隔离、连接后能力审查。不可信 Server 默认拒绝，别让模型自动连陌生 Server。</div>
+<div class="warn">① "模型发现一个新 Server 就自动连"是危险设计，必须由 Host 做信任决策。② 别只看 Server 名/描述就信——要验证来源与签名。③ 即使 Server 可信，它暴露的高危 Tool 也要二次审查。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：Host/Client/Server 模型 + 初始化握手</h2>
+<table>
+<tr><th>考点</th><th>必须能讲清</th></tr>
+<tr><td>三层模型</td><td>Host 管总（应用+权限）、Client 是 1:1 连接通道、Server 暴露能力；一个 Host 多 Client，一个 Client 一 Server</td></tr>
+<tr><td>初始化握手</td><td>initialize 交换版本+能力 → Server 回版本+能力 → initialized 通知；先握手后调用</td></tr>
+<tr><td>版本协商</td><td>取双方都支持的最高版本（固定验证 2025-11-25），非客户端单方面指定</td></tr>
+<tr><td>能力发现</td><td>握手后 tools/list 拉 schema，模型据此调用；加工具 Client 零改造</td></tr>
+</table>
+<div class="iv">达标线①核心：能画出 Host⇄Client⇄Server 关系，讲清 initialize 握手三步（版本协商+能力发现），并能答出固定验证版本 2025-11-25。这是 MCP 的"地基"，必须滚瓜烂熟。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：MCP vs Function Calling + Annotation 为何不鉴权</h2>
+<h3>14.1 MCP 与 Function Calling 的区别</h3>
+<table>
+<tr><th>维度</th><th>Function Calling</th><th>MCP</th></tr>
+<tr><td>定位</td><td>模型调函数的能力（单点）</td><td>工具/数据接入的<strong>标准协议</strong>（生态）</td></tr>
+<tr><td>集成</td><td>每家模型私有，N×M 适配</td><td>统一协议，Server 一次实现多 Client 通用</td></tr>
+<tr><td>能力</td><td>通常只有"函数调用"</td><td>Tools + Resources + Prompts 三类原语</td></tr>
+<tr><td>发现/传输</td><td>由应用硬编码</td><td>tools/list 动态发现 + 标准 Transport（stdio/HTTP）</td></tr>
+</table>
+<h3>14.2 Tool Annotation 不能当鉴权</h3>
+<div class="formula">
+Annotation = Server 自报的提示(hint) → 可被谎报/遗漏 → 不能用于安全边界决策
+</div>
+<p>鉴权必须落在 Host/Client 权限策略 + Server 真实访问控制，Annotation 仅作 UX 提示（如弹确认框）。</p>
+<div class="iv">达标线②核心：MCP 是"标准协议/生态"（解耦 N×M、三类原语、动态发现），Function Calling 是"模型调函数的能力"。Tool Annotation 只是 hint，恶意 Server 会谎报，所以安全决策绝不能看 Annotation，要靠真实权限系统。</div>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W2D4 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能讲清 MCP 解决什么问题（N×M 集成→N+M），并类比成"LLM 的 USB-C"。</li>
+<li>能画出 Host / Client / Server 关系，说清各自职责与 1:1 约束。</li>
+<li>能复述初始化握手三步：initialize → Server 回版本+能力 → initialized。</li>
+<li>能说出固定验证版本号 2025-11-25，并解释版本协商取"双方支持的最高版本"。</li>
+<li>能区分 stdio（Local）与 Streamable HTTP（Remote）的适用场景与差异。</li>
+<li>能讲清 Tools / Resources / Prompts 三类原语及各自控制方（model/application/user）。</li>
+<li>能解释 Tool Discovery：tools/list 拿 schema，模型用 tools/call 调用，加工具零改造。</li>
+<li>能说清 Session 生命周期，以及 HTTP 下 Mcp-Session-Id 的作用。</li>
+<li>能列出 Tool Annotation 的常见字段（readOnly/destructive/idempotent/openWorld）并说明它是 hint。</li>
+<li>能论证"Tool Annotation 不能作为真实鉴权依据"，并给出正确做法。</li>
+<li>能讲清 OAuth 在 HTTP Transport 的适用边界（门禁级，非 Tool 级），stdio 一般无需。</li>
+<li>能说出 MCP Server 来源信任的工程做法（白名单/最小权限/沙箱/能力审查）。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：MCP 和 Function Calling 什么关系？</div><div class="a">Function Calling 是"模型调函数的能力"（单点）；MCP 是"工具/数据接入的标准协议"（生态），管传输、发现、三类原语，把 N×M 集成降到 N+M。</div></div>
+<div class="qcard"><div class="q">Q：Host、Client、Server 分别是什么？</div><div class="a">Host=跑模型的应用（管权限/会话）；Client=Host 内连某个 Server 的 1:1 通道；Server=暴露 Tools/Resources/Prompts 的服务。一个 Host 多 Client，一 Client 一 Server。</div></div>
+<div class="qcard"><div class="q">Q：初始化握手做什么？</div><div class="a">Client 发 initialize（带支持的最高版本+能力），Server 回能支持的最高版本+能力，Client 再发 initialized 通知。先握手后调用。</div></div>
+<div class="qcard"><div class="q">Q：固定验证的协议版本是多少？</div><div class="a">2025-11-25，覆盖 Transport、原语、Tool Annotation、Session。面试要报具体版本号。</div></div>
+<div class="qcard"><div class="q">Q：stdio 和 Streamable HTTP 怎么选？</div><div class="a">Local 用 stdio（子进程+stdin/stdout，无端口）；Remote 跨网络用 Streamable HTTP（HTTP+可选 SSE，需鉴权）。</div></div>
+<div class="qcard"><div class="q">Q：Tools、Resources、Prompts 区别？</div><div class="a">Tool=模型控制的动作（可有副作用）；Resource=应用控制的只读数据/上下文；Prompt=用户选的提示词模板。做/给/套。</div></div>
+<div class="qcard"><div class="q">Q：Tool Annotation 能当鉴权依据吗？</div><div class="a">不能。它是 Server 自报的 hint，可被谎报/遗漏。鉴权必须靠 Host/Client 权限策略+Server 真实访问控制。</div></div>
+<div class="qcard"><div class="q">Q：OAuth 在 MCP 里管什么？</div><div class="a">仅管 Remote/HTTP 的端点准入（门禁级）。Tool 级/数据级细粒度授权是另一层，stdio 一般无需 OAuth。</div></div>
+<div class="qcard"><div class="q">Q：MCP Server 来源不信任会怎样？</div><div class="a">恶意/缺陷 Server 可执行危险动作或谎报能力。做法：白名单、最小权限、首次确认、沙箱、连接后能力审查。</div></div>
+<div class="qcard"><div class="q">Q：HTTP 下怎么保持同一会话？</div><div class="a">靠 Mcp-Session-Id 头，Server 初始化时下发，后续请求都带，保证有状态交互连贯。</div></div>
+
+<div class="ft">FDE W2D4 学习手册 · MCP 核心（面试级）· 配合《W2D4 评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w2d4_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W2D4 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W2D4-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

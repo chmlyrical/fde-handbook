@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE Day2 学习手册 · 采样参数与结构化输出（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">Day2 学习手册</span>
+  <a href="#s1">1.采样本质</a><a href="#s2">2.Temperature</a><a href="#s3">3.Top P</a><a href="#s4">4.Top K</a><a href="#s5">5.组合</a>
+  <span class="sep"></span>
+  <a href="#s6">6.Stop</a><a href="#s7">7.结构化输出</a><a href="#s8">8.校验重试</a><a href="#s9">9.幻觉拒答</a><a href="#s10">10.实战</a>
+  <span class="sep"></span>
+  <a href="#s11">达标线①</a><a href="#s12">达标线②</a><a href="#s13">自测</a><a href="#s14">速记</a>
+</div>
+
+<h1>FDE Day 2 学习手册 · 采样参数与结构化输出</h1>
+<p class="sub">W1 Day2 · A 级（必须掌握，面试核心）· 4h · 学完能讲透"模型如何从概率分布生成 token、如何让输出稳定可解析"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>Day1 讲了"模型怎么算"，Day2 讲"模型怎么选 token + 怎么让输出可控"。这是工程落地里每天都要调的参数，也是面试高频考点。<br>
+  <strong>学完能回答：</strong>① 不同场景下 Temperature/Top P/Top K 怎么选；② 结构化输出从请求到校验的完整流程；③ 输出不稳定时怎么重试和降级。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「面试话术」「易错点」→ 做自测清单 → 配合《Day2 评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 采样本质 ============ -->
+<h2 id="s1">一、采样本质：从 logits 到 token</h2>
+<p>模型每次生成一个 token 前，最后一层会输出整个词表上每个 token 的<strong>未归一化分数</strong>（logits，形状 = 词表大小，如 15 万维）。采样就是把这个分数分布转成"下一个 token 选谁"的过程：</p>
+<div class="formula">
+logits → softmax（归一化为概率）→ 采样策略（Temperature / Top P / Top K）→ 按概率随机抽一个 token
+</div>
+<ol>
+  <li><strong>logits</strong>：模型对每个候选 token 的"偏好分"，分数越高越可能。</li>
+  <li><strong>softmax</strong>：把 logits 归一化为概率分布（加起来=1）。</li>
+  <li><strong>采样</strong>：按概率分布随机抽一个 token。如果直接按 softmax 概率抽，叫"随机采样"；如果永远选概率最大的，叫"贪心解码（greedy）"。</li>
+</ol>
+<p>Temperature / Top P / Top K 都是对<strong>第 2、3 步之间</strong>的干预：先改概率分布形状，再采样。</p>
+<div class="iv">采样是"在概率分布上掷骰子"。贪心=永远选最高分（确定性但重复）；随机采样=按概率抽（多样但可能跑偏）。Temperature/TopP/TopK 是调节这把骰子的"随机程度"。</div>
+
+<!-- ============ 2. Temperature ============ -->
+<h2 id="s2">二、Temperature（温度）</h2>
+<h3>2.1 原理</h3>
+<p>Temperature（T）在 softmax 之前对 logits 做缩放：用 <code>logits / T</code> 代替原 logits。</p>
+<div class="formula">softmax( logits / T )</div>
+<ul>
+  <li><strong>T → 0</strong>：<code>logits / T</code> 被放大，分布变得极尖锐，趋近<strong>贪心解码</strong>（几乎只选最高分 token）。</li>
+  <li><strong>T = 1</strong>：不缩放，按原始 softmax 概率采样。</li>
+  <li><strong>T → ∞</strong>：<code>logits / T</code> 趋近 0，分布趋近<strong>均匀</strong>（每个 token 等概率，输出乱码）。</li>
+</ul>
+<h3>2.2 对生成的影响</h3>
+<table>
+<tr><th>T</th><th>分布</th><th>输出特征</th><th>适用场景</th></tr>
+<tr><td>0</td><td>极尖（贪心）</td><td>确定性、重复性高、保守</td><td>代码生成、结构化抽取、分类、事实问答</td></tr>
+<tr><td>0.3</td><td>较尖</td><td>稳定、略有变化</td><td>翻译、摘要、企业 RAG 问答</td></tr>
+<tr><td>0.7</td><td>中等</td><td>平衡</td><td>通用对话、Agent 工具调用</td></tr>
+<tr><td>0.9~1.0</td><td>较平</td><td>多样、有创意</td><td>创意写作、头脑风暴</td></tr>
+<tr><td>≥1.2</td><td>很平</td><td>发散、易跑题</td><td>一般不用（容易乱）</td></tr>
+</table>
+<h3>2.3 工程取值经验</h3>
+<ul>
+  <li><strong>需要稳定可解析</strong>（JSON、抽取、分类）：T=0 或 ≤0.2。</li>
+  <li><strong>RAG 问答</strong>：T=0.1~0.3，既要稳定又容许少量表述差异。</li>
+  <li><strong>Agent 工具调用</strong>：T=0~0.3，工具参数必须准确，不能乱发挥。</li>
+  <li><strong>对话/写作</strong>：T=0.7~0.9。</li>
+</ul>
+<div class="iv">Temperature 越低分布越尖、越确定；越高越平、越随机。T=0 等于贪心解码。企业工程任务（抽取、JSON、工具调用）几乎都用低 T（0~0.3），创意任务才用高 T。</div>
+<div class="warn">① Temperature <strong>不改变 logits 的排序</strong>（谁分最高还是谁分最高），只改变分布尖锐度，所以 T 不会让"错答案"变成"对答案"，只会让"对答案"更稳或更不稳。② T=0 仍可能出错——如果模型本身 logits 最高那个 token 就是错的，低 T 反而把错误锁死。③ 很多人以为"调高 T 能让模型更聪明"，错，T 只调随机性，不调能力。</div>
+
+<!-- ============ 3. Top P ============ -->
+<h2 id="s3">三、Top P（核采样 Nucleus Sampling）</h2>
+<h3>3.1 原理</h3>
+<p>Top P 按<strong>概率从高到低累加</strong>，只保留累计概率达到 P 的<strong>最小 token 集合</strong>，把这个集合之外的概率清零，再在集合内重新归一化采样。</p>
+<div class="formula">
+按概率降序排列 → 累加直到 ≥ P → 保留这些 token → 其余清零 → 重新归一化 → 采样
+</div>
+<p>例：词表概率 [0.5, 0.3, 0.1, 0.05, 0.02, ...]，P=0.9 → 累加 0.5+0.3+0.1=0.9 达到 P → 保留前 3 个，其余清零，前 3 个重新归一化为 [0.556, 0.333, 0.111] 采样。</p>
+<h3>3.2 关键特征</h3>
+<ul>
+  <li><strong>动态数量</strong>：保留的 token 数不固定。分布尖锐时可能只保留 1-2 个；分布平缓时可能保留几十个。</li>
+  <li><strong>P=1</strong>：不裁剪，等价于不启用 Top P。</li>
+  <li><strong>P 很小（如 0.1）</strong>：只保留极高概率 token，趋近贪心。</li>
+</ul>
+<h3>3.3 取值经验</h3>
+<ul>
+  <li>通用对话：P=0.9（保留前 90% 概率质量，去掉长尾噪声）。</li>
+  <li>需要稳定：P=0.1~0.5 或直接用 T=0。</li>
+  <li>创意：P=0.95~1.0。</li>
+</ul>
+<div class="iv">Top P 是"按概率质量动态截断"——分布越尖保留越少，越平保留越多。它去掉长尾低概率 token 的噪声，但保留多样性。常用 P=0.9。</div>
+<div class="warn">① Top P 和 Temperature <strong>不是互斥</strong>，可以同时用，但通常调一个就够，避免互相干扰。② Top P 的"动态"是它和 Top K 的核心区别：Top P 保留的 token 数随分布变化，Top K 固定数量。③ P 不是"保留前 P% 的 token"，而是"保留累计概率达到 P 的最小集合"。</div>
+
+<!-- ============ 4. Top K ============ -->
+<h2 id="s4">四、Top K</h2>
+<h3>4.1 原理</h3>
+<p>Top K 只保留<strong>概率最高的 K 个 token</strong>，其余清零，重新归一化采样。K 是固定数量。</p>
+<div class="formula">
+按概率降序取前 K 个 → 其余清零 → 重新归一化 → 采样
+</div>
+<h3>4.2 与 Top P 的区别</h3>
+<table>
+<tr><th>维度</th><th>Top K</th><th>Top P</th></tr>
+<tr><td>保留数量</td><td>固定 K 个</td><td>动态（按累计概率）</td></tr>
+<tr><td>分布尖锐时</td><td>仍保留 K 个（可能含低概率噪声）</td><td>只保留少数（自适应）</td></tr>
+<tr><td>分布平缓时</td><td>只保留 K 个（可能太少）</td><td>保留较多（自适应）</td></tr>
+<tr><td>适用</td><td>词表大、想简单截断</td><td>更常用，自适应好</td></tr>
+</table>
+<h3>4.3 取值经验</h3>
+<ul>
+  <li>K=1：等价贪心。</li>
+  <li>K=40~50：常用默认（很多模型默认 K=40）。</li>
+  <li>K 大：保留更多，更多样；K 小：更确定。</li>
+</ul>
+<div class="iv">Top K 固定保留前 K 个 token，Top P 按累计概率动态保留。现代 API 更推荐用 Top P（自适应），Top K 多作为兼容参数。两者本质都是"截断长尾低概率 token"。</div>
+
+<!-- ============ 5. 组合 ============ -->
+<h2 id="s5">五、Temperature / Top P / Top K 组合使用</h2>
+<h3>5.1 生效顺序</h3>
+<p>多数 API 的内部顺序是：<strong>Top K → Top P → Temperature → 采样</strong>。即先按 K 截断，再按 P 截断，再用 T 调整分布尖锐度，最后采样。但不同 API 实现略有差异，以官方文档为准。</p>
+<h3>5.2 常见组合配方</h3>
+<table>
+<tr><th>场景</th><th>T</th><th>Top P</th><th>Top K</th><th>说明</th></tr>
+<tr><td>代码/JSON/抽取</td><td>0</td><td>—</td><td>—</td><td>贪心，最稳定</td></tr>
+<tr><td>RAG 问答</td><td>0.1~0.3</td><td>1（关）</td><td>—</td><td>低 T 即可，不叠 Top P</td></tr>
+<tr><td>Agent 工具调用</td><td>0~0.3</td><td>1</td><td>—</td><td>参数必须准</td></tr>
+<tr><td>通用对话</td><td>0.7</td><td>0.9</td><td>40</td><td>平衡多样与稳定</td></tr>
+<tr><td>创意写作</td><td>0.9</td><td>0.95</td><td>50</td><td>多样</td></tr>
+</table>
+<div class="eng">工程上别三个一起调，容易互相干扰且难调试。原则：要稳定就 T=0 或低 T + 关 Top P；要多样就中 T + Top P=0.9。RAG/Agent 场景<strong>优先用低 T</strong>，因为输出要可解析、可校验。</div>
+<div class="warn">不要"温度 0.7 + Top P 0.1 + Top K 100"这种乱组合——参数相互影响，效果不可预测，出问题难定位。生产环境参数要<strong>固化在配置里</strong>（按场景预设配方），不要让每次调用都随便传。</div>
+
+<!-- ============ 6. Stop Sequences ============ -->
+<h2 id="s6">六、Stop Sequences（停止序列）</h2>
+<h3>6.1 作用</h3>
+<p>Stop Sequences 是一组字符串，模型生成时<strong>一旦输出中出现这些字符串就立即停止</strong>（停止符本身通常不包含在返回内容里）。</p>
+<h3>6.2 用途</h3>
+<ul>
+  <li><strong>控制输出边界</strong>：让模型只生成"答案部分"，遇到"下一个问题"标志就停。</li>
+  <li><strong>多段输出分隔</strong>：如让模型生成"思考过程\n\n答案"，用 <code>\n\n答案</code> 之前的内容作为思考。</li>
+  <li><strong>工具调用收尾</strong>：工具调用 JSON 后跟一个 <code></tool_call></code> 之类停止符，截断多余内容。</li>
+</ul>
+<h3>6.3 与 max_tokens 的关系</h3>
+<p>生成会在<strong>遇到 stop 序列</strong>或<strong>达到 max_tokens</strong>或<strong>生成结束符 EOS</strong> 三者之一时停止。max_tokens 是硬上限（防超长），stop 是语义边界（防多余）。</p>
+<div class="iv">Stop Sequences 是"语义刹车"，用来在指定标志处截断输出，控制输出边界。max_tokens 是"硬刹车"防超长。两者配合：stop 管语义，max_tokens 兜底。</div>
+<div class="warn">① Stop 是<strong>字符串匹配</strong>，区分大小写、精确匹配，且停止符本身一般<strong>不返回</strong>给用户（各 API 行为略有差异，要测）。② Stop 太短（如单个字）可能误触发；太长可能永不触发。③ 别把 stop 当正则用，它就是纯字符串匹配。</div>
+
+<!-- ============ 7. 结构化输出 ============ -->
+<h2 id="s7">七、Structured Output / JSON Schema</h2>
+<h3>7.1 两种机制</h3>
+<table>
+<tr><th>机制</th><th>保证什么</th><th>不保证什么</th></tr>
+<tr><td><strong>JSON Mode</strong></td><td>输出是合法 JSON 语法（能 parse）</td><td>字段名/类型/值对不对</td></tr>
+<tr><td><strong>JSON Schema / Structured Output</strong></td><td>输出符合指定 schema（字段名、类型、必填、枚举）</td><td>字段<strong>值</strong>的语义对不对（可能字段填了但内容是幻觉）</td></tr>
+</table>
+<h3>7.2 实现原理（了解）</h3>
+<ul>
+  <li><strong>约束解码（Constrained Decoding）</strong>：在采样阶段用 grammar/状态机限制，只允许生成符合 schema 的 token（如生成 JSON 时强制引号、括号匹配）。这是最稳的方式。</li>
+  <li><strong>Logits 偏置 / Grammar 约束</strong>：对不符合语法的 token logits 置 -∞。</li>
+  <li><strong>Prompt 引导</strong>：只在 prompt 里要求输出 JSON，靠模型自觉（最不稳，可能漏字段或加废话）。</li>
+</ul>
+<h3>7.3 各家 API 支持</h3>
+<ul>
+  <li><strong>Qwen（通义）</strong>：response_format 支持 JSON Mode，部分支持 JSON Schema（具体看模型版本）。</li>
+  <li><strong>DeepSeek</strong>：response_format json_object（JSON Mode）。</li>
+  <li><strong>Claude（Anthropic）</strong>：通过 tool_use / 强制 tool 返回实现结构化，或 prompt + 预填充 JSON 引导。</li>
+</ul>
+<h3>7.4 适用场景</h3>
+<ul>
+  <li>工具调用参数生成（必须结构化）。</li>
+  <li>信息抽取（从文本抽字段成 JSON）。</li>
+  <li>多步流程的中间状态传递。</li>
+  <li>RAG 的引用 + 答案结构化输出。</li>
+</ul>
+<div class="eng">结构化输出是 Agent / 工程化的基石——下游要 parse JSON、调工具、存数据库，输出必须可解析。生产里<strong>优先用 JSON Schema（约束解码）> JSON Mode > 纯 prompt 引导</strong>。但记住：结构化只保证"形对"，不保证"值对"，仍要校验语义。</div>
+<div class="iv">JSON Mode 保证语法合法，JSON Schema 进一步保证字段/类型符合定义。底层靠约束解码（grammar 限制 token）。结构化是工程化的前提，但只管"形"不管"义"，值仍可能错，必须校验。</div>
+<div class="warn">① 不要以为开了 JSON Schema 就万事大吉——模型可能把"保单号"字段填成"我不确定"，语法对但语义错。② 约束解码会让模型"硬塞"字段，有时牺牲内容质量（为凑结构编造值）。③ 不同 API 对 schema 支持深度不同（嵌套、枚举、union），要测兼容性。④ 复杂 schema（深层嵌套、可选字段）成功率下降，尽量简化 schema。</div>
+
+<!-- ============ 8. 校验重试 ============ -->
+<h2 id="s8">八、输出校验与失败重试</h2>
+<h3>8.1 为什么要校验</h3>
+<p>即使开了结构化输出，仍可能：字段缺失、类型错、枚举值非法、内容是幻觉、超出业务范围。所以<strong>拿到模型输出后必须校验</strong>，不能直接信任。</p>
+<h3>8.2 校验工具</h3>
+<ul>
+  <li><strong>Pydantic（Python）</strong>：定义数据模型，自动校验类型/必填/约束，校验失败抛明确错误。是 LLM 工程化最常用的校验库。</li>
+  <li><strong>JSON Schema 校验</strong>：用 jsonschema 库按 schema 校验。</li>
+  <li><strong>业务规则校验</strong>：字段值范围、引用是否存在、金额合理性等，schema 校验不到的。</li>
+</ul>
+<h3>8.3 重试策略</h3>
+<table>
+<tr><th>策略</th><th>做法</th><th>适用</th></tr>
+<tr><td>固定重试</td><td>失败就原样重发 N 次</td><td>偶发格式错误</td></tr>
+<tr><td>带反馈重试（推荐）</td><td>把校验错误信息拼进 prompt 再请求："上次输出缺少 policy_no 字段，请补全"</td><td>系统性错误，模型能据反馈修正</td></tr>
+<tr><td>降 T 重试</td><td>失败后降低 Temperature 再试</td><td>随机性导致的错误</td></tr>
+<tr><td>降级 fallback</td><td>重试仍失败→正则提取/默认值/转人工</td><td>兜底，不能让流程卡死</td></tr>
+</table>
+<h3>8.4 代码骨架（Pydantic + 带反馈重试）</h3>
+<pre><code>from pydantic import BaseModel, ValidationError
+import re
+
+class ClaimResult(BaseModel):
+    policy_no: str
+    amount: float
+    risk_level: str  # low/medium/high
+    reason: str
+
+def extract_with_retry(text, max_retry=3):
+    msgs = [{"role": "user", "content": f"从以下材料抽取理赔信息，输出 JSON：\n{text}"}]
+    last_err = ""
+    for i in range(max_retry):
+        prompt = msgs if not last_err else msgs + [{"role": "user", "content": f"上次输出错误：{last_err}，请修正后重新输出 JSON"}]
+        raw = call_llm(prompt, temperature=0.1 if i == 0 else 0.0, response_format="json")
+        try:
+            return ClaimResult.model_validate_json(raw)
+        except ValidationError as e:
+            last_err = str(e)
+    # 兜底降级：正则提取或转人工
+    return fallback_extract(text)</code></pre>
+<div class="eng">校验 + 重试是"让 LLM 输出真正可用"的关键一环。生产里<strong>必做三层</strong>：① Pydantic/Schema 校验形；② 业务规则校验义；③ 失败带反馈重试 + 降级兜底。重试次数要记 Trace 和成本（重试多花 token）。</div>
+<div class="iv">结构化输出只保证"形对"，工程上必须 Pydantic 校验 + 业务校验 + 失败带反馈重试 + 降级兜底。带反馈重试（把错误信息喂回去）比无脑重试有效得多。</div>
+
+<!-- ============ 9. 幻觉与拒答 ============ -->
+<h2 id="s9">九、模型幻觉与拒答</h2>
+<h3>9.1 幻觉类型</h3>
+<ul>
+  <li><strong>事实幻觉</strong>：编造不存在的事实（虚构保单条款、捏造药品名）。</li>
+  <li><strong>格式幻觉</strong>：输出格式对但内容错（JSON 里 policy_no 填了"无")。</li>
+  <li><strong>指令幻觉</strong>：没遵守指令（要求拒答却硬答）。</li>
+</ul>
+<h3>9.2 缓解手段</h3>
+<ul>
+  <li><strong>RAG</strong>：给模型真实知识，减少编造。</li>
+  <li><strong>结构化约束 + 校验</strong>：限制输出形，校验值。</li>
+  <li><strong>低 Temperature</strong>：减少随机编造。</li>
+  <li><strong>自洽性检查</strong>：多次生成取多数，或生成后自检。</li>
+  <li><strong>引用溯源</strong>：要求每条结论附引用，无引用即拒答。</li>
+</ul>
+<h3>9.3 拒答（Refusal）</h3>
+<p>企业知识库场景，<strong>无答案时应该拒答</strong>，而不是硬编。工程上要：</p>
+<ul>
+  <li>明确告诉模型"知识库里没有就回答'我不知道'"。</li>
+  <li>让模型输出 <code>should_refuse</code> 字段或固定拒答文案。</li>
+  <li>检测拒答信号（如输出含"我不知道"/"未找到"），不要当正常答案返回。</li>
+  <li>评测集里专门留 <code>should_refuse=true</code> 的 case，测拒答准确率。</li>
+</ul>
+<div class="iv">幻觉分事实/格式/指令三类，靠 RAG + 结构化 + 低 T + 自洽 + 引用缓解。企业场景"该拒答时拒答"比"硬编"更重要——拒答准确率是 RAG 评测的核心指标之一。</div>
+<div class="warn">① 别只追求"答得多"，<strong>拒答能力</strong>往往更难、更关键——模型爱"自信地编"，让它"承认不知道"需要专门 prompt + 评测。② 检测拒答别只靠关键词匹配（"我不知道"），模型可能换说法（"未查询到相关条款"），要结合 should_refuse 字段。</div>
+
+<!-- ============ 10. 实战 ============ -->
+<h2 id="s10">十、实战要点（Qwen / DeepSeek / Claude）</h2>
+<h3>10.1 调结构化输出</h3>
+<ul>
+  <li><strong>Qwen</strong>：参数 <code>response_format={"type": "json_object"}</code>，prompt 里要明确出现 "json"。</li>
+  <li><strong>DeepSeek</strong>：<code>response_format={"type": "json_object"}</code>。</li>
+  <li><strong>Claude</strong>：用 tool_use 强制结构化，或 prompt 末尾预填充 <code>{</code> 引导 JSON 开始。</li>
+</ul>
+<h3>10.2 Pydantic 定义</h3>
+<pre><code>from pydantic import BaseModel, Field
+from typing import Literal
+
+class ClaimExtract(BaseModel):
+    policy_no: str = Field(description="保单号")
+    drug_name: str = Field(description="药品名称")
+    amount: float = Field(ge=0, description="理赔金额")
+    risk_level: Literal["low", "medium", "high"]
+    should_refuse: bool = Field(description="无法判断时为 true")</code></pre>
+<h3>10.3 工程 checklist</h3>
+<ul>
+  <li>低 T（0~0.2）+ 结构化输出 + Pydantic 校验。</li>
+  <li>失败带反馈重试 ≤3 次，超限降级。</li>
+  <li>记录每次原始输出、校验错误、重试次数到 Trace。</li>
+  <li>评测集覆盖：正常 case + 格式错 case + 应拒答 case + 边界值 case。</li>
+</ul>
+
+<!-- ============ 11. 达标线① ============ -->
+<h2 id="s11">十一、面试达标线①：采样参数如何选</h2>
+<table>
+<tr><th>场景</th><th>T</th><th>Top P</th><th>理由</th></tr>
+<tr><td>代码/JSON 生成</td><td>0</td><td>关</td><td>要确定性，不能随机</td></tr>
+<tr><td>RAG 问答</td><td>0.1~0.3</td><td>1（关）</td><td>稳定为主，低 T 即可</td></tr>
+<tr><td>Agent 工具调用</td><td>0~0.2</td><td>关</td><td>参数必须准</td></tr>
+<tr><td>信息抽取</td><td>0</td><td>关</td><td>结构化抽取要稳</td></tr>
+<tr><td>通用对话</td><td>0.7</td><td>0.9</td><td>平衡</td></tr>
+<tr><td>创意写作</td><td>0.9</td><td>0.95</td><td>多样</td></tr>
+</table>
+<div class="iv">核心原则：要稳定可解析→低 T（0~0.2）+ 关 Top P；要多样→中高 T + Top P=0.9。工程任务几乎都用低 T，别三个参数一起调。</div>
+
+<!-- ============ 12. 达标线② ============ -->
+<h2 id="s12">十二、面试达标线②：结构化输出从请求到校验的完整流程</h2>
+<div class="formula">
+定义 Schema → 构造 Prompt → 调 API（response_format + 低 T）→ 拿到原始输出 → JSON parse → Pydantic 校验形 → 业务规则校验义 → 通过则用 / 失败则带反馈重试 → 重试超限则降级兜底 → 全程记 Trace
+</div>
+<ol>
+  <li><strong>定义 Schema</strong>：用 Pydantic 写数据模型，字段类型/约束/description 齐全。</li>
+  <li><strong>构造 Prompt</strong>：明确要求输出 JSON，给出字段说明和示例（few-shot）。</li>
+  <li><strong>调 API</strong>：低 T + response_format=json，必要时 stop 控制边界。</li>
+  <li><strong>parse</strong>：json.loads，失败进重试。</li>
+  <li><strong>Pydantic 校验</strong>：类型/必填/枚举/范围，失败带错误反馈重试。</li>
+  <li><strong>业务校验</strong>：保单号是否存在、金额合理性、风险等级合法性。</li>
+  <li><strong>重试</strong>：带反馈重试 ≤3 次，每次降 T。</li>
+  <li><strong>降级</strong>：正则提取 / 默认值 / 转人工，不能让流程卡死。</li>
+  <li><strong>Trace</strong>：记录原始输出、校验错误、重试次数、最终结果、token 成本。</li>
+</ol>
+
+<!-- ============ 13. 自测清单 ============ -->
+<h2 id="s13">十三、Day 2 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能解释 logits → softmax → 采样 的完整过程，说清采样参数在哪一步干预。</li>
+<li>能说清 Temperature 的原理（logits/T）和对分布的影响，以及 T=0/0.3/0.7/0.9 各适用场景。</li>
+<li>能区分 Top P（动态累计概率）和 Top K（固定数量），说出谁更自适应。</li>
+<li>知道三者的生效顺序和常见组合配方，明白为什么不要三个一起乱调。</li>
+<li>能解释 Stop Sequences 的作用，以及和 max_tokens、EOS 的关系。</li>
+<li>能区分 JSON Mode 和 JSON Schema，知道约束解码的原理。</li>
+<li>知道为什么结构化输出后仍要校验（形对不代表义对）。</li>
+<li>能写出 Pydantic + 带反馈重试的代码骨架。</li>
+<li>能说出幻觉的三类和缓解手段，以及为什么"拒答能力"很关键。</li>
+<li>能讲清结构化输出从请求到校验的完整流程（达标线②）。</li>
+</ul>
+</div>
+
+<!-- ============ 14. 速记卡 ============ -->
+<h2 id="s14">十四、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：Temperature 越高输出越随机，那调高 T 能让模型更聪明吗？</div><div class="a">不能。T 只调随机性不调能力，调高反而易跑偏。能力由模型本身和知识决定。</div></div>
+<div class="qcard"><div class="q">Q：Top P 和 Top K 有什么区别？</div><div class="a">Top P 按累计概率动态截断（自适应），Top K 固定保留前 K 个。Top P 更常用。</div></div>
+<div class="qcard"><div class="q">Q：T=0 为什么还会出错？</div><div class="a">T=0 是贪心，选 logits 最高的 token；若模型本身最高分那个就是错的，低 T 反而锁死错误。</div></div>
+<div class="qcard"><div class="q">Q：JSON Mode 和 JSON Schema 有什么区别？</div><div class="a">JSON Mode 保证语法合法（能 parse），JSON Schema 进一步保证字段/类型符合定义（靠约束解码）。</div></div>
+<div class="qcard"><div class="q">Q：开了结构化输出为什么还要校验？</div><div class="a">结构化只保证"形对"（语法/字段），不保证"义对"（值可能幻觉、超范围），必须 Pydantic + 业务校验。</div></div>
+<div class="qcard"><div class="q">Q：输出校验失败怎么重试？</div><div class="a">带反馈重试（把校验错误喂回 prompt）> 无脑重试；可降 T；超限降级（正则/默认值/人工）。</div></div>
+<div class="qcard"><div class="q">Q：Stop Sequences 和 max_tokens 什么关系？</div><div class="a">Stop 是语义刹车（遇指定字符串停），max_tokens 是硬刹车（防超长）。生成在 stop / max_tokens / EOS 任一触发时停。</div></div>
+<div class="qcard"><div class="q">Q：RAG 问答的 Temperature 怎么选？</div><div class="a">0.1~0.3，稳定为主，关 Top P。要可解析、可引用，不能乱发挥。</div></div>
+<div class="qcard"><div class="q">Q：为什么拒答能力比答题能力还重要？</div><div class="a">企业场景"硬编"比"不知道"危害大（误导决策）。拒答准确率是 RAG 核心评测指标。</div></div>
+<div class="qcard"><div class="q">Q：采样参数三个一起调会怎样？</div><div class="a">互相干扰、效果不可预测、出问题难定位。生产应按场景预设配方固化，别每次随便传。</div></div>
+
+<div class="ft">FDE Day2 学习手册 · 采样参数与结构化输出（面试级）· 配合《Day2 评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_day2_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE Day2 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'Day2-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

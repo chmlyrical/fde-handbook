@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W8D6 学习手册 · 技术负责人视角+模拟面试（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W8D6 学习手册</span>
+  <a href="#s1">1.角色</a><a href="#s2">2.人才</a><a href="#s3">3.选型</a><a href="#s4">4.协调</a><a href="#s5">5.架构决策</a>
+  <span class="sep"></span>
+  <a href="#s6">6.权衡</a><a href="#s7">7.定标准</a><a href="#s8">8.扛责</a><a href="#s9">9.模拟准备</a><a href="#s10">10.模拟题</a>
+  <span class="sep"></span>
+  <a href="#s11">11.投递关键词</a><a href="#s12">12.资源</a><a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W8D6 学习手册 · 技术负责人视角 + 模拟面试</h1>
+<p class="sub">W8 Day6 · A 级（高级/架构/负责人岗必考）· 5h · 学完能讲透"技术负责人在 AI 项目里到底扛什么、怎么讲清三个作品的技术领导力叙事"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W8 是"技术收口成岗位"的冲刺周。D5 讲了项目落地与价值，D6 升维到<strong>技术负责人视角</strong>：你不再只是"写代码的人"，而是定标准、带人、扛责的人。本日还包含一轮完整的高级模拟面试训练（可用通义 / DeepSeek 当面试官）。<br>
+  <strong>候选人背景：</strong>36 岁，Java + 大数据 + 医疗保险理赔，冲刺高级工程师 / 架构师 / 技术负责人。你的差异化不是"年轻能卷"，而是"业务理解深 + 工程扎实 + 能带 AI 能力落地"。<br>
+  <strong>学完能回答：</strong>① 技术负责人在 AI 项目里的角色（定标准/带人/扛责，不止写代码）；② 带团队建企业 AI 能力：人才结构、技术选型、跨团队协调；③ 架构决策（自研/框架/SaaS）；④ 用三个作品讲清技术领导力叙事；⑤ 完整走一轮高级模拟面试。<br>
+  <strong>使用方法：</strong>通读 → 重点看「面试话术」「易错点」→ 用 s10 模拟题自测（录音复盘）→ 配合《FDE-W8D6-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 角色定位 ============ -->
+<h2 id="s1">一、技术负责人的角色定位：不只是写代码</h2>
+<h3>1.1 原理：从"个人贡献者"到"杠杆者"</h3>
+<p>高级工程师靠"自己写"产出，技术负责人靠<strong>"定方向 + 建机制 + 带人"</strong>放大团队产出。AI 项目里这个区别更明显——模型能力趋同，<strong>能把 AI 用对场景、带团队持续交付、对结果负责</strong>的人稀缺。</p>
+<table>
+<tr><th>维度</th><th>高级工程师</th><th>技术负责人</th></tr>
+<tr><td>产出方式</td><td>自己写代码/方案</td><td>通过团队产出，定标准与架构</td></tr>
+<tr><td>关注点</td><td>技术正确性</td><td>技术正确性 + 业务结果 + 人</td></tr>
+<tr><td>责任边界</td><td>模块/任务</td><td>项目成败、质量、风险、团队成长</td></tr>
+<tr><td>AI 项目</td><td>调得动模型、写得通链路</td><td>选得对场景、建得起能力、扛得住决策</td></tr>
+</table>
+<h3>1.2 技术负责人的三个核心动作</h3>
+<ol>
+  <li><strong>定标准</strong>：工程规范、评测规范、AI 安全红线。</li>
+  <li><strong>带人</strong>：招对人、培养人、分配合适的事。</li>
+  <li><strong>扛责</strong>：技术选型拍板、上线决策、出事兜底。</li>
+</ol>
+<div class="eng">面试里被问"你和技术骨干有什么区别"，别答"我管人"——要答"我负责把不确定变成确定：定标准让团队不踩坑、带人让能力可复制、扛责让业务敢用"。这才是负责人价值。</div>
+<div class="iv">技术负责人 = 定标准 + 带人 + 扛责，不是"写更多代码"。AI 项目里负责"选对场景、建起能力、拍板决策、对结果负责"，靠杠杆放大团队产出，而非个人手速。</div>
+<div class="warn">① "负责人就是分配任务"是误解——真正的负责人是"最难的判断我来定、最坏的结果我兜"。② 不要贬低写代码，负责人也要保持技术判断力，否则拍板会变成瞎拍。③ 讲角色时别只说"管理"，要落到"技术领导力"具体动作。</div>
+
+<!-- ============ 2. 人才结构 ============ -->
+<h2 id="s2">二、带团队建设企业 AI 能力：人才结构</h2>
+<h3>2.1 原理：AI 工程团队是"混编部队"</h3>
+<p>企业 AI 能力不是单一角色能建起来的，需要<strong>多种能力互补</strong>。结合你的医疗+Java 背景，可设计这样的结构：</p>
+<table>
+<tr><th>角色</th><th>职责</th><th>你的匹配度</th></tr>
+<tr><td>AI 应用工程师</td><td>RAG/Agent 链路、提示词、评测</td><td>可主导（你已掌握全套）</td></tr>
+<tr><td>后端/平台工程师</td><td>服务化、API、多租户、监控</td><td>你的 Java 强项</td></tr>
+<tr><td>数据工程师</td><td>知识库构建、ETL、数据治理</td><td>你的大数据强项</td></tr>
+<tr><td>算法/微调工程师</td><td>Fine-tune、模型选型</td><td>可协作（W7 已懂边界）</td></tr>
+<tr><td>业务/领域专家</td><td>理赔规则、合规、验收</td><td>你的医疗背景是桥梁</td></tr>
+</table>
+<h3>2.2 带人的关键</h3>
+<ul>
+  <li><strong>招"互补"不招"克隆"</strong>：团队要有算法+工程+业务的多样性。</li>
+  <li><strong>建立成长机制</strong>：用评测集、复盘会、技术分享让新人快速长出手感。</li>
+  <li><strong>授权 + 兜底</strong>：给成员 ownership，但关键决策负责人拍板。</li>
+</ul>
+<div class="eng">你能把"医疗领域知识 + Java 工程 + 大数据治理 + AI 应用"串成团队能力图，这本身就是负责人视角的体现。面试要展现"我知道一个 AI 项目需要哪些人、各自干什么、我补哪块"。</div>
+<div class="iv">企业 AI 团队是混编：AI 应用 + 后端平台 + 数据 + 算法 + 业务专家。负责人要招互补而非克隆、建成长机制、授权且兜底。你的 Java+大数据+医疗恰好覆盖工程/数据/业务三块，是天然桥梁。</div>
+<div class="warn">① 不要以为"招个算法大牛就万事大吉"——算法落不了地，缺工程和业务一样崩。② 负责人自己不写代码但也不懂技术，会变成"传声筒"，失去拍板资格。③ 团队能力要"可复制"，不能只在你一个人脑子里。</div>
+
+<!-- ============ 3. 技术选型决策 ============ -->
+<h2 id="s3">三、技术选型决策框架</h2>
+<h3>3.1 原理：选型 = 在约束下做权衡</h3>
+<p>技术负责人每天做选型，核心不是"哪个最先进"，而是<strong>"哪个在当前约束下最合适"</strong>。约束包括：团队能力、时间、成本、合规、可维护性。</p>
+<div class="formula">
+选型决策 = f(需求匹配度, 团队熟悉度, 成本, 合规, 长期可维护, 风险)
+</div>
+<h3>3.2 决策清单</h3>
+<table>
+<tr><th>问题</th><th>引导思考</th></tr>
+<tr><td>团队会不会用？</td><td>选陌生技术要算学习成本与踩坑风险</td></tr>
+<tr><td>能扛合规吗？</td><td>医疗数据是否允许出域（呼应 W6/W8D5）</td></tr>
+<tr><td>长期谁维护？</td><td>避免"只有一个人懂"的孤儿技术</td></tr>
+<tr><td>能退能换吗？</td><td>是否锁死供应商、有无抽象层</td></tr>
+</table>
+<div class="eng">选型要"可解释、可回滚"。面试里被问"为什么选 Qwen/DeepSeek 而不是 GPT"，要回到约束：合规不出域、成本、中文医疗场景表现、私有化可行——而不是"因为火"。</div>
+<div class="iv">选型不是在"最先进"里挑，而是在约束（团队/时间/成本/合规/可维护）下权衡。决策要可解释、可回滚、不被供应商锁死。医疗场景优先合规不出域与中文表现。</div>
+<div class="warn">① "别人用我就用"是甩锅式选型，出事没人扛。② 过度追求"不锁定"导致自研一切，反而拖慢且易烂尾。③ 选型文档不写"为什么不选别的"，半年后团队忘了初衷，白交学费。</div>
+
+<!-- ============ 4. 跨团队协调 ============ -->
+<h2 id="s4">四、跨团队协调：AI 项目里的协作</h2>
+<h3>4.1 原理：AI 项目是"跨职能"的，负责人是枢纽</h3>
+<p>AI 落地要拉通<strong>业务、数据、算法、工程、合规、运维</strong>。负责人要当"翻译器"和"推动器"：</p>
+<ul>
+  <li><strong>对业务</strong>：把需求翻译成可落地的 AI 场景与验收标准（呼应 W8D5 价值翻译）。</li>
+  <li><strong>对数据</strong>：推动知识库建设、数据治理口径对齐。</li>
+  <li><strong>对合规</strong>：提前介入，别等上线被审计卡。</li>
+  <li><strong>对运维</strong>：把监控/成本/SLA 要求前置。</li>
+</ul>
+<h3>4.2 协调三原则</h3>
+<ol>
+  <li><strong>目标对齐</strong>：各方对"成功"定义一致（用门禁指标，见 W8D5）。</li>
+  <li><strong>节奏同频</strong>：固定同步会 + 共享看板，避免信息孤岛。</li>
+  <li><strong>责任到岗</strong>：RACI 明确谁负责、谁审批。</li>
+</ol>
+<div class="eng">协调能力是负责人岗的分水岭。能讲出"我怎么推动业务给标注、推动合规提前评审、推动数据团队建知识库"的具体故事，比讲技术更体现负责人成色。</div>
+<div class="iv">AI 项目跨业务/数据/算法/工程/合规/运维，负责人是枢纽+翻译器。原则：目标对齐（共定门禁）、节奏同频（看板同步）、责任到岗（RACI）。提前拉合规，别上线被卡。</div>
+<div class="warn">① 等技术做完才找合规，常被一票否决推倒重来。② 目标没对齐就开干，业务要苹果、你交橘子。③ "大家都负责"=没人负责，RACI 必须落到具体人。</div>
+
+<!-- ============ 5. 架构决策 ============ -->
+<h2 id="s5">五、架构决策：什么时候自研 / 用框架 / 用 SaaS</h2>
+<h3>5.1 原理：三个选项的成本收益结构不同</h3>
+<table>
+<tr><th>选项</th><th>优势</th><th>代价</th><th>适合</th></tr>
+<tr><td>自研</td><td>完全可控、可深度定制</td><td>成本高、周期长、要养人</td><td>核心差异化、强合规、长期战略</td></tr>
+<tr><td>用框架</td><td>复用成熟能力、快</td><td>受框架约束、需学习</td><td>通用能力（RAG/Agent 编排）</td></tr>
+<tr><td>用 SaaS</td><td>最快、免运维</td><td>数据出域风险、锁定、贵</td><td>试水、非核心、量小</td></tr>
+</table>
+<h3>5.2 决策启发式</h3>
+<div class="formula">
+核心且合规敏感 → 自研/私有化框架 ｜ 通用能力 → 框架 ｜ 试水非核心 → SaaS
+</div>
+<div class="eng">企业 Agent 平台（你的作品三）是"核心差异化"——适合基于框架自研而非纯 SaaS；而某些非核心的客服 bot 可以用 SaaS 快速验证。负责人要能画出"哪些自研、哪些采购"的边界。</div>
+<div class="iv">自研=可控但贵慢；框架=复用快但有约束；SaaS=最快但有出域/锁定/成本风险。启发式：核心且合规敏感来自研/私有框架，通用能力用框架，试水非核心用 SaaS。</div>
+<div class="warn">① "全自研"显实力但常拖死项目，要克制。② "全 SaaS"省事但数据出域+供应商锁定，医疗场景高危。③ 框架选了冷门的，团队招不到人、社区不活跃，长期成孤儿。</div>
+
+<!-- ============ 6. 权衡矩阵 ============ -->
+<h2 id="s6">六、自研 vs 框架 vs SaaS 的权衡矩阵</h2>
+<h3>6.1 用一张表做决策</h3>
+<table>
+<tr><th>评估项</th><th>自研</th><th>框架</th><th>SaaS</th></tr>
+<tr><td>上线速度</td><td>慢</td><td>中</td><td>快</td></tr>
+<tr><td>可控性</td><td>高</td><td>中</td><td>低</td></tr>
+<tr><td>数据合规</td><td>最好（私有）</td><td>好（可私有部署）</td><td>差（出域）</td></tr>
+<tr><td>长期成本</td><td>看规模</td><td>中</td><td>随量升</td></tr>
+<tr><td>团队要求</td><td>高</td><td>中</td><td>低</td></tr>
+<tr><td>供应商风险</td><td>无</td><td>低</td><td>高</td></tr>
+</table>
+<h3>6.2 组合策略（推荐）</h3>
+<ul>
+  <li><strong>底座用框架、差异化自研</strong>：RAG/Agent 编排用成熟框架，行业 know-how（理赔规则、知识治理）自研封装。</li>
+  <li><strong>非核心用 SaaS 验证</strong>：先 SaaS 跑通 PMF，再视合规/成本决定是否内化。</li>
+</ul>
+<div class="iv">权衡矩阵看速度/可控/合规/成本/团队/供应商六维。推荐"底座框架 + 差异化自研 + 非核心 SaaS 验证"，而非极端全自研或全 SaaS。</div>
+<div class="warn">① 不要只看"上线速度"选 SaaS，忽略后续数据出域被合规一票否决。② 自研比例过高，团队被维护拖垮，没精力做业务。③ 没做"内化触发条件"，SaaS 跑顺了也不敢切，长期被绑。</div>
+
+<!-- ============ 7. 定标准 ============ -->
+<h2 id="s7">七、定标准：工程标准与评测规范</h2>
+<h3>7.1 原理：标准是"让团队不踩同一个坑"的机制</h3>
+<p>负责人要把"个人经验"变成"团队规范"。在 AI 项目里尤其要定：</p>
+<ul>
+  <li><strong>工程标准</strong>：提示词版本管理、链路可观测、降级必写、配置外置。</li>
+  <li><strong>评测规范</strong>：评测集怎么建、指标怎么算、回归怎么跑（呼应 W8D5）。</li>
+  <li><strong>安全红线</strong>：PII 处理、租户隔离、越权拒答、人工兜底（呼应 W8D5/W6）。</li>
+  <li><strong>上线规范</strong>：门禁指标、灰度比例、回滚预案。</li>
+</ul>
+<div class="info"><strong>示例：</strong>规定"所有面向用户的 LLM 输出必须带引用溯源 + 可解析结构 + 人工兜底开关"，一条规范就挡住大量幻觉与合规事故。</div>
+<div class="eng">"定标准"是负责人最被低估的价值。面试能甩出几条你定的团队规范，比讲十个技术点都管用——它证明你能把能力"制度化"。</div>
+<div class="iv">标准 = 把个人经验变团队规范：工程标准（提示词版本/可观测/降级/配置外置）、评测规范（集怎么建/指标/回归）、安全红线（PII/隔离/拒答/兜底）、上线规范（门禁/灰度/回滚）。</div>
+<div class="warn">① 定了标准不查执行，等于没定。要有 code review / 评测门禁兜底。② 标准太细太死，团队束手束脚；太粗又防不住坑，要适度。③ 标准不随技术演进更新，很快过时变成负担。</div>
+
+<!-- ============ 8. 扛责 ============ -->
+<h2 id="s8">八、扛责：风险 / 质量 / 上线决策</h2>
+<h3>8.1 原理：负责人的"责"是兜底性的</h3>
+<p>扛责体现在三个时刻：</p>
+<table>
+<tr><th>时刻</th><th>负责人动作</th></tr>
+<tr><td>技术选型</td><td>拍板并承担后果，不甩给委员会</td></tr>
+<tr><td>上线决策</td><td>看门禁指标 + 降级预案，决定放/不放</td></tr>
+<tr><td>出事</td><td>第一时间兜底、复盘、担责、改进</td></tr>
+</table>
+<h3>8.2 质量与风险的平衡</h3>
+<ul>
+  <li><strong>不拿用户赌</strong>：没降级预案不放量（呼应 W8D5）。</li>
+  <li><strong>可接受的不完美</strong>：先上"AI 初筛 + 人工终审"，而非等完美再上。</li>
+  <li><strong>复盘文化</strong>：bad case 复盘对事不对人，沉淀为规范。</li>
+</ul>
+<div class="eng">面试讲"扛责"最好带一个真实（或强可信的）故事：某次上线出问题，你如何第一时间兜底、复盘、把教训变成团队规范。这比空谈"我有责任心"有力十倍。</div>
+<div class="iv">扛责 = 选型拍板担后果 + 上线看门禁与降级决定放不放 + 出事第一时间兜底复盘改进。质量上不拿用户赌、接受"AI初筛+人终审"的不完美、建对事不对人的复盘文化。</div>
+<div class="warn">① "集体决策"变"无人决策"，关键时刻要有人拍板。② 出事甩锅给下属/模型，信任瞬间破产。③ 追求"零风险完美再上"，项目永远上不了线，错过窗口。</div>
+
+<!-- ============ 9. 模拟面试准备 ============ -->
+<h2 id="s9">九、模拟面试准备：用通义 / DeepSeek 当面试官</h2>
+<h3>9.1 原理：面试是"可训练"的技能</h3>
+<p>很多技术过硬的人面试翻车，是因为<strong>表达没结构、叙事没重点</strong>。用大模型当面试官可以低成本高频演练。</p>
+<h3>9.2 操作流程</h3>
+<ol>
+  <li><strong>设定角色</strong>：让通义/DeepSeek 扮演"某大厂 AI 平台技术负责人面试官，严苛、追问细节"。</li>
+  <li><strong>喂背景</strong>：粘贴你的简历要点（36 岁 / Java+大数据+医疗 / 三个作品）。</li>
+  <li><strong>限时口述</strong>：用语音或打字在 2-3 分钟内答，逼自己结构化（STAR：情境-任务-行动-结果）。</li>
+  <li><strong>要反馈</strong>：让面试官给"哪里空泛、哪里缺数字、哪里逻辑断"。</li>
+  <li><strong>录音复盘</strong>：回听自己的"嗯/啊/绕"，下次砍掉。</li>
+</ol>
+<div class="info"><strong>提示词模板：</strong>"你是我应聘的 AI 平台技术负责人面试官。我是 36 岁候选人，背景 Java+大数据+医疗保险理赔，做过企业知识库、特药理赔 Agent、企业 Agent 平台三个作品。请基于我的背景连环追问技术领导力与架构决策，每次只问一题，听我回答后指出不足并追问。"</div>
+<div class="eng">模拟面试的核心是"暴露表达漏洞"。大模型不会累、不会嫌弃你，是最便宜的陪练。关键是你得真开口练，而不是只看答案。</div>
+<div class="iv">面试可训练：用通义/DeepSeek 扮严苛面试官，喂背景、限时用 STAR 口述、要反馈、录音复盘。重点暴露"空泛/缺数字/逻辑断"，逼自己结构化表达。</div>
+<div class="warn">① 只看不算练——不开口永远发现不了"一紧张就跑题"。② 让面试官只给好评会虚假自信，要它"严苛追问"。③ 复盘只听不改，下次照样犯，要逐条改逐条练。</div>
+
+<!-- ============ 10. 模拟面试题纲 ============ -->
+<h2 id="s10">十、一轮完整高级模拟面试（题纲 + 评分）</h2>
+<h3>10.1 题纲（约 45 分钟，6 轮连环追问）</h3>
+<table>
+<tr><th>轮</th><th>面试官问题</th><th>考察</th></tr>
+<tr><td>1</td><td>"用 3 分钟介绍你最自豪的一个 AI 项目，重点讲你个人的技术领导力。"</td><td>叙事 + 领导力</td></tr>
+<tr><td>2</td><td>"你选 Qwen/DeepSeek 而非 GPT 的理由？如果合规放开你会换吗？"</td><td>选型决策</td></tr>
+<tr><td>3</td><td>"特药理赔 Agent 从 POC 到生产，你踩过/会防哪些坑？"</td><td>落地能力（W8D5）</td></tr>
+<tr><td>4</td><td>"你的企业 Agent 平台为什么自研而不是买 SaaS？边界在哪？"</td><td>架构决策</td></tr>
+<tr><td>5</td><td>"你怎么向老板证明这个 AI 项目值得继续投钱？"</td><td>价值/ROI（W8D5）</td></tr>
+<tr><td>6</td><td>"团队里算法和工程吵架，你怎么拍板？出生产事故你第一动作是什么？"</td><td>扛责 + 协调</td></tr>
+</table>
+<h3>10.2 自评分维度（每项 0-5）</h3>
+<ul>
+  <li><strong>结构</strong>：回答是否 STAR、有没有结论先行。</li>
+  <li><strong>数字</strong>：是否给出可量化的结果（时效/成本/准确率）。</li>
+  <li><strong>深度</strong>：是否被追问后仍能展开原理与权衡。</li>
+  <li><strong>领导力</strong>：是否体现"定标准/带人/扛责"而非"我一个人写"。</li>
+</ul>
+<div class="iv">完整一轮：6 轮连环追问覆盖叙事/选型/落地/架构/ROI/扛责。自评看结构(STAR)、数字(量化)、深度(被追问还能展开)、领导力(定标准带人扛责)。</div>
+<div class="warn">① 第 1 题就讲技术细节忘了讲"我做了什么决策"，面试官抓不到领导力。② 被追问就慌、开始编，不如诚实"这块我后续会补"。③ 全程不提数字，故事没重量。</div>
+
+<!-- ============ 11. 投递关键词 ============ -->
+<h2 id="s11">十一、投递关键词与简历叙事</h2>
+<h3>11.1 原理：关键词决定能不能过简历筛选</h3>
+<p>你的目标是<strong>高级/架构/负责人岗</strong>，简历要精准命中的关键词：</p>
+<table>
+<tr><th>岗位方向</th><th>必含关键词</th></tr>
+<tr><td>AI FDE / 解决方案架构师</td><td>大模型应用、RAG、Agent、Prompt、评测体系、客户方案、PoC 到生产</td></tr>
+<tr><td>应用技术负责人</td><td>技术团队管理、架构设计、Java、微服务、大数据、AI 平台</td></tr>
+<tr><td>医疗 AI 方向</td><td>医疗保险、理赔自动化、知识库、合规(PII/等保)、私有化部署</td></tr>
+</table>
+<h3>11.2 叙事策略</h3>
+<ul>
+  <li>用<strong>动词开头 + 数字结果</strong>：".主导特药理赔 Agent，初审时效降 93%，释放 5 人日/日"。</li>
+  <li>把三个作品串成<strong>能力递进</strong>（见 W8D7 s6）。</li>
+  <li>36 岁要讲<strong>"经验红利"</strong>：业务理解深、能扛责、沟通成本低，而非和 25 岁拼手速。</li>
+</ul>
+<div class="iv">投递关键词按岗位方向命中：AI FDE 命中 RAG/Agent/评测/PoC-生产；负责人命中团队管理/架构/Java/大数据；医疗命中理赔自动化/合规/私有化。叙事用动词+数字，讲经验红利。</div>
+<div class="warn">① 堆砌不相关关键词（如硬写"深度学习 PhD"）被深挖就露馅。② 简历只列技术不列结果，像岗位说明书。③ 36 岁简历还写"热爱学习、能加班"，反而弱化经验优势。</div>
+
+<!-- ============ 12. 资源 ============ -->
+<h2 id="s12">十二、相关学习资源（中文 / 非 OpenAI）</h2>
+<div class="info">
+  <strong>📚 本日配套资源：</strong><br>
+  • 《FDE面试备战手册.html》—— 高级/架构岗面试体系、项目叙事与领导力话术模板。<br>
+  • 投递关键词清单（见 s11 与 W8D7）—— 用于简历与岗位匹配。<br>
+  • 通义千问（Qwen）/ DeepSeek —— 当模拟面试官，用 s9 提示词模板高频演练。<br>
+  • 阿里云百炼 / 通义灵码企业实践 —— 企业 AI 能力平台建设参考。<br>
+  • 参考阅读：《技术领导者的核心竞争力》《成为技术负责人》类中文分享（理解"定标准/带人/扛责"）。
+</div>
+<div class="iv">资源用法：先读《FDE面试备战手册》搭叙事框架，再用通义/DeepSeek 跑 s10 的 6 轮模拟面试并录音复盘，最后回本手册补"定标准/扛责"话术。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：能讲清技术负责人在 AI 项目里的角色</h2>
+<table>
+<tr><th>角色动作</th><th>具体体现</th><th>不是什么</th></tr>
+<tr><td>定标准</td><td>工程/评测/安全/上线规范制度化</td><td>不是"我写文档"</td></tr>
+<tr><td>带人</td><td>招互补、建成长、授权兜底</td><td>不是"我分配任务"</td></tr>
+<tr><td>扛责</td><td>选型拍板、上线决策、出事兜底</td><td>不是"我管进度"</td></tr>
+</table>
+<div class="iv">核心叙事：技术负责人 = 定标准 + 带人 + 扛责，靠杠杆放大团队产出。在 AI 项目里负责"选对场景、建起能力、拍板决策、对结果负责"，不是"写更多代码"。被问区别时答"我把不确定变成确定"。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：能讲清三个作品体现的技术领导力叙事</h2>
+<div class="formula">
+知识库(数据层:治理/检索) → 特药理赔Agent(应用层:场景落地) → 企业Agent平台(平台层:能力复用) = 从"数据"到"平台"的领导力递进
+</div>
+<ol>
+  <li><strong>知识库</strong>：体现你"把混乱医疗知识变成可检索资产"的数据治理能力（大数据背景）。</li>
+  <li><strong>特药理赔 Agent</strong>：体现你"选对场景、带落地、控合规与 ROI"的应用领导力（医疗+AI）。</li>
+  <li><strong>企业 Agent 平台</strong>：体现你"定架构标准、让能力可复制"的平台领导力（Java+架构）。</li>
+  <li><strong>串起来</strong>：不是三个孤立项目，而是一条"我能从数据一路建到平台"的能力证据链（详见 W8D7）。</li>
+</ol>
+<div class="iv">叙事：知识库(数据治理)→理赔Agent(场景落地)→Agent平台(能力复用) 构成从数据到平台的递进。每个作品讲清"我做了什么决策、带了什么结果、沉淀了什么标准"，合起来证明技术领导力。</div>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W8D6 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能讲清技术负责人 vs 高级工程师的区别，落到"定标准/带人/扛责"三个动作。</li>
+<li>能画出企业 AI 团队的人才结构，并说清你的 Java+大数据+医疗背景补哪几块。</li>
+<li>能说出选型决策框架（约束权衡）和"为什么选 Qwen/DeepSeek 而非 GPT"的合规/成本理由。</li>
+<li>能讲出跨团队协调的三原则（目标对齐/节奏同频/责任到岗）和提前拉合规的重要性。</li>
+<li>能对比自研/框架/SaaS 的成本收益，并画出"哪些自研、哪些采购"的边界。</li>
+<li>能用权衡矩阵（速度/可控/合规/成本/团队/供应商）解释为何核心能力自研、非核心 SaaS。</li>
+<li>能列出你会在团队定的 3-4 条标准（工程/评测/安全/上线）。</li>
+<li>能讲出"扛责"在选型/上线/出事三个时刻的具体动作，并带一个复盘故事。</li>
+<li>能用通义/DeepSeek 当面试官，按 s9 流程做一轮模拟并录音复盘。</li>
+<li>能默出 s10 的 6 轮模拟题纲，并按四维（结构/数字/深度/领导力）自评。</li>
+<li>能写出匹配目标岗位的关键词，并用"动词+数字"改写一条简历经历。</li>
+<li>能讲清两个达标线（角色定位、三个作品的技术领导力叙事）。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：你和技术骨干有什么区别？</div><div class="a">我负责把不确定变确定：定标准让团队不踩坑、带人让能力可复制、扛责让业务敢用。靠杠杆放大团队产出，不止自己写代码。</div></div>
+<div class="qcard"><div class="q">Q：AI 团队该怎么搭？</div><div class="a">混编：AI应用+后端平台+数据+算法+业务专家。招互补不招克隆，建成长机制，授权且兜底。我的Java+大数据+医疗覆盖工程/数据/业务三块。</div></div>
+<div class="qcard"><div class="q">Q：为什么选 Qwen/DeepSeek 不选 GPT？</div><div class="a">约束权衡：合规不出域、中文医疗表现、私有化可行、成本与长期可维护。不是"因为火"，是可解释、可回滚的决策。</div></div>
+<div class="qcard"><div class="q">Q：自研还是 SaaS？</div><div class="a">核心且合规敏感来自研/私有框架，通用能力用框架，试水非核心用SaaS。推荐底座框架+差异化自研+非核心SaaS验证。</div></div>
+<div class="qcard"><div class="q">Q：技术负责人怎么"定标准"？</div><div class="a">把个人经验变团队规范：工程(提示词版本/可观测/降级)、评测(集/指标/回归)、安全(PII/隔离/拒答/兜底)、上线(门禁/灰度/回滚)。</div></div>
+<div class="qcard"><div class="q">Q：出生产事故你第一动作？</div><div class="a">先兜底止损（降级/转人工）→ 定位复盘（对事不对人）→ 沉淀为规范防再犯。不甩锅，担责改进。</div></div>
+<div class="qcard"><div class="q">Q：怎么用大模型练面试？</div><div class="a">扮严苛面试官+喂背景+限时STAR口述+要反馈+录音复盘。关键真开口练，让它不仅给好评而是连环追问。</div></div>
+<div class="qcard"><div class="q">Q：36 岁怎么讲优势不显老？</div><div class="a">讲"经验红利"：业务理解深、能扛责、沟通成本低、定标准带人。用动词+数字讲结果，不拼手速不写"热爱加班"。</div></div>
+<div class="qcard"><div class="q">Q：三个作品怎么体现领导力？</div><div class="a">知识库(数据治理)→理赔Agent(场景落地)→Agent平台(能力复用)，从数据到平台的递进，每个讲清决策/结果/沉淀的标准。</div></div>
+<div class="qcard"><div class="q">Q：算法和工程吵架你拍板？</div><div class="a">回到约束与目标（门禁指标/合规/成本）拍板，不和稀泥。决策可解释、可回滚，并对后果负责。</div></div>
+
+<div class="ft">FDE W8D6 学习手册 · 技术负责人视角+模拟面试（面试级）· 配合《FDE-W8D6-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w8d6_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W8D6 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W8D6-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

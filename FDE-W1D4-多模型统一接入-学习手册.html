@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W1D4 学习手册 · 多模型统一接入（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W1D4 学习手册</span>
+  <a href="#s1">1.为何统一</a><a href="#s2">2.统一请求</a><a href="#s3">3.Provider</a><a href="#s4">4.路由</a><a href="#s5">5.超时重试</a><a href="#s6">6.Fallback</a><a href="#s7">7.Token成本</a><a href="#s8">8.Trace</a>
+  <span class="sep"></span>
+  <a href="#s9">9.流式</a><a href="#s10">10.架构图</a><a href="#s11">11.LiteLLM</a><a href="#s12">12.医保实战</a><a href="#s13">13.达标①</a><a href="#s14">14.达标②</a>
+  <span class="sep"></span>
+  <a href="#s15">15.自测</a><a href="#s16">16.速记</a>
+</div>
+
+<h1>FDE W1D4 学习手册 · 多模型统一接入</h1>
+<p class="sub">W1 Day4 · A 级（必须掌握，面试核心）· 4h · 学完能画出统一接入层架构，并讲清超时/重试/Fallback/Trace/成本记录的全链路设计</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>Day3 讲"选哪个模型"，Day4 讲"怎么把多个模型接进来还能稳、能观测、能降级"。这是 FDE 工程能力的体现——生产环境绝不能直接裸调各家 API，必须有一层统一接入。<br>
+  <strong>学完能回答：</strong>① 统一接入层的完整架构（请求→路由→provider→统一响应→Trace）；② Provider Adapter 怎么写；③ 超时/重试/Fallback 怎么设计；④ Token 成本与 Trace ID 怎么记录和串联。<br>
+  <strong>使用方法：</strong>先看 s10 架构图建立整体认知 → 重点背 s13/s14 两个达标线 → 配合《FDE-W1D4-评测题.md》自测。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 为何统一 ============ -->
+<h2 id="s1">一、为什么需要统一接入层</h2>
+<p>裸调各家 API 的痛点：每个厂商的请求格式、鉴权、响应结构、错误码、流式格式都不同。业务代码若直接耦合 Qwen/DeepSeek/Claude/Ollama，会带来：</p>
+<ul>
+  <li><strong>厂商锁定</strong>：换模型要改业务代码，无法快速 A/B 或迁移。</li>
+  <li><strong>容错缺失</strong>：某家宕机就全链路挂，无 Fallback。</li>
+  <li><strong>不可观测</strong>：成本、延迟、错误率散落各家，无法统一分析。</li>
+  <li><strong>重复造轮子</strong>：超时、重试、Token 统计每个调用点各写一遍。</li>
+</ul>
+<p>统一接入层（Unified Model Gateway）把这些横切关注点收口到一层，业务只面对"一个统一接口"。</p>
+<div class="info">📚 延伸资源：<a href="https://help.aliyun.com/zh/model-studio/" target="_blank">通义千问 API（阿里云百炼）</a>、<a href="https://platform.deepseek.com/api-docs" target="_blank">DeepSeek API 文档</a>、<a href="https://docs.anthropic.com/en/docs" target="_blank">Claude API 文档</a>、<a href="https://docs.litellm.ai" target="_blank">LiteLLM 文档</a>。</div>
+<div class="iv">统一接入层解决"厂商差异 + 容错 + 观测 + 复用"四大问题。核心价值：业务只调一个接口，背后可任意换模型、可降级、可统计成本、可追踪。没有这层，生产就是裸奔。</div>
+<div class="warn">① 别在业务代码里直接写死某个厂商的 SDK 调用，这是最常见的架构债。② 统一层不是"再包一层 HTTP"，它要承载路由、容错、观测、计费等横切能力，否则只是换个地方耦合。</div>
+
+<!-- ============ 2. 统一请求结构 ============ -->
+<h2 id="s2">二、统一请求结构（Model Adapter）</h2>
+<h3>2.1 原理</h3>
+<p>定义一个<strong>与厂商无关的内部请求/响应结构</strong>，所有业务都用它。Adapter 负责把它翻译成具体厂商格式，再把厂商响应翻译回统一结构。</p>
+<div class="formula">业务调用 → UnifiedRequest → [Adapter] → 厂商特定请求 → 厂商响应 → [Adapter] → UnifiedResponse → 业务</div>
+<h3>2.2 统一请求字段（建议）</h3>
+<table>
+<tr><th>字段</th><th>含义</th></tr>
+<tr><td>model / model_key</td><td>逻辑模型名（如 "qwen_max"），不直接暴露厂商 ID</td></tr>
+<tr><td>messages</td><td>标准化对话消息（role/content）</td></tr>
+<tr><td>params</td><td>temperature / top_p / max_tokens 等</td></tr>
+<tr><td>response_format</td><td>json / text，统一抽象</td></tr>
+<tr><td>stream</td><td>是否流式</td></tr>
+<tr><td>trace_id / user_id</td><td>贯穿全链路的追踪与计费维度</td></tr>
+<tr><td>timeout_ms</td><td>本次调用超时</td></tr>
+</table>
+<h3>2.3 统一响应结构</h3>
+<pre><code>{
+  "content": "模型文本输出",
+  "finish_reason": "stop",
+  "usage": { "prompt_tokens": 120, "completion_tokens": 30, "total_tokens": 150 },
+  "model": "qwen-max",         // 实际命中的底层模型
+  "provider": "qwen",
+  "trace_id": "tr-abc-123",
+  "latency_ms": 820
+}</code></pre>
+<div class="eng">统一结构让"换模型"变成"改配置"而非"改代码"。逻辑模型名（qwen_max）与物理模型（qwen-plus / 具体版本）解耦，便于灰度、A/B、成本切换。所有横切逻辑（超时、重试、计费）只在 Adapter 内写一次。</div>
+<div class="iv">Model Adapter = 一个与厂商无关的统一请求/响应结构 + 每个厂商一个翻译器。业务只认统一接口，换模型改配置即可。关键字段：逻辑 model_key、messages、usage、trace_id、latency_ms。</div>
+
+<!-- ============ 3. Provider Adapter ============ -->
+<h2 id="s3">三、Provider Adapter（Qwen / DeepSeek / Claude / Ollama）</h2>
+<p>每个厂商一个 Adapter，实现统一接口 <code>chat(req) → UnifiedResponse</code>。差异点：</p>
+<table>
+<tr><th>厂商</th><th>鉴权</th><th>消息格式</th><th>流式</th><th>结构化</th></tr>
+<tr><td>Qwen（通义）</td><td>API-Key Bearer</td><td>OpenAI 兼容 messages</td><td>SSE</td><td>response_format json_object</td></tr>
+<tr><td>DeepSeek</td><td>API-Key Bearer</td><td>OpenAI 兼容 messages</td><td>SSE</td><td>response_format json_object</td></tr>
+<tr><td>Claude（Anthropic）</td><td>x-api-key Header</td><td>system + messages（不同）</td><td>SSE（events）</td><td>tool_use / 预填充</td></tr>
+<tr><td>Ollama（本地）</td><td>无/本地</td><td>OpenAI 兼容</td><td>SSE</td><td>format: json schema</td></tr>
+</table>
+<h3>3.1 关键差异处理</h3>
+<ul>
+  <li><strong>Claude 的 system 是顶层字段</strong>，不是 messages 里的 role=system；Adapter 要拆分。</li>
+  <li><strong>Claude 错误码与限流</strong>：429 限流、529 过载，需单独映射。</li>
+  <li><strong>OpenAI 兼容族</strong>（Qwen/DeepSeek/Ollama 多数）可共用一个基类 Adapter，仅改 base_url 和 key。</li>
+  <li><strong>工具调用</strong>：Claude 走 tool_use，OpenAI 系走 tool_calls，统一层要抽象成一套中间表示。</li>
+</ul>
+<div class="eng">把"OpenAI 兼容"的厂商（Qwen/DeepSeek/Ollama）归为一类基类 Adapter，Claude 单独一类。这样新增一个兼容厂商只需配 base_url+key，开发成本极低。Adapter 还要做错误码归一化（各家 429/5xx 映射成统一错误类型）。</div>
+<div class="iv">Provider Adapter 每个厂商一个，实现统一 chat 接口。重点处理差异：Claude 的 system 是顶层字段、错误码不同、工具调用格式不同；Qwen/DeepSeek/Ollama 多为 OpenAI 兼容可共用基类。Adapter 还要归一化错误码和 usage 字段。</div>
+<div class="warn">① 不要假设所有厂商都 OpenAI 兼容——Claude 的 system 位置、流式事件、限流码都不同，漏适配会出诡异 bug。② usage 字段名各家不同（prompt_tokens vs input_tokens），统一层必须归一，否则成本统计错。③ 本地 Ollama 没有真实鉴权，但要有内部限流，防止压垮单机。</div>
+
+<!-- ============ 4. 模型路由 ============ -->
+<h2 id="s4">四、模型路由（Routing）</h2>
+<h3>4.1 原理</h3>
+<p>路由决定"这次请求走哪个逻辑模型"。可按多维度决策：</p>
+<ul>
+  <li><strong>静态路由</strong>：配置写死（如"抽取类走 qwen，推理类走 claude"）。</li>
+  <li><strong>基于能力/成本</strong>：简单任务→小模型，复杂→大模型（级联）。</li>
+  <li><strong>基于可用性</strong>：主模型健康度下降→切备模型（与 Fallback 配合）。</li>
+  <li><strong>基于 A/B / 灰度</strong>：按 user_id 哈希分流做实验。</li>
+  <li><strong>基于语义分类</strong>：先分类问题类型再路由（如"政策问答→RAG+某模型"）。</li>
+</ul>
+<div class="formula">请求(metadata) → 路由策略(规则/分类/健康度/灰度) → 选定 model_key → 查 Provider → 调用</div>
+<div class="eng">路由是"成本与能力调度中枢"。生产常用"小模型打底 + 大模型兜底 + 按健康度自动切换"。路由策略应可配置化，结合 Day3 的选型结论——把选型决策沉淀为路由规则。</div>
+<div class="iv">模型路由决定请求走哪个模型：静态配置、按能力级联（简单→小模型）、按健康度切换、按 user_id 灰度 A/B、按语义分类。它是成本与能力的调度中枢，应配置化。</div>
+
+<!-- ============ 5. 超时与重试 ============ -->
+<h2 id="s5">五、超时与重试</h2>
+<h3>5.1 超时设计</h3>
+<ul>
+  <li><strong>连接超时</strong>（如 3s）：建连慢说明网络/服务异常，早失败。</li>
+  <li><strong>读取超时</strong>（如 30~60s）：生成慢，按场景设上限（流式可更长）。</li>
+  <li><strong>整体超时预算</strong>：业务侧有 SLA，留给模型调用的时间有限，超时即降级。</li>
+</ul>
+<h3>5.2 重试策略</h3>
+<table>
+<tr><th>策略</th><th>适用错误</th><th>注意</th></tr>
+<tr><td>指数退避 + 抖动</td><td>429 限流、5xx 临时错误</td><td>避免重试风暴打爆厂商</td></tr>
+<tr><td>限次（如 2~3 次）</td><td>所有可重试错误</td><td>超过即 Fallback/降级</td></tr>
+<tr><td>仅重试幂等调用</td><td>纯生成（无副作用）</td><td>有副作用的不能盲目重试</td></tr>
+</ul>
+<div class="eng">超时是第一道熔断。重试必须用<strong>指数退避+抖动</strong>，否则大量并发同时重试会形成"重试风暴"把厂商打挂（也把自己打挂）。区分可重试错误（429/5xx 临时）与不可重试（400 参数错、鉴权错）。</div>
+<div class="iv">超时：连接超时(短)+读取超时(长)+整体预算。重试：指数退避+抖动、限次(2~3)、只重试幂等/可重试错误(429/5xx)，超次就 Fallback。盲目重试会风暴，必须退避。</div>
+<div class="warn">① 重试一定要加退避和上限，否则"重试风暴"会雪崩。② 对 400/401（参数/鉴权错）重试无意义，要直接报错。③ 流式请求中断的重试要能"续传"或整体重发，否则用户看到半截答案。</div>
+
+<!-- ============ 6. Fallback ============ -->
+<h2 id="s6">六、Fallback（降级）策略</h2>
+<h3>6.1 原理</h3>
+<p>当主模型失败（超时/限流/5xx/内容违规）且重试耗尽，<strong>自动切换到备用模型/方案</strong>，保证业务不中断。</p>
+<h3>6.2 Fallback 层级</h3>
+<ol>
+  <li><strong>同厂商换模型</strong>：qwen-max 挂 → qwen-plus。</li>
+  <li><strong>换厂商</strong>：qwen 挂 → deepseek / claude（需语义等价，注意风格差异）。</li>
+  <li><strong>换小模型/规则</strong>：复杂模型都挂 → 退简单模型或规则兜底。</li>
+  <li><strong>缓存/默认/转人工</strong>：都不可用 → 返回缓存答案、兜底文案或转人工。</li>
+</ol>
+<h3>6.3 Fallback 设计要点</h3>
+<ul>
+  <li><strong>等价性</strong>：Fallback 模型要在该任务上"够用"，不能降级成答非所问。</li>
+  <li><strong>避免连环失败</strong>：Fallback 本身也要有超时，否则卡在备选。</li>
+  <li><strong>快速失败标记</strong>：记录本次是否走了 Fallback，供监控与计费。</li>
+  <li><strong>熔断</strong>：某模型连续失败，暂时从路由摘掉（circuit breaker），恢复后再放。</li>
+</ul>
+<div class="eng">Fallback 是"可用性兜底"的核心。生产必须有至少两级 Fallback（换模型→换厂商→兜底）。配合<strong>熔断器</strong>：某 provider 连续失败就临时摘除，避免每次请求都先踩坑再降级。降级链路也要有超时，否则"备用也慢"会拖死整体。</div>
+<div class="iv">Fallback：主模型挂且重试尽 → 自动切备用（同厂商换模型→换厂商→小模型/规则→缓存/转人工）。要点：备选要任务等价、要有超时防连环、要熔断（连续失败临时摘除）、要记录是否降级。</div>
+<div class="warn">① Fallback 不是随便换模型——语义要等价，否则降级后答非所问比报错更糟（尤其保险理赔，错答比拒答危险）。② 忘记给 Fallback 设超时，会"主慢+备慢"双倍拖时。③ 没有熔断，每次请求都先打挂掉的 provider 再降级，延迟和成本都亏。</div>
+
+<!-- ============ 7. Token 成本 ============ -->
+<h2 id="s7">七、Token 统计与成本记录</h2>
+<h3>7.1 为什么记</h3>
+<ul>
+  <li><strong>成本核算</strong>：按业务线/用户/功能分摊模型费用。</li>
+  <li><strong>异常监控</strong>：某调用突然 token 暴涨，可能是 prompt 注入或死循环。</li>
+  <li><strong>容量规划</strong>：预测预算、识别高成本路径。</li>
+</ul>
+<h3>7.2 记录维度</h3>
+<table>
+<tr><th>维度</th><th>说明</th></tr>
+<tr><td>model / provider</td><td>哪个模型产生的费用</td></tr>
+<tr><td>prompt / completion tokens</td><td>拆分输入与输出（单价不同）</td></tr>
+<tr><td>单价（配置）</td><td>每千 token 价格，换算成本</td></tr>
+<tr><td>user_id / tenant_id</td><td>按用户/租户分摊</td></tr>
+<tr><td>trace_id</td><td>与一次请求全链路关联</td></tr>
+<tr><td>is_fallback / retry_count</td><td>降级/重试额外花费</td></tr>
+</table>
+<div class="eng">成本记录要进统一日志/数仓，按 tenant 计费是 SaaS 标配。重要：<strong>重试和 Fallback 会额外烧 token</strong>，成本统计必须含 retry_count 和 is_fallback，否则账单对不上、也发现不了"某路径疯狂重试"。</div>
+<div class="iv">Token 统计要拆分 prompt/completion、绑定 model/provider/user/tenant/trace_id，再乘单价算成本。关键：重试和 Fallback 会额外烧 token，成本记录必须包含 retry_count 和 is_fallback，否则账单失真。</div>
+<div class="warn">① 各家 usage 字段名不同，统一层要归一，否则成本统计错。② 只记成功调用会漏掉"重试失败也花了 token"的成本。③ 不按 tenant 分摊，就无法做内部结算和异常定位。</div>
+
+<!-- ============ 8. Trace ============ -->
+<h2 id="s8">八、Trace ID 与全链路追踪</h2>
+<h3>8.1 原理</h3>
+<p>每个请求生成唯一 <code>trace_id</code>，在网关、路由、各 provider 调用、重试、Fallback、业务处理间<strong>全程透传</strong>。所有日志/指标都打上它，可回放一次请求的完整链路。</p>
+<div class="formula">入口生成 trace_id → 注入每次 model 调用 → 记录 model/provider/latency/tokens/is_fallback/error → 统一收集 → 按 trace_id 串联排查</div>
+<h3>8.2 要记录的字段</h3>
+<ul>
+  <li>trace_id、parent/span 关系（一次请求可能调多次模型）。</li>
+  <li>每次模型调用：model_key、实际 provider、latency_ms、usage、finish_reason。</li>
+  <li>retry_count、is_fallback、fallback_to、error_type。</li>
+  <li>业务上下文：user_id、功能模块、输入/输出摘要（脱敏）。</li>
+</ul>
+<div class="eng">Trace 是"线上出问题能查"的命脉。没有 trace_id，一次用户投诉你无法定位是路由错误、某 provider 超时还是 prompt 问题。建议接入 OpenTelemetry，把模型调用当作一个 span，和业务 span 串成一张图。</div>
+<div class="iv">Trace ID 贯穿一次请求的所有模型调用与重试/Fallback。记录：model/provider/latency/usage/retry_count/is_fallback/error。作用是线上排查、成本归因、复现问题。建议用 OpenTelemetry 把模型调用做成 span。</div>
+<div class="warn">① trace_id 必须在重试和 Fallback 时"透传不变"，否则一次请求被拆成多条无法关联。② 记录输入/输出要脱敏（医保含个人信息），不能直接落明文日志。③ 只记成功不记失败/降级，排查时看不到"为什么走了兜底"。</div>
+
+<!-- ============ 9. 流式 ============ -->
+<h2 id="s9">九、流式输出（Streaming）</h2>
+<h3>9.1 原理</h3>
+<p>流式让模型"边生成边返回"，首字延迟（TTFT）大幅降低，用户体验更好。底层多为 SSE（Server-Sent Events）增量 chunk。</p>
+<h3>9.2 统一层要做的事</h3>
+<ul>
+  <li><strong>归一 chunk 格式</strong>：各厂商增量结构不同，统一成 <code>{delta, finish_reason, usage?}</code>。</li>
+  <li><strong>TTFT / TPOT 指标</strong>：首字延迟、每 token 间隔，是衡量体验的关键指标。</li>
+  <li><strong>中断与取消</strong>：用户关闭连接要能取消后端调用（节省算力）。</li>
+  <li><strong>流式下的超时/重试</strong>：已开始流式又中断，重试策略要谨慎（可能重复内容）。</li>
+</ul>
+<div class="eng">流式是用户体验关键，但增加了统一层复杂度：要归一 chunk、处理取消、算 TTFT。保险客服场景用流式能显著降低"等待焦虑"。注意：流式中途失败的重试要能优雅降级（提示重新生成而非卡死）。</div>
+<div class="iv">流式=边生成边返回，降首字延迟（TTFT）。统一层要归一各厂商 chunk 格式、统计 TTFT/TPOT、支持取消、谨慎处理流式中断重试。医保客服用流式降低等待焦虑。</div>
+
+<!-- ============ 10. 架构图 ============ -->
+<h2 id="s10">十、统一接入层架构图（达标线核心）</h2>
+<div class="formula">
+业务服务
+   │  UnifiedRequest(trace_id, model_key, messages, params...)
+   ▼
+[统一接入网关 Gateway]
+   ├─ 路由 Routing（规则/健康度/灰度）→ 选定 model_key
+   ├─ 超时控制 Timeout（连接/读取/预算）
+   ├─ 重试 Retry（指数退避+限次，仅可重试错误）
+   ├─ Fallback（换模型→换厂商→兜底，带熔断）
+   ├─ 流式归一 Streaming（chunk 归一、TTFT）
+   ▼
+[Provider Adapter 层]
+   ├─ QwenAdapter   ├─ DeepSeekAdapter
+   ├─ ClaudeAdapter ├─ OllamaAdapter(本地)
+   ▼ 厂商特定请求/响应
+[各厂商 API / 本地模型]
+   ▲
+   └─ 统一响应 UnifiedResponse(content, usage, provider, trace_id, latency_ms)
+   └─ 横切：Token成本记录 + Trace 全链路 + 监控告警
+</div>
+<div class="iv">架构一句话：业务发统一请求（带 trace_id）→ 网关做路由/超时/重试/Fallback/流式归一 → Adapter 翻译到具体厂商 → 厂商响应翻译回统一结构 → 全程记 Token 成本与 Trace。这就是面试要能徒手画的那张图。</div>
+
+<!-- ============ 11. LiteLLM ============ -->
+<h2 id="s11">十一、LiteLLM 等开源方案</h2>
+<p>不必从零造轮子，社区已有成熟统一接入层：</p>
+<table>
+<tr><th>方案</th><th>定位</th><th>特点</th></tr>
+<tr><td>LiteLLM</td><td>统一调用 100+ 模型的 Python 库 + 网关</td><td>OpenAI 兼容格式，内置负载均衡、重试、Fallback、成本追踪、虚拟 key</td></tr>
+<tr><td>One API / 快问</td><td>国内多模型统一网关</td><td>多租户、额度、转发</td></tr>
+<tr><td>自研 Gateway</td><td>深度定制</td><td>完全可控，但要自己实现容错/观测</td></tr>
+</table>
+<div class="info">🔗 <a href="https://docs.litellm.ai" target="_blank">LiteLLM 文档</a>：支持统一接口调 Qwen/DeepSeek/Claude/Ollama，内置 fallbacks、timeout、retry、cost tracking，可直接当生产网关用。</div>
+<div class="eng">生产可基于 LiteLLM 起步，它已覆盖路由、重试、Fallback、成本、虚拟 key。但 FDE 要懂其原理——因为面试问的是"你怎么设计"，而非"你用哪个库"。懂原理才能在做定制（如医保合规脱敏、私有 Trace）时改得动。</div>
+<div class="iv">统一接入层不用从零写，LiteLLM 已覆盖 100+ 模型、内置 retry/Fallback/成本/路由。但面试要讲清"原理"而不只是"用库"——懂原理才能在合规脱敏、私有 Trace 等定制时改得动。</div>
+<div class="warn">① 用 LiteLLM 不等于"架构设计完成"，它只是工具；路由策略、熔断阈值、成本维度仍是你要设计的。② 默认配置未必满足医保合规（日志脱敏、数据不出域），要定制。③ 别把 API Key 硬编码进网关代码，用密钥管理。</div>
+
+<!-- ============ 12. 医保实战 ============ -->
+<h2 id="s12">十二、医疗保险实战：多模型冗余接入</h2>
+<p>医保理赔系统对<strong>可用性</strong>和<strong>合规</strong>都极敏感。设计统一接入层：</p>
+<ul>
+  <li><strong>主备冗余</strong>：主用本地 Qwen/Ollama（数据不出域），备用地端 DeepSeek/Claude（仅脱敏后复杂 case）。</li>
+  <li><strong>Fallback 链</strong>：本地模型超时 → 地端大模型（脱敏数据）→ 规则兜底/转人工。</li>
+  <li><strong>合规脱敏</strong>：出域前 Adapter 层做 PII 脱敏（姓名/身份证/病历摘要打码），Trace 日志不落明文。</li>
+  <li><strong>成本分摊</strong>：按"理赔单号/机构"记录 token，内部结算。</li>
+  <li><strong>Trace 串联</strong>：从用户提交到最终判定，trace_id 贯穿所有模型调用与人工环节。</li>
+</ul>
+<div class="formula">用户提交 → 网关(脱敏+路由) → 本地模型抽取(主) ↘ 超时/失败 → 地端大模型(脱敏,备) ↘ 仍失败 → 规则兜底/转人工　（全程 Trace + 成本记录）</div>
+<div class="iv">医保实战：主用本地模型保隐私，备用地端大模型（脱敏）攻复杂，再不行规则/转人工。Adapter 出域前做 PII 脱敏，Trace 不落明文。成本按机构/单号分摊。可用性靠 Fallback 链，合规靠脱敏+本地优先。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：画出统一接入架构</h2>
+<p>面试官："画一下你们的多模型统一接入层。"标准回答要包含 5 段：业务 → 网关（路由/超时/重试/Fallback/流式）→ Provider Adapter → 厂商 → 横切（成本+Trace）。</p>
+<ol>
+  <li><strong>业务侧</strong>：只发统一请求（带 trace_id、model_key）。</li>
+  <li><strong>网关</strong>：路由选模型 → 超时控制 → 重试（退避限次）→ Fallback（熔断）→ 流式归一。</li>
+  <li><strong>Adapter 层</strong>：每个厂商一个，翻译请求/响应、归一错误码与 usage。</li>
+  <li><strong>厂商/本地</strong>：Qwen/DeepSeek/Claude/Ollama。</li>
+  <li><strong>横切</strong>：Token 成本记录 + Trace 全链路 + 监控告警。</li>
+</ol>
+<div class="iv">达标线①满分：能徒手画出"业务→网关(路由/超时/重试/Fallback/流式)→Adapter→厂商→横切(成本+Trace)"五段架构，并说出每段职责。漏掉横切（成本/Trace）或 Fallback 就是不及格。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：Fallback + 成本/Trace 记录</h2>
+<h3>14.1 Fallback 怎么设计</h3>
+<ul>
+  <li>层级：换模型 → 换厂商 → 小模型/规则 → 缓存/转人工。</li>
+  <li>备选要任务等价；要有超时防连环；要熔断（连续失败临时摘除）。</li>
+  <li>记录 is_fallback、fallback_to，供监控。</li>
+</ul>
+<h3>14.2 成本与 Trace 怎么记录</h3>
+<table>
+<tr><th>项目</th><th>记录内容</th><th>用途</th></tr>
+<tr><td>成本</td><td>model/provider、prompt/completion tokens、单价、tenant、retry_count、is_fallback</td><td>分摊、异常、预算</td></tr>
+<tr><td>Trace</td><td>trace_id 透传、每次调用的 model/latency/usage/error/降级</td><td>排查、归因、复现</td></tr>
+</table>
+<div class="iv">达标线②满分：Fallback 能说出层级+等价+超时+熔断+记录；成本记录含 prompt/completion 拆分、tenant、retry_count、is_fallback；Trace 靠 trace_id 透传贯穿所有调用与重试/Fallback，记录 model/latency/usage/error 用于排查与归因。</div>
+<div class="warn">面试官常追问"重试和 Fallback 会不会让成本失控"——答：会，所以成本记录必须含 retry_count 和 is_fallback，并设重试上限与熔断，监控告警 token 异常暴涨。</div>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、Day 4 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说出裸调各家 API 的 4 个痛点，以及统一接入层解决的 4 类问题。</li>
+<li>能定义统一请求/响应结构的关键字段（model_key、messages、usage、trace_id、latency_ms）。</li>
+<li>能说清 Qwen/DeepSeek/Claude/Ollama 在鉴权、system 位置、流式、结构化上的差异，及 Adapter 处理。</li>
+<li>能说出至少 4 种路由策略（静态/能力/健康度/灰度/语义）。</li>
+<li>能解释超时设计（连接/读取/预算）和重试三要素（退避+抖动、限次、仅幂等）。</li>
+<li>能画出 Fallback 层级链，并说清等价性、防连环超时、熔断三个要点。</li>
+<li>能说清 Token 成本要记录哪些维度，为什么必须含 retry_count 和 is_fallback。</li>
+<li>能解释 Trace ID 的作用、透传要求和记录的字段。</li>
+<li>能说出流式输出统一层要做的事（chunk 归一、TTFT、取消、中断重试）。</li>
+<li>能徒手画出统一接入架构图（达标线①）并讲清 Fallback+成本/Trace（达标线②）。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：为什么需要统一接入层？</div><div class="a">解决厂商锁定、无容错、不可观测、重复造轮子。业务只调一个接口，背后可换模型、可降级、可统计成本、可追踪。</div></div>
+<div class="qcard"><div class="q">Q：Model Adapter 做什么？</div><div class="a">定义与厂商无关的统一请求/响应结构，每个厂商一个翻译器把统一结构↔厂商格式互转，并归一错误码和 usage。</div></div>
+<div class="qcard"><div class="q">Q：Claude 适配要注意什么？</div><div class="a">system 是顶层字段不是 messages 里的 role；流式事件、限流码(429/529)、tool_use 格式都不同，需单独适配。</div></div>
+<div class="qcard"><div class="q">Q：重试三要素是什么？</div><div class="a">指数退避+抖动（防风暴）、限次(2~3)、仅重试可重试错误(429/5xx)，超次即 Fallback。400/401 不重试。</div></div>
+<div class="qcard"><div class="q">Q：Fallback 层级怎么排？</div><div class="a">换模型(同厂商)→换厂商→小模型/规则→缓存/转人工。备选要任务等价、要有超时防连环、要熔断。</div></div>
+<div class="qcard"><div class="q">Q：成本记录为什么含 retry_count 和 is_fallback？</div><div class="a">重试和降级会额外烧 token，不含这两个字段账单失真、也发现不了"某路径疯狂重试"。</div></div>
+<div class="qcard"><div class="q">Q：Trace ID 的关键要求？</div><div class="a">一次请求内透传不变（含重试/Fallback），记录 model/provider/latency/usage/error/降级，用于排查与成本归因；日志需脱敏。</div></div>
+<div class="qcard"><div class="q">Q：流式输出统一层做什么？</div><div class="a">归一各厂商 chunk 格式、统计 TTFT/TPOT、支持取消、谨慎处理流式中断重试，避免卡死或半截内容。</div></div>
+<div class="qcard"><div class="q">Q：LiteLLM 能替代自己设计吗？</div><div class="a">它能覆盖路由/重试/Fallback/成本/虚拟key，但路由策略、熔断、合规脱敏等仍要你设计，面试考原理不考用库。</div></div>
+<div class="qcard"><div class="q">Q：医保场景接入层特殊点？</div><div class="a">本地模型优先保隐私、出域前 PII 脱敏、Trace 不落明文、成本按机构分摊、Fallback 链保可用性。</div></div>
+
+<div class="ft">FDE W1D4 学习手册 · 多模型统一接入（面试级）· 配合《FDE-W1D4-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w1d4_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W1D4 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W1D4-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

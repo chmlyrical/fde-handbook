@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W2D3 学习手册 · 数据库 Tool 与规则 Tool（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-head .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W2D3 学习手册</span>
+  <a href="#s1">1.DB定位</a><a href="#s2">2.参数化</a><a href="#s3">3.只读账号</a><a href="#s4">4.白名单</a>
+  <span class="sep"></span>
+  <a href="#s5">5.超时限量</a><a href="#s6">6.审计</a><a href="#s7">7.规则定位</a><a href="#s8">8.脚本vsDrools</a>
+  <span class="sep"></span>
+  <a href="#s9">9.版本</a><a href="#s10">10.金额风险</a><a href="#s11">11.资源</a>
+  <span class="sep"></span>
+  <a href="#s12">达标①</a><a href="#s13">达标②</a><a href="#s14">自测</a><a href="#s15">速记</a>
+</div>
+
+<h1>FDE W2D3 学习手册 · 数据库 Tool 与规则 Tool</h1>
+<p class="sub">W2 Week2 Day3 · A 级（必须掌握，安全核心）· 5h · 学完能讲透"让 Agent 安全查库、可靠算规则"的设计与风控</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W2D1 工具调用 + W2D2 OCR 之后，今天落地两类"高敏感"工具：数据库 Tool（读业务数据）和规则 Tool（算金额/风险）。它们是理赔自动化的"数据源"和"决策脑"，但也是安全和合规的重灾区。<br>
+  <strong>学完能回答：</strong>① 数据库 Tool 的安全设计（只读/白名单/参数化/超时/审计）；② 规则引擎（Drools）在理赔风控怎么用、相比 LLM 直接算金额的优势。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W2D3-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. DB定位 ============ -->
+<h2 id="s1">一、数据库 Tool 的定位与安全基调</h2>
+<p>数据库 Tool 让 Agent 能查保单、理赔记录、药品目录等。但它和 OCR 不同——<strong>直接接触核心业务数据</strong>，一旦设计不当，轻则查错、重则<strong>SQL 注入 / 越权读隐私 / 拖垮生产库</strong>。</p>
+<div class="info"><strong>安全基调：</strong>数据库 Tool 默认<strong>只读、最小化、受控</strong>。它只回答"查"，绝不接受"写/删"；敏感字段脱敏；每次查询可追溯。</div>
+<div class="iv">数据库 Tool 是 Agent 的"只读数据窗口"。它和 OCR 不同，直接碰核心数据，所以安全是第一位：只读、白名单、参数化、超时、审计，缺一不可。</div>
+<div class="eng">在医疗保险场景，数据库 Tool 查的是保单、就诊、理赔等 PII 密集数据，受《个人信息保护法》和保险监管约束。安全设计不是"可选项"，是"上线前提"。</div>
+
+<!-- ============ 2. 参数化 ============ -->
+<h2 id="s2">二、参数化 SQL 与防注入</h2>
+<h3>2.1 什么是 SQL 注入</h3>
+<p>若把模型给的参数<strong>直接拼进 SQL 字符串</strong>，攻击/幻觉可能注入恶意语句：</p>
+<pre><code># 错误示范：字符串拼接
+sql = "SELECT * FROM policy WHERE policy_no = '" + args['policy_no'] + "'"
+# 若 policy_no = "x'; DROP TABLE policy; --"  → 灾难</code></pre>
+<h3>2.2 参数化查询（Prepared Statement）</h3>
+<pre><code># 正确：占位符 + 参数绑定，数据库区分"代码"和"数据"
+cur.execute(
+  "SELECT policy_no, holder, special_drug_limit FROM policy WHERE policy_no = %s",
+  (args['policy_no'],)        # 参数由驱动安全转义
+)</code></pre>
+<div class="iv">防注入用参数化查询（占位符+参数绑定）：数据库把参数当"数据"不是"代码"，即使参数里含 ' DROP TABLE 也不会执行。绝不能用字符串拼接模型给的参数。</div>
+<div class="eng">参数化是数据库 Tool 的<strong>铁律</strong>。即使参数是模型生成的，也必须走占位符绑定，由 JDBC/psycopg 等驱动做转义。这是防注入的最有效手段。</div>
+<div class="warn">① ORM（如 MyBatis/Hibernate）的 <code>${}</code> 是拼接、<code>#{}</code> 才是参数化，别用错。② 即使参数化，仍要白名单限制表/字段（见 s4），防止查到不该查的表。③ LIKE 模糊查询也要参数化，别手拼 %。</div>
+
+<!-- ============ 3. 只读账号 ============ -->
+<h2 id="s3">三、只读账号与最小权限</h2>
+<h3>3.1 专用只读账号</h3>
+<p>数据库 Tool 用的连接账号，必须是<strong>独立的、只读（SELECT only）的专用账号</strong>，绝不复用业务写库账号或 DBA 账号。</p>
+<table>
+<tr><th>账号类型</th><th>权限</th><th>能否用于 Tool</th></tr>
+<tr><td>只读查询账号</td><td>SELECT 指定库表</td><td>✅ 应该</td></tr>
+<tr><td>读写业务账号</td><td>增删改查</td><td>❌ 禁止</td></tr>
+<tr><td>DBA 管理员</td><td>全部权限</td><td>❌ 绝对禁止</td></tr>
+</table>
+<h3>3.2 最小权限原则</h3>
+<ul>
+  <li>只授予 Tool 实际需要的库/表/列读权限。</li>
+  <li>PII 列（身份证、手机号）要么不授予，要么授权脱敏视图。</li>
+  <li>网络层限制 Tool 账号只能从应用服务器 IP 连。</li>
+</ul>
+<div class="iv">数据库 Tool 必须用独立只读账号，绝不用业务写账号或 DBA 账号。遵循最小权限：只给需要的表/列，PII 列走脱敏视图。</div>
+<div class="eng">即使参数化防住了注入，若用写账号，模型或被诱导执行 UPDATE/DELETE 就完了。只读账号是"即使被攻破，损失也封顶"的纵深防御。</div>
+
+<!-- ============ 4. 白名单 ============ -->
+<h2 id="s4">四、表和字段白名单</h2>
+<h3>4.1 为什么需要白名单</h3>
+<p>参数化解决了"注入"，但没解决"查到不该查的表/字段"。白名单在<strong>应用层</strong>再锁一层：只允许访问预定义的表和字段。</p>
+<pre><code>ALLOWED_TABLES = {"policy", "claim_record", "drug_catalog"}
+ALLOWED_COLUMNS = {
+  "policy": {"policy_no","holder","special_drug_limit","valid_until"},
+  "claim_record": {"claim_id","status","amount","reason"},
+  "drug_catalog": {"drug_name","is_special","price"}
+}
+def build_query(table, columns, where):
+    if table not in ALLOWED_TABLES: raise PermissionError("表不在白名单")
+    bad = set(columns) - ALLOWED_COLUMNS[table]
+    if bad: raise PermissionError(f"字段不在白名单: {bad}")
+    # 只允许等值/IN 条件，列名也必须白名单校验
+    ...</code></pre>
+<div class="iv">白名单在应用层限制"能查哪些表、哪些字段、哪些条件列"，参数化只防注入不防越权。即使模型想查 salary 表，白名单直接拒绝。</div>
+<div class="eng">白名单 + 参数化 + 只读账号，构成数据库 Tool 的"三道防线"。白名单还能防止模型生成离谱的跨表 JOIN 拖垮数据库。</div>
+<div class="warn">① 白名单校验要在<strong>应用层做</strong>，别信任数据库端；且列名也要校验（防止查密码列）。② 别用"黑名单"（禁止 xxx），攻击者总能找到漏网之鱼，用白名单（只允许 xxx）才稳。③ 动态拼表名无法参数化，必须白名单枚举，绝不能把模型给的表名直接拼 SQL。</div>
+
+<!-- ============ 5. 超时限量 ============ -->
+<h2 id="s5">五、查询超时与返回数量限制</h2>
+<h3>5.1 查询超时</h3>
+<p>给每个查询设<strong>语句超时</strong>（如 PostgreSQL 的 <code>statement_timeout</code>），防止慢查询/全表扫描拖垮数据库。</p>
+<pre><code>cur.execute("SET LOCAL statement_timeout = 3000")  # 3 秒超时
+cur.execute("SELECT ... FROM policy WHERE ...")</code></pre>
+<h3>5.2 返回数量限制</h3>
+<ul>
+  <li>强制 <code>LIMIT</code>（如最多 50 行），避免一次返回几万行撑爆上下文/内存。</li>
+  <li>分页或聚合优先；需要全量时走离线任务而非 Tool 实时返回。</li>
+  <li>返回前裁剪/脱敏敏感字段，只留下游需要的。</li>
+</ul>
+<div class="iv">查询要设语句超时（如3s）和返回行数上限（如LIMIT 50），防止慢查询拖垮库、大结果撑爆上下文。返回前脱敏裁剪。</div>
+<div class="eng">超时和限量是"保护生产库"的护栏。Agent 可能生成 <code>SELECT * FROM claim_record</code> 没有 WHERE，没有 LIMIT 直接打满库——白名单+LIMIT+超时缺一不可。</div>
+
+<!-- ============ 6. 审计 ============ -->
+<h2 id="s6">六、审计日志</h2>
+<h3>6.1 记什么</h3>
+<ul>
+  <li>谁（哪个用户/session）在何时查了什么（表/条件/参数）。</li>
+  <li>返回了什么摘要（脱敏后），命中多少行。</li>
+  <li>查询是否成功、耗时、是否触发白名单拒绝。</li>
+</ul>
+<h3>6.2 审计的价值</h3>
+<p>保险行业对 PII 访问有合规要求（可追溯、可审计）。审计日志用于：合规报备、异常检测（某账号频繁查陌生保单）、争议溯源。</p>
+<div class="iv">数据库 Tool 必须留审计日志：谁、何时、查了什么表/条件、返回多少行、是否拒拦。保险 PII 访问受合规约束，审计是可追溯和异常检测的底座。</div>
+<div class="eng">审计日志要<strong>防篡改</strong>（独立存储、只追加）。它既是合规要求，也是"出事能说清"的护身符——当被问"为什么这人的保单被查了"，有日志可查。</div>
+<div class="warn">① 审计日志本身别记明文 PII（记脱敏或哈希），否则审计库又成泄露点。② 日志要关联业务 session，而非只记 DB 连接账号——否则分不清是哪个客户触发的查询。</div>
+
+<!-- ============ 7. 规则定位 ============ -->
+<h2 id="s7">七、规则 Tool 的定位</h2>
+<p>规则 Tool 负责<strong>确定性的业务决策与计算</strong>：理赔金额怎么算、风险等级怎么定、是否拒赔。它和数据库 Tool 互补——一个取数，一个决策。</p>
+<div class="info"><strong>为什么不用 LLM 直接算？</strong>金额、风险等级必须<strong>精确、可复现、可审计</strong>，LLM 是概率模型，算金额可能算错、每次结果还不一致。确定性计算要用代码/规则引擎，LLM 只做"理解诉求、调工具、组话术"。</div>
+<div class="iv">规则 Tool 做确定性决策（算金额、定风险、判拒赔），和数据库 Tool 一个取数一个决策。金额这类必须精确可复现，不能交给会"算错"的 LLM。</div>
+<div class="eng">在理赔风控里，规则 Tool 是"算账先生"：输入（保单额度、发票金额、特药目录命中），输出（应赔金额、风险等级、拒赔原因）。结果可解释、可审计，符合保险监管。</div>
+
+<!-- ============ 8. 脚本vsDrools ============ -->
+<h2 id="s8">八、简单规则脚本 vs Drools 规则引擎</h2>
+<table>
+<tr><th>维度</th><th>简单脚本/函数</th><th>Drools 规则引擎</th></tr>
+<tr><td>适用规模</td><td>规则少（几条~几十条）</td><td>规则多、常变（上百条）</td></tr>
+<tr><td>可维护性</td><td>改代码要发版</td><td>规则与代码分离，可热更新</td></tr>
+<tr><td>冲突处理</td><td>自己写 if-else 顺序</td><td>引擎自动做冲突解析、规则链</td></tr>
+<tr><td>可解释</td><td>需自己记命中了哪条</td><td>天然记录"命中规则+依据"</td></tr>
+<tr><td>学习成本</td><td>几乎无</td><td>需学 DRL 语法/概念</td></tr>
+</table>
+<h3>8.1 Drools 简介</h3>
+<p>Drools（drools.org）是成熟的 Java 规则引擎，用 <strong>DRL</strong> 描述规则：<code>when（条件）→ then（动作）</code>。规则与业务代码解耦，支持版本管理、规则流、复杂事件。</p>
+<pre><code>rule "特药目录内且额度充足-全额赔付"
+  when
+    $c : Claim( drugInCatalog == true, amount <= specialDrugLimit )
+  then
+    $c.setPayAmount($c.getAmount());
+    $c.setRiskLevel("low");
+    $c.setReason("特药在目录内且额度充足");
+end</code></pre>
+<div class="iv">规则少用简单脚本，规则多且常变用 Drools 这类规则引擎。Drools 用 when→then 描述规则，规则与代码分离可热更新，还自动记录命中依据。</div>
+<div class="eng">保险理赔规则成百上千条且频繁调整（政策变、药品目录变），用硬编码 if-else 会灾难。Drools 让业务人员也能维护规则，且每次决策自动留"命中了哪条规则"的依据——这正是审计要的。</div>
+
+<!-- ============ 9. 版本 ============ -->
+<h2 id="s9">九、规则版本管理</h2>
+<ul>
+  <li><strong>规则要版本化</strong>：每条规则有版本号、生效时间、作者、变更原因。</li>
+  <li><strong>决策可回溯</strong>：一次理赔结论要能关联到"当时生效的哪版规则"，避免政策变了却说不清旧案为何那么赔。</li>
+  <li><strong>灰度/回滚</strong>：新规则先小流量，异常可快速回滚到上一版。</li>
+  <li><strong>审批流</strong>：规则变更走审批，不能谁改了线上就变。</li>
+</ul>
+<div class="iv">规则要版本化：每条有版本/生效时间/作者，决策能回溯到"当时哪版规则"。支持灰度发布和回滚，变更走审批。</div>
+<div class="eng">规则版本管理是合规刚需。监管可能事后审计"这笔拒赔依据的是哪条规则、当时是否有效"。没有版本化，你答不上来。</div>
+
+<!-- ============ 10. 金额风险 ============ -->
+<h2 id="s10">十、命中依据、金额计算与风险等级</h2>
+<h3>10.1 命中依据（为什么这么算）</h3>
+<p>规则引擎输出不只给结果，还要给<strong>依据链</strong>：命中了哪些规则、输入是什么、得出什么结论。这既是可解释性，也是争议处理依据。</p>
+<pre><code>{
+  "pay_amount": 1280.00,
+  "risk_level": "low",
+  "hit_rules": ["R-特药目录内", "R-额度充足"],
+  "reason": "药品奥希替尼在特药目录，金额1280≤额度30万",
+  "rule_version": "v2026.03"
+}</code></pre>
+<h3>10.2 金额计算与风险等级</h3>
+<table>
+<tr><th>输入</th><th>规则逻辑</th><th>输出</th></tr>
+<tr><td>发票金额、保单额度、目录命中</td><td>目录内且≤额度→全额；超额度→按比例</td><td>pay_amount</td></tr>
+<tr><td>既往史、理赔频次、异常特征</td><td>命中风控规则→升级</td><td>risk_level: low/medium/high</td></tr>
+</table>
+<div class="iv">规则引擎输出要带"命中依据链"（哪条规则+输入+结论），这是可解释和审计的核心。金额按目录/额度算，风险等级按风控规则定。</div>
+<div class="eng">"给结果更要给依据"是 FDE 的高分点。只返回 pay_amount=1280 不够，要能说清"为什么是 1280、依据哪条规则、当时哪版"——这正是规则引擎相对 LLM 的优势。</div>
+<div class="warn">① 金额计算要处理边界（负数、超额度、重复理赔），别让 LLM 自由算。② 风险等级要可解释，不能只给个"high"没理由——监管和客诉都要求说明。③ 规则之间可能冲突（一条说赔一条说不赔），引擎要定义冲突优先级，不能靠巧合。</div>
+
+<!-- ============ 11. 资源 ============ -->
+<h2 id="s11">十一、资源与工具</h2>
+<ul>
+  <li><strong>Drools 官网</strong>：drools.org —— 规则引擎、DRL 语法、决策表。</li>
+  <li><strong>PostgreSQL 文档</strong>：postgresql.org/docs/current —— statement_timeout、权限、脱敏（如 pgcrypto）。</li>
+  <li><strong>LangChain Tools</strong>：python.langchain.com/docs/how_to/tools —— 如何把 SQL/函数封装成 Agent 可调的 Tool。</li>
+  <li><strong>SQLAlchemy / JDBC</strong>：参数化查询的标准做法。</li>
+</ul>
+<div class="info">实战建议：小规则用 Python 函数 + 配置化（规则写配置不写死）；规则上百条且多变再上 Drools。数据库 Tool 用 SQLAlchemy 参数化 + 只读账号 + 白名单中间件。</div>
+<div class="iv">资源：Drools（规则引擎）、PostgreSQL 文档（超时/权限/脱敏）、LangChain Tools（把 SQL/函数包成 Tool）。规则少先配置化，多再上 Drools。</div>
+
+<!-- ============ 12. 达标① ============ -->
+<h2 id="s12">十二、面试达标线①：数据库 Tool 的安全设计</h2>
+<div class="formula">
+独立只读账号 → 参数化查询(防注入) → 表/字段白名单(防越权) → 语句超时 + LIMIT(防拖库) → 返回脱敏裁剪 → 全量审计日志(谁/何时/查什么)
+</div>
+<ul>
+  <li><strong>只读账号</strong>：专用 SELECT-only 账号，绝不复用写/DBA 账号，纵深防御。</li>
+  <li><strong>参数化</strong>：占位符绑定，数据库区分代码与数据，杜绝 SQL 注入。</li>
+  <li><strong>白名单</strong>：应用层限制可查的表、字段、条件列（用白名单不用黑名单）。</li>
+  <li><strong>超时 + 限量</strong>：statement_timeout + 强制 LIMIT，保护生产库。</li>
+  <li><strong>审计</strong>：记谁/何时/查什么/返回多少，关联业务 session，日志防篡改。</li>
+</ul>
+<div class="iv">数据库 Tool 安全五件套：只读账号、参数化防注入、表/字段白名单防越权、超时+LIMIT 防拖库、全量审计。核心是纵深防御——每层都挡一道。</div>
+
+<!-- ============ 13. 达标② ============ -->
+<h2 id="s13">十三、面试达标线②：规则引擎在理赔风控的应用与对比 LLM 算金额</h2>
+<table>
+<tr><th>维度</th><th>Drools/规则引擎</th><th>让 LLM 直接算金额</th></tr>
+<tr><td>准确性</td><td>确定性，结果可复现</td><td>概率性，可能算错、不一致</td></tr>
+<tr><td>可审计</td><td>天然记录命中规则+依据+版本</td><td>难追溯"为什么算这个数"</td></tr>
+<tr><td>可维护</td><td>规则与代码分离，热更新</td><td>改逻辑要改 prompt，易漂移</td></tr>
+<tr><td>合规</td><td>满足保险监管可追溯要求</td><td>不满足（黑盒）</td></tr>
+<tr><td>适用</td><td>金额/风险/拒赔等硬决策</td><td>理解诉求、组话术、调工具</td></tr>
+</table>
+<ul>
+  <li><strong>怎么用</strong>：Agent 用 LLM 理解用户诉求→调用数据库 Tool 取数→调用规则 Tool（Drools）→规则引擎按版本化规则算出 pay_amount / risk_level，并附带命中依据链。</li>
+  <li><strong>优势总结</strong>：精确、可复现、可审计、可热更新、合规友好——这是金额/风控这种"不能错"的场景必须上规则引擎的根本原因。</li>
+</ul>
+<div class="iv">规则引擎（Drools）做金额/风险决策：确定性、可复现、自带命中依据和版本，满足保险合规；LLM 直接算会算错、不一致、不可审计。正确分工：LLM 理解+调度，规则引擎算账。</div>
+
+<!-- ============ 14. 自测 ============ -->
+<h2 id="s14">十四、W2D3 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清数据库 Tool 为什么是"高敏感"工具，安全基调是什么。</li>
+<li>能写出参数化查询代码，并解释它如何防 SQL 注入（代码 vs 数据分离）。</li>
+<li>知道为什么必须用独立只读账号，而不是业务/DBA 账号。</li>
+<li>能解释表/字段白名单的作用，以及为什么用白名单而非黑名单。</li>
+<li>能说出查询超时（statement_timeout）和返回 LIMIT 的必要性。</li>
+<li>能列出数据库 Tool 审计日志要记哪些内容，以及为何要关联业务 session。</li>
+<li>能区分规则脚本和 Drools 规则引擎的适用场景与优劣。</li>
+<li>能写出一条 Drools 的 when→then 规则示例。</li>
+<li>能解释规则版本管理的价值（决策可回溯、灰度、回滚、审批）。</li>
+<li>能讲清规则引擎输出要带"命中依据链"，以及金额/风险怎么算。</li>
+<li>能讲清达标线①（数据库 Tool 安全五件套）。</li>
+<li>能讲清达标线②（Drools 在理赔风控的应用 + 相比 LLM 算金额的优势）。</li>
+</ul>
+</div>
+
+<!-- ============ 15. 速记 ============ -->
+<h2 id="s15">十五、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：数据库 Tool 怎么防 SQL 注入？</div><div class="a">用参数化查询（占位符+参数绑定），数据库把参数当数据不是代码。绝不字符串拼接模型给的参数。</div></div>
+<div class="qcard"><div class="q">Q：为什么数据库 Tool 要用只读账号？</div><div class="a">纵深防御：即使被诱导，损失也封顶在"只读"。绝不用写账号/DBA账号，防 UPDATE/DELETE 被触发。</div></div>
+<div class="qcard"><div class="q">Q：参数化了还需要白名单吗？</div><div class="a">需要。参数化只防注入，不防越权。白名单在应用层限制能查哪些表/字段/条件列，防查到 PII 或无关表。</div></div>
+<div class="qcard"><div class="q">Q：白名单和黑名单哪个好？</div><div class="a">白名单（只允许 xxx）好。黑名单（禁止 xxx）总有漏网之鱼，攻击能找到没禁的入口。</div></div>
+<div class="qcard"><div class="q">Q：数据库 Tool 为什么要超时和 LIMIT？</div><div class="a">防慢查询/全表扫描拖垮生产库，防大结果撑爆上下文和内存。超时+LIMIT 是保护库的护栏。</div></div>
+<div class="qcard"><div class="q">Q：审计日志记什么？为什么关联业务 session？</div><div class="a">记谁/何时/查什么表条件/返回多少/是否拒拦。关联业务 session 才能分清是哪个客户触发的，而非只看 DB 账号。</div></div>
+<div class="qcard"><div class="q">Q：Drools 和简单规则脚本怎么选？</div><div class="a">规则少且稳用脚本；规则多、常变、要热更新和命中依据用 Drools。保险理赔上百条规则适合 Drools。</div></div>
+<div class="qcard"><div class="q">Q：为什么不让 LLM 直接算理赔金额？</div><div class="a">LLM 概率性会算错、每次不一致、不可审计。金额必须精确可复现，用规则引擎；LLM 只做理解和调度。</div></div>
+<div class="qcard"><div class="q">Q：规则引擎输出为什么要带"命中依据"？</div><div class="a">可解释+可审计。监管和客诉都要"为什么赔/拒、依据哪条规则、哪版"，这是 LLM 给不出而规则引擎天然有的。</div></div>
+<div class="qcard"><div class="q">Q：规则版本管理有什么用？</div><div class="a">让决策可回溯到"当时哪版规则"，支持灰度发布和回滚，变更走审批——保险合规刚需。</div></div>
+
+<div class="ft">FDE W2D3 学习手册 · 数据库 Tool 与规则 Tool（面试级）· 配合《FDE-W2D3-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w2d3_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE Day2 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'Day2-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

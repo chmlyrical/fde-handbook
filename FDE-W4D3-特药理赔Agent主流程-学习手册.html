@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W4D3 学习手册 · 特药理赔 Agent 主流程（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W4D3 学习手册</span>
+  <a href="#s1">1.定位</a><a href="#s2">2.全景</a><a href="#s3">3.接入解析</a><a href="#s4">4.检索</a><a href="#s5">5.规则</a><a href="#s6">6.风险</a>
+  <span class="sep"></span>
+  <a href="#s7">7.人工</a><a href="#s8">8.结论回写</a><a href="#s9">9.编排vs复用</a><a href="#s10">10.图编排</a><a href="#s11">11.易错</a><a href="#s12">12.资源</a>
+  <span class="sep"></span>
+  <a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W4D3 学习手册 · 特药理赔 Agent 主流程</h1>
+<p class="sub">W4 Week1 Day3 · A 级（必须掌握，面试核心）· 5h · 学完能完整画出特药理赔 Agent 主流程图、讲清各节点职责，并说清"编排 vs 复用、为什么不要重写工具"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>Day1 讲了 Agent Loop 的本质，Day2 讲了 LangGraph 的图编排能力。Day3 是把两者<strong>落到真实业务</strong>：用一张 LangGraph 图编排"特药理赔 Agent"的完整主流程（10 个节点）。重点是<strong>编排（orchestration）</strong>——把 W2 的 OCR/DB/Rule 工具、W3 的保险知识库、W4D2 的 LangGraph 串起来，而不是重写它们。<br>
+  <strong>学完能回答：</strong>① 完整画出主流程图、说清每个节点职责；② 说清哪些是"编排"、哪些是"复用已有工具"、为什么不要重写；③ 结合 LangGraph 说明图如何落地这条主流程（含人工审批中断）。<br>
+  <strong>使用方法：</strong>通读流程 → 重点看 s9（编排 vs 复用）和「面试话术」「易错点」→ 对照 s10 的图代码 → 做自测清单 → 配合《FDE-W4D3-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 业务定位 ============ -->
+<h2 id="s1">一、业务背景与 Agent 定位</h2>
+<h3>1.1 什么是特药理赔</h3>
+<p>"特药"指治疗恶性肿瘤等高费用疾病、需特殊审批的药品（如奥希替尼、CAR-T）。特药理赔是患者/代理人提交材料（诊断证明、处方、发票、保单）后，保险公司审核是否赔付、赔付多少的过程。金额大、规则严、合规要求高。</p>
+<h3>1.2 为什么用 Agent 而不是纯规则系统</h3>
+<ul>
+  <li>材料格式不固定（图片/PDF/拍照），需要 OCR + 语义抽取，规则系统难覆盖。</li>
+  <li>判断是否赔付要结合"保单条款 + 药品目录 + 临床指南"，需要检索与推理。</li>
+  <li>高风险案件要人工介入，需要可中断、可恢复的流程。</li>
+</ul>
+<div class="eng">但注意：Agent 不是替代你原有的 OCR 服务、理赔 DB、规则引擎——它是<strong>编排层</strong>，把这些已有能力当工具挂载，负责"按什么顺序调、什么时候等人、怎么汇总结论"。这正是企业落地的关键思维：复用 > 重写。</div>
+<div class="iv">特药理赔=高费用药品赔付审核，材料杂、规则严、需人工。Agent 在这里是"编排层"，把已有 OCR/DB/规则引擎/知识库当工具串起来，而非重写它们。</div>
+
+<!-- ============ 2. 主流程全景 ============ -->
+<h2 id="s2">二、主流程全景（10 个节点）</h2>
+<div class="formula">
+①上传材料 → ②OCR → ③字段抽取 → ④材料完整性检查 → ⑤保单&知识库检索 → ⑥规则引擎校验 → ⑦风险等级判断 → ⑧人工审批(HITL) → ⑨结论生成 → ⑩结果回写
+</div>
+<table>
+<tr><th>#</th><th>节点</th><th>职责</th><th>类型</th></tr>
+<tr><td>①</td><td>上传材料</td><td>接收材料文件（图片/PDF），生成 file_id</td><td>入口/IO</td></tr>
+<tr><td>②</td><td>OCR</td><td>识别图片/PDF 为文本与字段</td><td>复用 W2 工具</td></tr>
+<tr><td>③</td><td>字段抽取</td><td>从 OCR 文本抽取结构化字段（患者/药品/金额）</td><td>LLM + 复用</td></tr>
+<tr><td>④</td><td>材料完整性检查</td><td>核对必备材料是否齐全</td><td>逻辑节点</td></tr>
+<tr><td>⑤</td><td>保单&知识库检索</td><td>查保单、特药目录、临床指南（RAG）</td><td>复用 W3 知识库</td></tr>
+<tr><td>⑥</td><td>规则引擎校验</td><td>用规则判断是否符赔付条件</td><td>复用 W2 规则工具</td></tr>
+<tr><td>⑦</td><td>风险等级判断</td><td>综合得出 low/medium/high</td><td>LLM 决策</td></tr>
+<tr><td>⑧</td><td>人工审批</td><td>高风险 interrupt 等人拍板</td><td>HITL（interrupt）</td></tr>
+<tr><td>⑨</td><td>结论生成</td><td>生成赔付结论与理由</td><td>LLM</td></tr>
+<tr><td>⑩</td><td>结果回写</td><td>写回理赔系统/通知用户</td><td>复用 DB 工具</td></tr>
+</table>
+<div class="iv">主流程 10 节点：上传→OCR→抽取→完整性→检索→规则校验→风险判断→人工审批→结论→回写。其中②⑥⑩是复用 W2 工具，⑤是复用 W3 知识库，⑧是 W4D2 的 HITL。模型只在③⑦⑨做抽取/判断/生成。</div>
+
+<!-- ============ 3. 接入与解析 ============ -->
+<h2 id="s3">三、节点①~④：材料接入与解析</h2>
+<h3>3.1 上传（①）与 OCR（②）</h3>
+<p>①接收文件并返回 <code>file_id</code>（存对象存储）。②调用 W2 已实现的 <code>ocr_scan</code> 工具识别，得到原始文本/字段。<strong>这是复用，不是重写</strong>——你的 Java OCR 微服务直接包成 <code>@tool</code>。</p>
+<h3>3.2 字段抽取（③）</h3>
+<p>用 LLM + 结构化输出（Day2 学的 JSON Schema）从 OCR 结果抽取 <code>patient / drug_name / amount / diagnosis</code> 等。低 Temperature + Pydantic 校验。</p>
+<h3>3.3 材料完整性检查（④）</h3>
+<p>纯逻辑节点：核对必备材料（诊断证明、处方、发票、保单）是否齐全，输出 <code>missing</code> 列表与 <code>need_human</code> 标记。不齐则条件边路由回"请补传"或直接转人工。</p>
+<pre><code>def check_completeness(state):
+    required = ["diagnosis", "prescription", "invoice", "policy"]
+    missing = [f for f in required if not state.get(f)]
+    return {"missing": missing, "need_human": bool(missing)}</code></pre>
+<div class="eng">①②③④ 是"把非结构化材料变成结构化、可信的输入"。OCR 与抽取务必复用 W2 成果，别在 Agent 里另写一套识别逻辑——那样既重复劳动又口径不一致（两套 OCR 结果对不上会出合规问题）。</div>
+<div class="iv">节点①~④负责"材料→结构化可信输入"：上传拿 file_id，OCR 复用 W2 工具，抽取用 LLM+JSON，完整性检查是纯逻辑。OCR/抽取都复用已有能力。</div>
+
+<!-- ============ 4. 检索 ============ -->
+<h2 id="s4">四、节点⑤：保单与知识库检索（RAG）</h2>
+<h3>4.1 检索什么</h3>
+<ul>
+  <li><strong>保单</strong>：按 policy_no 查承保范围、免赔额、赔付比例（复用 W2 的 <code>query_policy</code>）。</li>
+  <li><strong>特药目录 / 临床指南</strong>：用 W3 学到的 RAG 检索知识库，确认该药是否在目录、是否满足用药指征。</li>
+</ul>
+<h3>4.2 为什么是"检索"而非"让模型硬答"</h3>
+<p>条款和目录会更新，且必须可引用、可追溯——模型凭记忆答会幻觉。检索把"真实依据"喂给后续规则引擎与风险判断，是降低幻觉、满足合规的关键。</p>
+<div class="eng">节点⑤是"给后面提供事实依据"。它=W2 的 DB 查询工具 + W3 的 RAG 知识库，二者都是复用。检索结果要带上来源引用（chunk_id/条款号），下游规则引擎和结论生成都能溯源——这是医保合规审计的硬要求。</div>
+<div class="iv">节点⑤检索保单（W2 DB 工具）和特药知识库（W3 RAG），给后面提供事实依据。必须带引用，可溯源、防幻觉、过合规。</div>
+<div class="warn">① 检索结果不要原样全塞进 State（长文档占存储、烧 token），应存"摘要 + 引用 id"，详情按需再查。② 检索可能"查不到"（断保/目录无该药），这要作为明确信号传给规则引擎，而不是让模型猜。③ RAG 和 DB 查询是两套不同工具，别混为一谈（一个查非结构化知识，一个查结构化业务数据）。</div>
+
+<!-- ============ 5. 规则引擎校验 ============ -->
+<h2 id="s5">五、节点⑥：规则引擎校验</h2>
+<h3>5.1 做什么</h3>
+<p>把"抽取字段 + 检索到的保单/目录"喂给 W2 已有的<strong>规则引擎</strong>，判断是否满足赔付条件：药品在目录内？用量符合指南？金额在额度内？免赔后比例正确？</p>
+<h3>5.2 为什么用规则引擎而非纯 LLM</h3>
+<p>赔付金额、比例这些必须<strong>精确、可解释、可复算</strong>，不能靠模型"感觉"。规则引擎是确定性计算，结果稳定、可审计。模型只负责"前面的抽取和后面的判断"，中间的硬计算交给规则引擎。</p>
+<div class="eng">节点⑥是"确定性计算核心"，必须复用 W2 规则工具，绝不能让 LLM 算钱。工程上"能确定性算的绝不交给模型"——模型用于模糊的抽取/判断，规则引擎用于精确的金额/比例/条件判定。这样结论可复算、可申诉。</div>
+<div class="iv">节点⑥用 W2 规则引擎做精确赔付判定（在目录？用量合规？金额比例对？）。算钱等硬计算绝不用 LLM，要复用规则引擎，保证可复算可审计。</div>
+<div class="warn">① 别让 LLM 直接算赔付金额——它会"算错还自信"，引发客诉与合规风险。② 规则引擎的输入要来自"抽取+检索"的结构化结果，若上游字段缺失要先在④拦截，别让规则引擎在脏数据上跑。③ 规则引擎输出要带"命中哪条规则/不命中原因"，供结论生成引用。</div>
+
+<!-- ============ 6. 风险等级判断 ============ -->
+<h2 id="s6">六、节点⑦：风险等级判断</h2>
+<h3>6.1 输入与输出</h3>
+<p>综合"抽取信息 + 检索依据 + 规则结果"由 LLM 给出 <code>risk_level ∈ {low, medium, high}</code>。这是模型发挥"综合判断"的地方（Agent 部分）。</p>
+<h3>6.2 判定维度（示例）</h3>
+<table>
+<tr><th>等级</th><th>典型情形</th><th>后续</th></tr>
+<tr><td>low</td><td>材料齐、在目录、金额小、规则全过</td><td>自动过，直达结论</td></tr>
+<tr><td>medium</td><td>小额疑点/需复核说明</td><td>自动过但标记，或轻量复核</td></tr>
+<tr><td>high</td><td>大额/材料异常/规则边界/疑似欺诈</td><td>转人工审批（interrupt）</td></tr>
+</table>
+<div class="eng">节点⑦是"模型决策点"，对应 Day2 的 Conditional Edge 依据。低风险自动过（效率），高风险转人工（合规）。判级标准要可配置、可解释，审核员能看懂为什么判 high。</div>
+<div class="iv">节点⑦由 LLM 综合给出风险等级 low/medium/high，是模型决策点。低风险自动过、高风险转人工审批，标准要可解释可配置。</div>
+
+<!-- ============ 7. 人工审批 HITL ============ -->
+<h2 id="s7">七、节点⑧：人工审批（HITL）</h2>
+<h3>7.1 实现</h3>
+<p><code>risk_level == high</code> 时，条件边路由到 <code>human_approve</code> 节点，内部 <code>interrupt()</code> 暂停（W4D2 学的）。审核员在后台系统看到案件（含依据引用）后点"批准/驳回/补材料"，前端用 <code>Command(resume=决策)</code> 同 thread_id 唤醒图继续。</p>
+<h3>7.2 要点</h3>
+<ul>
+  <li><strong>可审计</strong>：Checkpointer 留痕谁、何时、批了什么。</li>
+  <li><strong>超时升级</strong>：长时间未批自动升级上级或转工单。</li>
+  <li><strong>降级</strong>：审核员不在线可挂起不丢状态，或转应急通道。</li>
+</ul>
+<div class="eng">节点⑧是"人在回路"落点，也是特药理赔合规的核心——真金白银的赔付不能全让模型定。它把 W4D2 的 Interrupt/Checkpointer 用在了业务最该用的地方。注意：interrupt 暂停的是"整条案件流程"，状态由 Checkpointer 保管，恢复后从断点继续，不重跑前面。</div>
+<div class="iv">节点⑧用 W4D2 的 interrupt 实现人工审批：高风险案件暂停等人，审核员决策后 Command(resume) 同 thread_id 唤醒。全程可审计、可超时升级。</div>
+
+<!-- ============ 8. 结论与回写 ============ -->
+<h2 id="s8">八、节点⑨~⑩：结论生成与结果回写</h2>
+<h3>8.1 结论生成（⑨）</h3>
+<p>LLM 汇总"抽取字段 + 检索依据 + 规则结果 + 审批结论"生成最终赔付结论与理由（结构化 + 自然语言），必须带引用（哪条规则、哪条指南支撑）。</p>
+<h3>8.2 结果回写（⑩）</h3>
+<p>复用 W2 的 DB 写工具：把结论、金额、依据写回理赔系统，并触发通知（短信/App）。这是<strong>复用，不是新写</strong>——你的 Java 理赔落库服务包成 <code>@tool</code>。</p>
+<div class="eng">节点⑨⑩是"收口"。结论必须可解释（带依据引用）以满足申诉与监管；回写必须复用已有落库服务，保证和老系统同一套数据口径、事务一致。Agent 在这里只是"调用方"，不该自己造一套存储。</div>
+<div class="iv">节点⑨生成带依据的结论，节点⑩复用 W2 DB 工具回写理赔系统并通知。回写复用老服务，保证数据口径一致、事务可靠。</div>
+<div class="warn">① 回写工具必须幂等（Day1 考点）：图可能重放，重复回写不能重复打款/重复通知。② 结论与回写要放在同一事务或至少有"已回写"状态标记，避免"结论生成了但回写失败"导致用户没收到。③ 通知（短信）放工具里也要幂等+去重。</div>
+
+<!-- ============ 9. 编排 vs 复用 ============ -->
+<h2 id="s9">九、编排 vs 复用：为什么不要重写工具</h2>
+<div class="eng">
+<p><strong>编排（Orchestration）</strong>：决定"调哪些工具、什么顺序、何时等人、怎么汇总"——这是 Agent / LangGraph 图的责任，是新写的薄编排层。</p>
+<p><strong>复用（Reuse）</strong>：OCR、DB 查询、规则引擎、知识库检索这些<strong>已经是你 W2/W3 调好的成熟能力</strong>，直接包成 <code>@tool</code> 挂进图，不重写。</p>
+<h4>为什么不要重写？</h4>
+<ul>
+  <li><strong>一致性</strong>：两套 OCR/规则口径不一，结论是"两套系统对不上"，合规灾难。</li>
+  <li><strong>成本</strong>：重写一套识别/规则要数月，且要重新测试、重新过审。</li>
+  <li><strong>可靠性</strong>：老服务已跑通、有监控熔断，新写一套 bug 多。</li>
+  <li><strong>责任边界</strong>：模型负责模糊的抽取/判断，确定性计算留给成熟工具，各司其职、易定位问题。</li>
+  <li><strong>可演进</strong>：工具升级（如 OCR 模型换了）不影响编排层，只需换工具实现。</li>
+</ul>
+</div>
+<div class="iv">编排=决定调什么工具/顺序/何时等人（Agent 新写的薄层）；复用=把 W2/W3 已有的 OCR/DB/规则/知识库包成 @tool 挂进来。不重写因为：口径一致、省成本、更可靠、责任清晰、易演进。</div>
+<div class="warn">① "复用"不是"完全不碰旧工具"——可能需要给旧服务加一个适配层（如把 Java 接口包成 @tool、补一个返回结构化 JSON 的网关），这是"适配"不是"重写"。② 别走向另一极端：把本该模型做的"综合判断"硬塞进规则引擎，失去 Agent 灵活性。编排的艺术是"确定性给工具、模糊性给模型"。③ 复用前先确认工具的幂等性与可观测性，不满足要先补（而非重写）。</div>
+
+<!-- ============ 10. 图编排 ============ -->
+<h2 id="s10">十、实战：用 LangGraph 编排这条主流程</h2>
+<pre><code>builder = StateGraph(ClaimState)
+# 复用 W2 工具 / W3 知识库 包成的 @tool
+builder.add_node("upload", upload_node)
+builder.add_node("ocr", ToolNode([ocr_scan]))          # 复用 W2
+builder.add_node("extract", extract_node)              # LLM 抽取
+builder.add_node("completeness", check_completeness)   # 纯逻辑
+builder.add_node("retrieve", ToolNode([query_policy, rag_search]))  # 复用 W2+W3
+builder.add_node("rule_check", ToolNode([rule_engine]))# 复用 W2 规则
+builder.add_node("risk_judge", risk_judge_node)        # LLM 决策
+builder.add_node("human_approve", human_approve)       # W4D2 interrupt
+builder.add_node("conclude", conclude_node)            # LLM 结论
+builder.add_node("writeback", ToolNode([save_claim]))  # 复用 W2 DB
+
+builder.add_edge(START, "upload")
+builder.add_edge("upload", "ocr")
+builder.add_edge("ocr", "extract")
+builder.add_edge("extract", "completeness")
+builder.add_conditional_edges("completeness",
+    lambda s: "retrieve" if not s["need_human"] else "human_approve",
+    {"retrieve":"retrieve", "human_approve":"human_approve"})
+builder.add_edge("retrieve", "rule_check")
+builder.add_edge("rule_check", "risk_judge")
+builder.add_conditional_edges("risk_judge",
+    lambda s: "human_approve" if s["risk_level"]=="high" else "conclude",
+    {"human_approve":"human_approve", "conclude":"conclude"})
+builder.add_edge("human_approve", "conclude")
+builder.add_edge("conclude", "writeback")
+builder.add_edge("writeback", END)
+
+graph = builder.compile(checkpointer=PostgresSaver(...))  # 持久化+可中断</code></pre>
+<div class="info"><strong>关键观察：</strong>图中只有 <code>extract / risk_judge / conclude</code> 是 LLM 节点（模糊智能），其余要么是复用工具（ocr/retrieve/rule_check/writeback）、要么是纯逻辑/IO（upload/completeness/human_approve）。这就是"编排为主、智能点缀"的企业 Agent 形态。</div>
+
+<!-- ============ 11. 易错点 ============ -->
+<h2 id="s11">十一、特药理赔主流程高频易错点</h2>
+<div class="warn">① <strong>在 Agent 里重写 OCR/规则</strong>：应复用 W2 工具，重写导致口径不一致。② <strong>让 LLM 算赔付金额</strong>：必须用规则引擎确定性计算。③ <strong>检索结果全量塞 State</strong>：占存储烧 token，应存摘要+引用。④ <strong>回写/通知不幂等</strong>：图重放会重复打款/发短信。⑤ <strong>漏 Checkpointer</strong>：人工审批无法断点恢复。⑥ <strong>风险等级无标准/不可解释</strong>：审核员看不懂为何 high，合规不通过。⑦ <strong>结论无引用</strong>：无法申诉、无法审计。⑧ <strong>材料缺失未前置拦截</strong>：脏数据流入规则引擎。⑨ <strong>把人工审批当普通工具</strong>：应用 interrupt 暂停而非同步等返回值。⑩ <strong>thread_id 用错/混用</strong>：案件状态串号。</div>
+
+<!-- ============ 12. 资源 ============ -->
+<h2 id="s12">十二、学习资源（中文 / 非 OpenAI）</h2>
+<div class="info">
+<ul>
+  <li><strong>B站 · LangGraph 构建智能 AI 应用（ReAct + Tool Calling + 图编排）</strong>：本日图的落地参考。<br><a href="https://www.bilibili.com/video/BV1zKx4zWEZP" target="_blank">https://www.bilibili.com/video/BV1zKx4zWEZP</a></li>
+  <li><strong>LangGraph 中文官方教程（Quick Start）</strong>：StateGraph / Checkpointer / Interrupt 示例。<br><a href="https://langgraph.com.cn/tutorials/get-started" target="_blank">https://langgraph.com.cn/tutorials/get-started</a></li>
+  <li><strong>LangGraph GitHub（langchain-ai/langgraph）</strong>：examples 里有客服/审批类多节点图可借鉴。<br><a href="https://github.com/langchain-ai/langgraph" target="_blank">https://github.com/langchain-ai/langgraph</a></li>
+</ul>
+</div>
+<div class="iv">本日是把前两天能力"组装"成业务系统。视频看图的编排套路，官方教程查 Checkpointer/Interrupt 精确用法，GitHub examples 找"多节点+人工审批"的参考实现。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：画出主流程图与各节点职责</h2>
+<div class="formula">
+上传 → OCR → 抽取 → 完整性 → 检索(保单+知识库) → 规则校验 → 风险判断 → 人工审批(HITL) → 结论 → 回写
+</div>
+<table>
+<tr><th>节点</th><th>一句话职责</th><th>复用/新写</th></tr>
+<tr><td>上传</td><td>收文件得 file_id</td><td>IO</td></tr>
+<tr><td>OCR</td><td>识别图片/PDF</td><td>复用 W2</td></tr>
+<tr><td>抽取</td><td>抽结构化字段</td><td>LLM</td></tr>
+<tr><td>完整性</td><td>核对必备材料</td><td>逻辑</td></tr>
+<tr><td>检索</td><td>查保单+知识库(RAG)</td><td>复用 W2+W3</td></tr>
+<tr><td>规则校验</td><td>判定赔付条件</td><td>复用 W2 规则</td></tr>
+<tr><td>风险判断</td><td>给 low/medium/high</td><td>LLM</td></tr>
+<tr><td>人工审批</td><td>高风险等人拍板</td><td>interrupt(HITL)</td></tr>
+<tr><td>结论</td><td>生成结论+理由(带引用)</td><td>LLM</td></tr>
+<tr><td>回写</td><td>落库+通知</td><td>复用 W2 DB</td></tr>
+</table>
+<div class="iv">达标线①核心：能徒手画出这 10 节点流程图，并说清每节点"干什么、是复用还是新写（LLM/逻辑）"。重点强调 OCR/检索/规则/回写是复用，抽取/风险/结论是 LLM。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：编排 vs 复用，为什么不要重写</h2>
+<div class="formula">
+编排（Agent 新写的薄层：顺序/分支/何时等人/汇总） + 复用（W2/W3 已有工具包成 @tool） = 企业 Agent，而非重写一切
+</div>
+<table>
+<tr><th>问题</th><th>满分回答要点</th></tr>
+<tr><td>哪些是编排？</td><td>图的节点顺序、条件边分支、interrupt 时机、结论汇总——Agent 新写的薄控制层。</td></tr>
+<tr><td>哪些是复用？</td><td>OCR、保单/DB 查询、规则引擎、知识库 RAG、结果回写——W2/W3 已有成熟能力，包成 @tool 直接挂。</td></tr>
+<tr><td>为什么不要重写？</td><td>口径一致（避免两套对不上）、省成本、更可靠（老服务有监控熔断）、责任清晰（模糊给模型/确定给工具）、易演进（换工具实现不影响编排）。</td></tr>
+</table>
+<div class="eng">一句话工程哲学：<strong>"能复用绝重写，编排薄如纸"</strong>。Agent 的价值在于把成熟能力智能地串起来，而不是重新发明 OCR、重新写规则。重写既浪费又引入不一致与合规风险。</div>
+<div class="iv">达标线②核心：能区分"编排"（新写的薄控制层：顺序/分支/等人/汇总）与"复用"（W2/W3 已有工具），并能讲清不重写的五大理由（一致/成本/可靠/责任清晰/易演进）。</div>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W4D3 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清特药理赔的业务特点（高金额、规则严、需人工、需合规）。</li>
+<li>能徒手画出 10 节点主流程图（上传→OCR→抽取→完整性→检索→规则→风险→人工→结论→回写）。</li>
+<li>能说清每个节点的职责与"复用/LLM/逻辑"属性。</li>
+<li>能说明 OCR(②)、检索(⑤)、规则(⑥)、回写(⑩) 是复用 W2/W3 工具。</li>
+<li>能说明抽取(③)、风险(⑦)、结论(⑨) 是 LLM 节点。</li>
+<li>能讲清为什么用规则引擎而非 LLM 算赔付（精确/可复算/可审计）。</li>
+<li>能讲清检索必须带引用（防幻觉、可溯源、合规）。</li>
+<li>能讲清人工审批节点用 interrupt + Checkpointer 实现 HITL（W4D2 衔接）。</li>
+<li>能说清"编排 vs 复用"的定义与不重写工具的五大理由。</li>
+<li>能讲清回写/通知工具必须幂等（图重放不重复打款/发短信）。</li>
+<li>能对照 s10 的图代码，指出哪些是复用节点、哪些是 LLM 节点、条件边依据是什么。</li>
+<li>能列出本流程的高频易错点（重写 OCR、LLM 算钱、检索全量塞 State 等）。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：特药理赔 Agent 主流程有哪些节点？</div><div class="a">上传→OCR→抽取→完整性→检索(保单+知识库)→规则校验→风险判断→人工审批(HITL)→结论→回写，共10节点。</div></div>
+<div class="qcard"><div class="q">Q：哪些是复用、哪些是 LLM 节点？</div><div class="a">复用：OCR/检索/规则/回写（W2/W3 工具）；LLM：抽取/风险判断/结论；逻辑/IO：上传/完整性/人工审批。</div></div>
+<div class="qcard"><div class="q">Q：为什么赔付金额不用 LLM 算？</div><div class="a">金额必须精确、可复算、可审计，LLM 会算错还自信。硬计算交给规则引擎，模型只做模糊抽取/判断。</div></div>
+<div class="qcard"><div class="q">Q：编排和复用有什么区别？</div><div class="a">编排=Agent 新写的薄控制层（顺序/分支/何时等人/汇总）；复用=把 W2/W3 已有 OCR/DB/规则/知识库包成 @tool 挂进图。</div></div>
+<div class="qcard"><div class="q">Q：为什么不要重写工具？</div><div class="a">五点：口径一致、省成本、更可靠(老服务有监控熔断)、责任清晰、易演进。重写会引入不一致与合规风险。</div></div>
+<div class="qcard"><div class="q">Q：检索结果怎么处理才稳妥？</div><div class="a">存"摘要+引用id"进 State，别全量塞（占存储烧 token）；详情按需再查。必须带引用满足合规溯源。</div></div>
+<div class="qcard"><div class="q">Q：人工审批在图里怎么实现？</div><div class="a">风险 high 时条件边路由到 human_approve 节点，interrupt() 暂停，审核员 Command(resume) 同 thread_id 唤醒（W4D2）。</div></div>
+<div class="qcard"><div class="q">Q：回写/通知为什么要幂等？</div><div class="a">图可能重放节点，非幂等会重复打款/发短信。回写工具要幂等+去重，且结论与回写要保证最终一致。</div></div>
+<div class="qcard"><div class="q">Q：风险等级怎么定、有何用？</div><div class="a">LLM 综合抽取+检索+规则结果给 low/medium/high；低风险自动过、高风险转人工，标准要可解释可配置。</div></div>
+<div class="qcard"><div class="q">Q：特药理赔 Agent 是纯 Agent 吗？</div><div class="a">是 Agentic Workflow：确定性主流程(图骨架)+模型决策节点(抽取/风险/结论)与人工审批，兼顾可控与灵活、满足合规。</div></div>
+
+<div class="ft">FDE W4D3 学习手册 · 特药理赔 Agent 主流程（面试级）· 配合《FDE-W4D3-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w4d3_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W4D3 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W4D3-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

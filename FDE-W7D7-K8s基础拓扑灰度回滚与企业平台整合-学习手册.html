@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W7D7 学习手册 · K8s 基础拓扑、灰度回滚与企业平台整合（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W7D7 学习手册</span>
+  <a href="#s1">1.K8s核心</a><a href="#s2">2.Deployment</a><a href="#s3">3.Service</a><a href="#s4">4.Ingress</a>
+  <span class="sep"></span>
+  <a href="#s5">5.AI部署形态</a><a href="#s6">6.滚动更新</a><a href="#s7">7.金丝雀</a><a href="#s8">8.回滚</a>
+  <span class="sep"></span>
+  <a href="#s9">9.组件清单</a><a href="#s10">10.调用链</a><a href="#s11">11.可观测成本</a><a href="#s12">12.整合</a>
+  <span class="sep"></span>
+  <a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W7D7 学习手册 · K8s 基础拓扑、灰度回滚与企业平台整合</h1>
+<p class="sub">W7 Day7 · B 级（平台整合与交付收口）· 4h · 学完能讲清"K8s 下 AI 服务怎么部署/灰度/回滚 + W7 整体如何串成企业 Agent 平台最小版"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W7 收官日。D5 网关（LiteLLM）、D6 调用链与 Docker 交付，D7 把它们放进 <strong>K8s</strong>：讲基础拓扑（Deployment/Service/Ingress）、灰度发布与回滚，并把整周的 Spring AI + Gateway + 部署串成"企业 Agent 平台最小版"。<br>
+  <strong>学完能回答：</strong>① K8s 下 AI 服务怎么部署、怎么灰度（滚动/金丝雀）和回滚；② W7 整体产出如何形成"企业 Agent 平台最小版"（组件清单 + 调用链）。<br>
+  <strong>候选人背景：</strong>36 岁，Java + 大数据 + 医疗保险。重点放在 <strong>Java 侧企业 AI 平台</strong> 在 K8s 的落地与"周级产出整合讲故事"的能力（面试常问"你这一周做了什么"）。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「工程含义」「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W7D7-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。<br>
+  <strong>📚 延伸资源：</strong>Spring AI 零基础 19 集（B站 <a href="https://www.bilibili.com/video/BV1X27GznEsf" target="_blank">BV1X27GznEsf</a>，含 K8s 部署，非 OpenAI 官方）；LiteLLM 文档 <a href="https://docs.litellm.ai" target="_blank">docs.litellm.ai</a>。
+</div>
+
+<!-- ============ 1. K8s 核心 ============ -->
+<h2 id="s1">一、K8s 基础概念与核心对象</h2>
+<h3>1.1 为什么 AI 平台要用 K8s</h3>
+<p>K8s 提供<strong>声明式编排、自动调度、自愈、扩缩容、服务发现、滚动发布</strong>。对一个要 7×24 的企业 AI 平台（网关 + 业务 + 模型服务），这些是生产必备，手动 Docker 做不到。</p>
+<h3>1.2 三大核心对象（本次重点）</h3>
+<table>
+<tr><th>对象</th><th>做什么</th><th>AI 场景对应</th></tr>
+<tr><td>Deployment</td><td>管理无状态应用的副本与版本</td><td>Spring AI 业务、LiteLLM 网关</td></tr>
+<tr><td>Service</td><td>稳定虚拟 IP + 负载均衡，屏蔽 Pod 变化</td><td>网关/业务内部互访的固定地址</td></tr>
+<tr><td>Ingress</td><td>对外暴露 HTTP 路由</td><td>外部流量进网关/业务</td></tr>
+</table>
+<div class="eng">对企业交付，K8s 是"生产级"的代名词。D6 讲的 Docker/Compose 是演示，K8s 才是生产。Java 候选人要能说清：业务和网关都是 Deployment 跑多副本，Service 给稳定地址，Ingress 管外部入口——模型服务若有 GPU 也用 Deployment/StatefulSet 调度。</div>
+<div class="iv">K8s 给 AI 平台自愈、扩缩容、滚动发布。三大对象：Deployment 管副本版本（业务/网关）、Service 给稳定地址+负载均衡、Ingress 管外部 HTTP 入口。这是生产级部署骨架。</div>
+<div class="warn">① Deployment 管<strong>无状态</strong>；模型权重/有状态存储别放 Pod 本地（用 Volume/外部存储），否则 Pod 重建数据丢。② Service 的 ClusterIP 只在集群内，外部访问必须靠 Ingress/LoadBalancer。③ K8s 不是"装了就高可用"，控制面/节点也要有冗余，单节点集群不等于高可用。</div>
+
+<!-- ============ 2. Deployment ============ -->
+<h2 id="s2">二、Deployment：AI 服务的无状态部署</h2>
+<h3>2.1 结构</h3>
+<p>Deployment 定义"我要跑几个副本、用哪个镜像、探针怎么配"，K8s 保证实际状态向期望状态收敛（自愈）。</p>
+<pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata: { name: litellm-gateway }
+spec:
+  replicas: 3                      # 多副本高可用
+  selector: { matchLabels: { app: litellm } }
+  template:
+    metadata: { labels: { app: litellm } }
+    spec:
+      containers:
+      - name: litellm
+        image: ghcr.io/berriai/litellm:main
+        ports: [{ containerPort: 4000 }]
+        readinessProbe:             # 模型/依赖就绪才接流量
+          httpGet: { path: /health/liveliness, port: 4000 }
+          initialDelaySeconds: 10
+        livenessProbe:              # 进程死才重启
+          httpGet: { path: /health/liveliness, port: 4000 }
+        resources:
+          requests: { cpu: "500m", memory: "512Mi" }
+          limits:   { cpu: "1",    memory: "1Gi" }</code></pre>
+<h3>2.2 AI 场景注意</h3>
+<ul>
+  <li><strong>网关/业务</strong>：无状态，多副本横向扩展，资源按 CPU/内存限。</li>
+  <li><strong>GPU 模型服务</strong>：用 <code>resources.limits.nvidia.com/gpu</code> 申请 GPU，节点需有 GPU 且装 device plugin。</li>
+  <li><strong>探针阈值</strong>：呼应 D6，模型加载慢，initialDelaySeconds 给足。</li>
+</ul>
+<div class="eng">Deployment 的"期望状态"模型是 K8s 的核心心智：你声明要 3 个副本，K8s 自己维持。挂一个它补一个，这就是自愈。对交付而言，副本数 + 资源 limit + 探针，是 Deployment 三要素。</div>
+<div class="iv">Deployment 声明副本数/镜像/探针，K8s 维持期望状态（自愈、挂了补）。AI 场景：网关业务多副本无状态；GPU 模型要申 GPU 资源；探针阈值适配模型加载。</div>
+<div class="warn">① 不设 resources.limits，Pod 可能吃光节点资源拖垮他人（呼应 D6 OOM）。② 副本数=1 没有高可用，网关挂全瘫（呼应 D5）。③ GPU 资源是<strong>节点级稀缺</strong>，限量申请，别贪婪。</div>
+
+<!-- ============ 3. Service ============ -->
+<h2 id="s3">三、Service：服务发现与负载均衡</h2>
+<h3>3.1 作用</h3>
+<p>Pod 会漂、会重建、IP 会变。Service 给一组 Pod 一个<strong>稳定虚拟 IP + DNS 名</strong>，自动负载均衡到健康 Pod。调用方只认 Service 名，不认 Pod IP。</p>
+<div class="formula">
+Spring AI ──▶ Service(litellm-gateway:4000) ──▶ 多个网关 Pod（负载均衡）
+</div>
+<h3>3.2 类型</h3>
+<table>
+<tr><th>类型</th><th>暴露范围</th><th>用法</th></tr>
+<tr><td>ClusterIP</td><td>仅集群内</td><td>内部互访（业务↔网关）</td></tr>
+<tr><td>NodePort</td><td>节点端口</td><td>测试用，少用</td></tr>
+<tr><td>LoadBalancer</td><td>云负载均衡器</td><td>云上对外（常配合 Ingress）</td></tr>
+</table>
+<div class="eng">Spring AI 配置的 <code>base-url</code> 在 K8s 里就该写成 Service 名（如 <code>http://litellm-gateway:4000/v1</code>），而不是某个 Pod IP。这样网关扩缩容、Pod 重建，Java 侧完全无感——这正是 D6"调用链稳定"的落地。</div>
+<div class="iv">Service 给稳定虚拟 IP+DNS，负载均衡到健康 Pod，屏蔽 Pod IP 变化。内部用 ClusterIP，Spring AI 的 base-url 写 Service 名，网关扩缩容业务无感。</div>
+<div class="warn">① Service 不解决"服务挂了"的问题，它只转发到健康 Pod；若全部 Pod 挂，Service 也无响应——要结合副本数+探针+Ingress。② ClusterIP 外部不可达，别指望从集群外直接 curl。③ Service 的负载均衡是<strong>四层（IP:端口）</strong>，按路径/域名的路由交给 Ingress。</div>
+
+<!-- ============ 4. Ingress ============ -->
+<h2 id="s4">四、Ingress：对外暴露与路由</h2>
+<h3>4.1 作用</h3>
+<p>Ingress 是 K8s 的<strong>七层（HTTP）入口</strong>：按域名/路径把外部流量路由到对应 Service。例如 <code>/api/ai/*</code> 进网关 Service，<code>/admin/*</code> 进管理界面。</p>
+<pre><code>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: { name: ai-platform-ingress }
+spec:
+  rules:
+  - host: ai.example-insurance.com
+    http:
+      paths:
+      - path: /v1
+        pathType: Prefix
+        backend: { service: { name: litellm-gateway, port: { number: 4000 } } }
+      - path: /admin
+        pathType: Prefix
+        backend: { service: { name: litellm-ui, port: { number: 80 } } }</code></pre>
+<h3>4.2 与 Service 的配合</h3>
+<p>Ingress 是"大门+楼层指示牌"，Service 是"房间号"。外部请求先到 Ingress，再按规则转到内部 Service，再到 Pod。</p>
+<div class="eng">对保险客户，Ingress 常配 TLS（HTTPS）+ WAF + 限流，是安全边界。外部只暴露 Ingress 域名，内部 Service 不对外。这也是 D6"环境隔离"在 K8s 的落地：不同环境不同 Ingress 域名/namespace。</div>
+<div class="iv">Ingress 是七层入口，按域名/路径路由到内部 Service（再转 Pod）。外部只暴露 Ingress，内部 Service 不对外。常配 TLS/WAF/限流做安全边界。</div>
+<div class="warn">① Ingress 本身要有一个 Ingress Controller（如 nginx）在跑，否则规则不生效。② 路径匹配 <code>Prefix</code> 是前缀匹配，配错可能误伤（如 <code>/v1</code> 也会匹配 <code>/v1beta</code>），要理解 pathType。③ Ingress 不是认证，TLS 只加密传输，访问控制另做。</div>
+
+<!-- ============ 5. AI 部署形态 ============ -->
+<h2 id="s5">五、AI 服务在 K8s 的部署形态（含 GPU/资源）</h2>
+<h3>5.1 三类负载</h3>
+<table>
+<tr><th>组件</th><th>K8s 对象</th><th>资源</th><th>副本/状态</th></tr>
+<tr><td>Spring AI 业务</td><td>Deployment</td><td>CPU/内存</td><td>无状态，多副本</td></tr>
+<tr><td>LiteLLM 网关</td><td>Deployment</td><td>CPU/内存</td><td>无状态，多副本（咽喉高可用）</td></tr>
+<tr><td>模型推理服务</td><td>Deployment/StatefulSet</td><td>GPU + 内存</td><td>可能需 GPU 节点池</td></tr>
+<tr><td>Postgres（网关库）</td><td>StatefulSet</td><td>CPU/内存/磁盘</td><td>有状态，需持久卷</td></tr>
+</table>
+<h3>5.2 GPU 调度要点</h3>
+<ul>
+  <li>节点打标签（如 <code>nvidia.com/gpu</code>），Pod 用 <code>nodeSelector</code>/<code>toleration</code> 调度到 GPU 节点。</li>
+  <li>模型权重用 PVC/对象存储挂载，不进镜像（呼应 D6）。</li>
+  <li>GPU 共享/切分（如 MIG）按场景，避免浪费。</li>
+</ul>
+<div class="eng">企业 Agent 平台最小版在 K8s 的占位：业务 Deployment、网关 Deployment、数据库 StatefulSet 放同一集群不同 namespace；模型推理若用外部厂商（OpenAI 等）则无需自管 GPU，网关直接出网——这是多数保险交付的起点（先不养 GPU 集群）。</div>
+<div class="iv">AI 平台在 K8s：业务/网关用 Deployment 多副本无状态；模型推理用 Deployment/StatefulSet 申 GPU；数据库用 StatefulSet + 持久卷。多数保险交付先接外部模型、不自管 GPU。</div>
+<div class="warn">① 数据库用 Deployment 跑、数据存 Pod 本地 = 重启即丢，必须用 StatefulSet + PVC。② GPU 节点贵且稀缺，Pod 没配 <code>nodeSelector</code> 可能被调度到 CPU 节点导致起不来。③ 网关和数据库放同一 Pod/同副本=耦合，要分开部署独立伸缩。</div>
+
+<!-- ============ 6. 滚动更新 ============ -->
+<h2 id="s6">六、滚动更新（Rolling Update）</h2>
+<h3>6.1 原理</h3>
+<p>Deployment 更新镜像时，默认<strong>滚动更新</strong>：逐批用新 Pod 替换旧 Pod，期间服务不中断（新旧并存）。</p>
+<div class="formula">
+maxSurge（最多多起几个新 Pod）+ maxUnavailable（最多允许几个旧 Pod 同时下线）控制节奏
+</div>
+<h3>6.2 配置</h3>
+<pre><code>spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1          # 最多比期望多 1 个新 Pod
+      maxUnavailable: 0     # 更新期间不允许旧 Pod 低于副本数（零停机）
+  minReadySeconds: 15      # 新 Pod 就绪后等 15s 再继续</code></pre>
+<div class="eng">滚动更新是"默认的安全发布"。对网关这种咽喉，务必 <code>maxUnavailable: 0</code> 保证零停机，配合 Readiness（呼应 D6/D7 探针）确保新 Pod 真就绪才接流量。金融客户验收常要求"发布不影响线上业务"。</div>
+<div class="iv">滚动更新逐批换新 Pod、新旧并存不中断。<code>maxSurge</code> 控新增、<code>maxUnavailable</code> 控下线（网关设 0 零停机）。新 Pod 经 Readiness 才接流量，发布不影响线上。</div>
+<div class="warn">① <code>maxUnavailable&gt;0</code> 在副本少时会导致"发布期间容量下降"，网关若设大可能短时能力不足。② 没有 Readiness 配合，新 Pod 一启动就被打流量，模型没加载完就报错。③ <code>minReadySeconds</code> 不够，滚动太快，问题 Pod 没暴露就全换了，回滚来不及。</div>
+
+<!-- ============ 7. 金丝雀 ============ -->
+<h2 id="s7">七、金丝雀发布（Canary）</h2>
+<h3>7.1 原理</h3>
+<p>金丝雀：先放<strong>少量流量（如 5%~10%）</strong>到新版本，观察指标（错误率/延迟/成本）正常，再逐步放量到 100%。是比滚动更新更稳妥的"小步验证"。</p>
+<h3>7.2 在 K8s 怎么实现</h3>
+<table>
+<tr><th>方式</th><th>做法</th></tr>
+<tr><td>多 Deployment + Service 权重</td><td>新旧各一个 Deployment，用 Ingress/Service Mesh 按权重分流</td></tr>
+<tr><td>Service Mesh（Istio）</td><td>VirtualService 配流量比例，灰度精细</td></tr>
+<tr><td>Ingress 注解</td><td>部分 Ingress Controller 支持 canary 注解（如 nginx ingress canary）</td></tr>
+</table>
+<h3>7.3 适用</h3>
+<p>模型/网关升级风险高（新模型效果未知、新网关配置可能错），先金丝雀看真实效果再全量，避免"全量上线发现更差"。</p>
+<div class="eng">对保险 Agent 平台，模型效果直接影响理赔/核保结论，<strong>不能全量盲更</strong>。金丝雀先放 5% 真实流量，对比新旧版本的错误率与人工抽检质量，确认不劣化再放量——这是"负责任的 AI 发布"。</div>
+<div class="iv">金丝雀先放少量流量（5%~10%）到新版本，观察错误率/延迟/质量正常再放量。K8s 可用多 Deployment+权重、Istio、或 Ingress canary 注解实现。模型升级风险高，必须小步验证。</div>
+<div class="warn">① 金丝雀若"只看系统指标不看业务指标"，可能放过"效果变差但没报错"的坏版本（如新模型答非所问但 HTTP 200）。要结合质量评估。② 没有流量分割能力（纯 Service）做不了真金丝雀，需 Ingress/Mesh 支持。③ 金丝雀期间两套副本都跑，资源成本翻倍，注意容量。</div>
+
+<!-- ============ 8. 回滚 ============ -->
+<h2 id="s8">八、回滚（Rollback）到上一版本</h2>
+<h3>8.1 原理</h3>
+<p>Deployment 每次更新会生成<strong>修订版本（revision）</strong>。出问题 <code>kubectl rollout undo</code> 即可回滚到上一个稳定 revision，K8s 自动把 Pod 换回旧镜像。</p>
+<div class="formula">
+kubectl rollout undo deployment/litellm-gateway   # 回滚到上一版
+kubectl rollout history deployment/litellm-gateway # 看修订历史
+</div>
+<h3>8.2 回滚前提</h3>
+<ul>
+  <li><strong>保留旧镜像</strong>：回滚靠旧镜像还在仓库，别删。</li>
+  <li><strong>状态兼容</strong>：若新版本改了数据库 schema 且不兼容，回滚后旧代码可能读不了新数据——要配迁移策略。</li>
+  <li><strong>快速检测</strong>：要有监控/告警，才能"及时发现→快速回滚"。</li>
+</ul>
+<div class="eng">回滚是"发布安全网"。交付时必须演示：能一键回滚、旧镜像保留、监控能及时报警。金融客户尤其看重"出事 5 分钟内回退"的能力。注意：AI 平台回滚还要考虑模型版本与 Prompt 版本一致，避免代码回退但模型没回退的半吊子状态。</div>
+<div class="iv">Deployment 有修订历史，<code>kubectl rollout undo</code> 一键回滚上一版。前提：旧镜像保留、状态兼容、监控能及时发现。AI 平台还要注意模型/Prompt 版本一并回退。</div>
+<div class="warn">① 删了旧镜像/旧 revision，回滚失败——要保留历史 revision（设 revisionHistoryLimit）。② 只回滚代码不回滚数据库迁移，可能新旧不兼容崩。③ "回滚"只是换 Pod，若新版本已写入不兼容数据，旧代码读会错，需数据兼容设计。④ AI 场景模型版本没同步回退 = 代码旧模型新，行为不一致。</div>
+
+<!-- ============ 9. 组件清单 ============ -->
+<h2 id="s9">九、企业 Agent 平台最小版：组件清单</h2>
+<h3>9.1 W7 整体产出盘点</h3>
+<table>
+<tr><th>层</th><th>组件</th><th>来源（W7 哪天）</th><th>K8s 对象</th></tr>
+<tr><td>应用</td><td>Spring AI 业务服务（Java）</td><td>D6 调用链、D7</td><td>Deployment + Service</td></tr>
+<tr><td>网关</td><td>LiteLLM Proxy</td><td>D5</td><td>Deployment + Service</td></tr>
+<tr><td>治理数据</td><td>Postgres（Key/预算/Spend）</td><td>D5</td><td>StatefulSet + PVC</td></tr>
+<tr><td>模型</td><td>厂商模型 / 私有推理</td><td>D5/D7</td><td>外部 API 或 Deployment(GPU)</td></tr>
+<tr><td>入口</td><td>Ingress + TLS</td><td>D7</td><td>Ingress</td></tr>
+<tr><td>交付</td><td>镜像/Secret/探针/隔离</td><td>D6</td><td>Secret/ns/探针</td></tr>
+</table>
+<div class="eng">这就是"企业 Agent 平台最小版"的落地清单。面试被问"你这一周做了什么"，就按这张表讲：从网关选型（D5）、调用链与 Docker 交付（D6）、到 K8s 拓扑与灰度回滚（D7），形成一个能跑、能治理、能发布的企业 Agent 平台骨架。</div>
+<div class="iv">最小版组件：Spring AI 业务(Deployment)、LiteLLM 网关(Deployment)、Postgres 治理库(StatefulSet)、厂商/私有模型、Ingress 入口、Secret/探针/隔离交付件。这正是 W7 三天串起来的产出。</div>
+<div class="warn">① "最小版"不是"简陋版"——治理（Key/预算/成本）和发布安全（灰度/回滚）是标配，不是可选项。② 别漏 Postgres：网关的"记忆"在库里，没它治理失效。③ 清单要能映射到 K8s 对象，不能只说"有个网关"，要说清它在 K8s 怎么跑。</div>
+
+<!-- ============ 10. 调用链 ============ -->
+<h2 id="s10">十、企业 Agent 平台最小版：调用链串联</h2>
+<h3>10.1 端到端调用链</h3>
+<div class="formula">
+用户/系统 ──(Ingress)──▶ Spring AI 业务(Deployment) ──(Service)──▶ LiteLLM 网关(Deployment)
+        ──(虚拟 Key)──▶ 厂商/私有模型 ──▶ 结果原路返回
+        （网关落库 Postgres 记成本，全程 Trace id 串联）
+</div>
+<h3>10.2 与 D6 单一职责呼应</h3>
+<ul>
+  <li><strong>路由</strong>：网关一层做（业务只选虚拟 Key）。</li>
+  <li><strong>重试</strong>：网络重试只一层（如 Spring AI），业务级带反馈重试在应用层。</li>
+  <li><strong>成本</strong>：网关落库唯一可信来源。</li>
+  <li><strong>发布</strong>：网关/业务各自 Deployment，独立滚动/金丝雀/回滚。</li>
+</ul>
+<div class="eng">这条调用链就是 W7 的"总产出证据"。从用户请求进 Ingress，经业务编排、网关治理、模型推理，结果返回，全程成本被网关记账、Trace 串联。每一段在 W7 都有对应章节支撑——这就是"周级整合讲故事"的骨架。</div>
+<div class="iv">调用链：Ingress→Spring AI 业务→LiteLLM 网关(虚拟Key)→模型→原路返回；网关落库记成本，Trace 串联。路由/重试/成本各一层（D6），网关与业务独立发布（D7）。</div>
+<div class="warn">① 调用链里若业务和网关都做成本统计，又回到 D6 的 double count，整合时别退化。② Trace id 要贯穿各层（Ingress 生成、透传到业务/网关/模型），否则排障断链。③ 网关挂了业务要有降级（D6），否则整条链断。</div>
+
+<!-- ============ 11. 可观测与成本 ============ -->
+<h2 id="s11">十一、整体可观测与成本（呼应 W7 全局）</h2>
+<h3>11.1 三层可观测</h3>
+<table>
+<tr><th>信号</th><th>内容</th><th>工具（非 OpenAI）</th></tr>
+<tr><td>Logs</td><td>各层请求/错误日志</td><td>Loki / ELK</td></tr>
+<tr><td>Metrics</td><td>QPS/延迟/错误率/成本</td><td>Prometheus + Grafana</td></tr>
+<tr><td>Traces</td><td>跨层调用链</td><td>Jaeger / OpenTelemetry</td></tr>
+</table>
+<h3>11.2 成本闭环</h3>
+<p>网关（LiteLLM）落库的成本数据 → Prometheus 抓取/BI 报表 → Grafana 看板，实现"哪个业务线/项目花多少"的可视化（呼应 D5 项目级成本）。结合告警，预算超 80% 自动通知。</p>
+<div class="eng">交付企业平台，"能看"和"能管"一样重要。可观测三件套（日志/指标/链路）+ 成本看板，让运维和财务都能自助。这也是 D5 管理界面之外，更工程化的可观测方案。</div>
+<div class="iv">可观测三件套：Logs(Loki/ELK)、Metrics(Prometheus+Grafana)、Traces(Jaeger/OTel)。成本由网关落库→Prometheus/BI→Grafana 看板，实现业务线花费可视化+预算告警。</div>
+<div class="warn">① 只装 Prometheus 不配告警 = "出了事才知道"，要配阈值告警。② Trace 不贯穿（某些层没埋点）= 调用链断裂，排障回到"猜"。③ 成本看板若数据源是"应用自己记的"（D6 反模式），会和网关对不上，必须以网关为准。</div>
+
+<!-- ============ 12. 整合总结 ============ -->
+<h2 id="s12">十二、W7 整体整合：从零到"企业 Agent 平台最小版"</h2>
+<h3>12.1 一句话总结 W7</h3>
+<div class="formula">
+D5 选网关(LiteLLM) + 写决策(ADR) → D6 定调用链(单层路由/重试/成本) + Docker 交付(Secret/探针/隔离)
+→ D7 上 K8s(Deployment/Service/Ingress) + 灰度回滚 → 串成企业 Agent 平台最小版
+</div>
+<h3>12.2 给面试官的"周成果陈述"模板</h3>
+<div class="info">
+<strong>可照着讲：</strong>"这一周我搭出了一个企业级 Agent 平台的最小可用骨架。先基于 Build vs Buy 分析选了 LiteLLM 做模型网关，并用 ADR 把决策留痕；然后设计了单一调用链——路由、重试、成本统计各只在一层，避免冲突和双计；再用 Docker/K8s 落地部署，配好 Secret、双探针和环境隔离；最后在 K8s 上用 Deployment/Service/Ingress 串起业务、网关、模型，并支持滚动更新、金丝雀和一键回滚。整体具备虚拟 Key、预算、多租户成本和可观测能力，可直接往保险业务线落地。"
+</div>
+<div class="eng">W7 的本质是"把 AI 能力变成可治理、可交付、可运维的企业平台"，而不只是"能调通一个模型"。Java 候选人最大的卖点就是：从应用框架（Spring AI）到平台治理（网关）到生产交付（K8s），全链路都能讲清、能落地。</div>
+<div class="iv">W7 主线：选网关+ADR → 定单一调用链+Docker 交付 → 上 K8s 灰度回滚 → 串成平台最小版。面试讲"周成果"就用这条线，体现全链路（应用→治理→交付）能力。</div>
+<div class="warn">① 整合讲述时别堆名词，要讲"为什么这么做"（决策可追溯、调用链不冲突、发布可回退）。② 别把一个组件说成"我全做了"，要分清"用了开源 LiteLLM"和"自研了什么"（路由适配/业务编排）。③ 面试若追问"这平台还差什么"，要能说（如模型效果评测、权限细粒度、审计日志）——体现你知道边界。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：K8s 部署与灰度回滚</h2>
+<table>
+<tr><th>主题</th><th>要点</th></tr>
+<tr><td>拓扑</td><td>Deployment(业务/网关多副本) + Service(稳定地址+负载均衡) + Ingress(外部HTTP路由+TLS)</td></tr>
+<tr><td>AI 形态</td><td>无状态多副本；GPU 模型申 GPU 资源+节点调度；数据库用 StatefulSet+PVC</td></tr>
+<tr><td>滚动更新</td><td>maxSurge/maxUnavailable 控节奏，maxUnavailable=0 零停机，配合 Readiness</td></tr>
+<tr><td>金丝雀</td><td>少量流量验证（看系统+业务指标），再放量；靠 Ingress/Mesh 分流</td></tr>
+<tr><td>回滚</td><td>revision 历史 + rollout undo 一键回退；旧镜像保留、状态兼容、监控及时发现</td></tr>
+</table>
+<div class="iv">核心：K8s 用 Deployment/Service/Ingress 部署 AI 服务；发布用滚动更新（零停机）或金丝雀（小步验证），出问题一键回滚。网关高可用多副本，模型按需 GPU，数据库 StatefulSet。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：W7 整体形成"企业 Agent 平台最小版"</h2>
+<div class="formula">
+组件清单：Spring AI 业务 + LiteLLM 网关 + Postgres(治理) + 模型 + Ingress + Secret/探针/隔离
+调用链：Ingress → 业务 → 网关(虚拟Key) → 模型 → 返回；网关落库记成本，Trace 串联
+治理闭环：虚拟 Key / 预算 / 多租户 / 项目成本 / 可观测看板
+发布能力：滚动更新 / 金丝雀 / 一键回滚
+</div>
+<ol>
+  <li><strong>组件</strong>：业务(Deployment)、网关(Deployment)、Postgres(StatefulSet)、模型(外部/Deployment)、Ingress 入口、Secret/探针/隔离交付件。</li>
+  <li><strong>调用链</strong>：与 D6 单一职责呼应，路由/重试/成本各一层，Trace 贯穿。</li>
+  <li><strong>治理</strong>：虚拟 Key、预算、多租户、项目级成本（D5），可观测三件套+成本看板（D7）。</li>
+  <li><strong>发布</strong>：网关与业务独立滚动/金丝雀/回滚（D7）。</li>
+  <li><strong>决策</strong>：Build vs Buy + ADR 留痕（D5），让平台选型可辩护。</li>
+</ol>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W7D7 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说出 K8s 三大核心对象（Deployment/Service/Ingress）及其在 AI 平台的对应。</li>
+<li>能写出 Deployment 的关键字段（副本/镜像/探针/资源）并解释 AI 场景注意点。</li>
+<li>能讲清 Service 为什么需要（屏蔽 Pod IP 变化）、ClusterIP 与外部访问的区别。</li>
+<li>能讲清 Ingress 的七层路由作用，及与 Service 的配合、TLS/安全边界。</li>
+<li>能说明 AI 服务在 K8s 的部署形态（业务/网关 Deployment、数据库 StatefulSet、GPU 调度）。</li>
+<li>能解释滚动更新的原理与 maxSurge/maxUnavailable，及为何网关设 maxUnavailable=0。</li>
+<li>能说出金丝雀发布的做法、实现方式（多 Deployment/权重、Istio、Ingress canary）与适用。</li>
+<li>能讲清回滚的原理（revision）、命令，以及回滚前提（旧镜像保留/状态兼容/监控）。</li>
+<li>能列出"企业 Agent 平台最小版"的组件清单并映射到 K8s 对象。</li>
+<li>能画出端到端调用链并说明与 D6 单一职责的呼应。</li>
+<li>能讲清可观测三件套（Logs/Metrics/Traces）与成本看板如何闭环。</li>
+<li>能用一段话把 W7 三天整合成"周成果"向面试官陈述。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：K8s 三大核心对象是什么？</div><div class="a">Deployment 管副本版本（业务/网关）、Service 给稳定地址+负载均衡、Ingress 管外部 HTTP 路由。生产级部署骨架。</div></div>
+<div class="qcard"><div class="q">Q：Service 解决什么问题？</div><div class="a">Pod IP 会变，Service 给稳定虚拟 IP+DNS 并负载均衡到健康 Pod。Spring AI 的 base-url 写 Service 名，网关扩缩容无感。</div></div>
+<div class="qcard"><div class="q">Q：Ingress 和 Service 什么关系？</div><div class="a">Ingress 是大门+路径路由（七层），Service 是房间号（四层）。外部先到 Ingress 再转 Service 到 Pod。外部只暴露 Ingress。</div></div>
+<div class="qcard"><div class="q">Q：滚动更新怎么做到不中断？</div><div class="a">逐批换 Pod、新旧并存；maxUnavailable=0 保容量，新 Pod 经 Readiness 才接流量。结合 minReadySeconds 防过快。</div></div>
+<div class="qcard"><div class="q">Q：金丝雀和滚动更新区别？</div><div class="a">滚动是逐批全量换；金丝雀是先放 5%~10% 流量验证（系统+业务指标）再放量，更稳，需 Ingress/Mesh 分流。</div></div>
+<div class="qcard"><div class="q">Q：K8s 怎么回滚？</div><div class="a">Deployment 有 revision 历史，kubectl rollout undo 一键回退。前提：旧镜像保留、状态兼容、监控及时发现。</div></div>
+<div class="qcard"><div class="q">Q：AI 模型服务在 K8s 怎么部署？</div><div class="a">GPU 推理用 Deployment/StatefulSet 申 GPU 资源+节点调度，权重走 PVC/对象存储不进镜像；数据库用 StatefulSet+PVC。</div></div>
+<div class="qcard"><div class="q">Q：企业 Agent 平台最小版有哪些组件？</div><div class="a">Spring AI 业务 + LiteLLM 网关 + Postgres 治理库 + 模型 + Ingress 入口 + Secret/探针/隔离交付件。</div></div>
+<div class="qcard"><div class="q">Q：W7 三天怎么串成平台？</div><div class="a">D5 选网关+ADR → D6 定单一调用链+Docker 交付 → D7 上 K8s 灰度回滚 → 串成最小版，具备治理+发布+可观测。</div></div>
+<div class="qcard"><div class="q">Q：回滚要注意什么坑？</div><div class="a">保留旧镜像/revision；只回代码不回数据库迁移会不兼容；AI 场景要模型/Prompt 版本一并回退，否则半吊子。</div></div>
+
+<div class="ft">FDE W7D7 学习手册 · K8s 基础拓扑、灰度回滚与企业平台整合（面试级）· 配合《FDE-W7D7-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w7d7_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W7D7 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W7D7-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

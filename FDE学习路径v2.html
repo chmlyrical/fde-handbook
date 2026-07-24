@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE 面试学习路径 v2 · 12周系统化方案（基于用户画像定制）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #faf9f6;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --text-mute: #666;
+    --text-light: #888;
+    --border: #e5e3dd;
+    --accent-a: #185FA5;
+    --accent-b: #BA7517;
+    --accent-c: #0F6E56;
+    --accent-d: #993556;
+    --bg-a: #E6F1FB;
+    --bg-b: #FAEEDA;
+    --bg-c: #E1F5EE;
+    --bg-d: #FBEAF0;
+    --bg-e: #F1EFE8;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+    padding: 28px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 27px; margin-bottom: 6px; font-weight: 600; }
+  h2 {
+    font-size: 20px; margin-top: 40px; margin-bottom: 14px;
+    padding: 10px 14px; background: var(--bg-a); border-left: 4px solid var(--accent-a);
+    border-radius: 4px; font-weight: 600;
+  }
+  h3 { font-size: 17px; margin-top: 24px; margin-bottom: 10px; font-weight: 600; color: var(--accent-a); }
+  h4 { font-size: 15px; margin-top: 18px; margin-bottom: 8px; font-weight: 600; color: var(--text); }
+  p { margin-bottom: 10px; }
+  .subtitle { color: var(--text-mute); font-size: 14px; margin-bottom: 28px; }
+  .tag {
+    display: inline-block; padding: 2px 10px; border-radius: 12px;
+    font-size: 12px; font-weight: 500; margin-right: 6px; margin-bottom: 4px;
+  }
+  .tag-a { background: var(--bg-a); color: var(--accent-a); }
+  .tag-b { background: var(--bg-b); color: var(--accent-b); }
+  .tag-c { background: var(--bg-c); color: var(--accent-c); }
+  .tag-d { background: var(--bg-d); color: var(--accent-d); }
+  .tag-e { background: var(--bg-e); color: #5F5E5A; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 22px; margin-bottom: 14px;
+  }
+  .card.a { border-left: 4px solid var(--accent-a); }
+  .card.b { border-left: 4px solid var(--accent-b); }
+  .card.c { border-left: 4px solid var(--accent-c); }
+  .card.d { border-left: 4px solid var(--accent-d); }
+  .card.e { border-left: 4px solid #5F5E5A; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 14px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--card); font-weight: 600; color: var(--text); }
+  tr:nth-child(even) td { background: #faf9f6; }
+  .pill {
+    display: inline-block; padding: 1px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 500;
+  }
+  .pill-red { background: #FCEBEB; color: #A32D2D; }
+  .pill-yel { background: #FAEEDA; color: #854F0B; }
+  .pill-grn { background: #E1F5EE; color: #085041; }
+  .pill-blu { background: #E6F1FB; color: #185FA5; }
+  .pill-gray { background: #F1EFE8; color: #5F5E5A; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; }
+  .day-grid {
+    display: grid; grid-template-columns: 70px 1fr; gap: 0 14px;
+    margin-bottom: 14px; padding: 12px 16px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 8px;
+  }
+  .day-label { font-weight: 600; color: var(--accent-a); font-size: 13px; padding-top: 2px; }
+  .day-content { font-size: 13px; }
+  .day-content ul { list-style: none; padding-left: 0; }
+  .day-content li { padding-left: 16px; position: relative; margin-bottom: 4px; }
+  .day-content li::before { content: "▸"; position: absolute; left: 0; color: var(--accent-b); }
+  .deliverable {
+    background: var(--bg-c); border-left: 4px solid var(--accent-c);
+    padding: 10px 16px; border-radius: 6px; margin: 8px 0 14px 0;
+    font-size: 13px;
+  }
+  .deliverable strong { color: var(--accent-c); }
+  .milestone {
+    background: var(--bg-d); border-left: 4px solid var(--accent-d);
+    padding: 10px 16px; border-radius: 6px; margin: 14px 0;
+    font-size: 14px; font-weight: 500;
+  }
+  .milestone::before { content: "★ "; color: var(--accent-d); }
+  .key-box {
+    background: var(--bg-a); padding: 12px 16px; border-radius: 6px;
+    margin-bottom: 14px; font-size: 14px; border-left: 4px solid var(--accent-a);
+  }
+  .key-box strong { color: var(--accent-a); }
+  .warn {
+    background: #FCEBEB; padding: 10px 16px; border-radius: 6px;
+    margin-bottom: 14px; font-size: 13px; border-left: 4px solid #A32D2D;
+  }
+  .footer { text-align: center; color: var(--text-light); font-size: 12px; margin-top: 50px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .toc {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 24px; margin-bottom: 28px;
+  }
+  .toc ol { padding-left: 24px; }
+  .toc li { margin-bottom: 4px; }
+  .toc a { color: var(--accent-a); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .week-header {
+    display: flex; align-items: center; gap: 12px;
+    margin: 28px 0 12px 0; padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+  .week-num {
+    background: var(--accent-a); color: white; width: 40px; height: 40px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 600; flex-shrink: 0;
+  }
+  .week-title { font-size: 18px; font-weight: 600; }
+  .week-sub { font-size: 13px; color: var(--text-mute); margin-left: 8px; }
+  @media (max-width: 720px) {
+    body { padding: 16px; font-size: 14px; }
+    h1 { font-size: 22px; }
+    .day-grid { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>FDE 面试学习路径 v2</h1>
+<p class="subtitle">12周系统化方案 · 基于用户画像定制 · 每天可投入 4 小时（每周 28 小时）· 可直接评估版本</p>
+
+<div class="toc">
+  <strong>目录</strong>
+  <ol>
+    <li><a href="#profile">用户画像与方案前提</a></li>
+    <li><a href="#principles">方案设计原则与核心策略</a></li>
+    <li><a href="#overview">12周总览（一图看懂）</a></li>
+    <li><a href="#stack">技术栈与框架选型</a></li>
+    <li><a href="#works">三大作品定位与产出节奏</a></li>
+    <li><a href="#week1">Week 1：大模型基础与模型调用</a></li>
+    <li><a href="#week2">Week 2：Tool Calling 与 MCP</a></li>
+    <li><a href="#week3">Week 3：RAG 基础</a></li>
+    <li><a href="#week4">Week 4：企业级 RAG（投简历节点）</a></li>
+    <li><a href="#week5">Week 5：Agent 基础</a></li>
+    <li><a href="#week6">Week 6：LangGraph 状态机编排</a></li>
+    <li><a href="#week7">Week 7：多 Agent 协作与 A2A</a></li>
+    <li><a href="#week8">Week 8：评测与可观测性</a></li>
+    <li><a href="#week9">Week 9：Agent 安全与治理</a></li>
+    <li><a href="#week10">Week 10：大模型平台架构</a></li>
+    <li><a href="#week11">Week 11：Java 恢复与 Spring AI</a></li>
+    <li><a href="#week12">Week 12：面试冲刺与作品打磨</a></li>
+    <li><a href="#resume">投简历节点与策略</a></li>
+    <li><a href="#risk">风险与应对</a></li>
+    <li><a href="#eval">给评审的提问清单</a></li>
+  </ol>
+</div>
+
+<h2 id="profile">一、用户画像与方案前提</h2>
+
+<div class="card a">
+  <h4>用户硬条件</h4>
+  <table>
+    <tr><td style="width:25%;"><strong>年龄</strong></td><td>36 岁</td></tr>
+    <tr><td><strong>技术背景</strong></td><td>Java + 大数据（Hadoop / 数仓 / 数据建模 / SQL），做过架构相关（非大模型架构）</td></tr>
+    <tr><td><strong>行业背景</strong></td><td>医疗 / 保险 / 健康 相关（核心差异化优势）</td></tr>
+    <tr><td><strong>大模型水平</strong></td><td>会调 API、用过 ChatGPT 类工具；RAG / Agent / 本地部署均未做过</td></tr>
+    <tr><td><strong>求职方向</strong></td><td>FDE / AI 应用工程师 / RAG 工程师 / Text2SQL 工程师（目标中小厂 + 医疗 AI / 保险科技公司）</td></tr>
+    <tr><td><strong>出差偏好</strong></td><td>基本不想出差（不投纯驻场 FDE，主投远程/本地交付的 AI 应用岗）</td></tr>
+    <tr><td><strong>时间预算</strong></td><td><strong>每天 4 小时，每周 28 小时</strong>（在职但时间稳定）</td></tr>
+    <tr><td><strong>12 周总时长</strong></td><td>336 小时（充足，可执行系统化方案）</td></tr>
+  </table>
+</div>
+
+<h2 id="principles">二、方案设计原则与核心策略</h2>
+
+<div class="key-box">
+  <strong>核心策略：</strong>大模型应用架构与 Agent 工程为核心，RAG 和企业知识库为基础，平台化、评测和治理形成高级岗位竞争力，Java 并行恢复不集中堆后。
+</div>
+
+<h4>五条设计原则</h4>
+<ol style="padding-left: 24px; margin-bottom: 14px;">
+  <li><strong>学用一体</strong>：每周学习内容必须当周产出可运行代码或文档，不做"学完才做"。</li>
+  <li><strong>作品贯穿全程</strong>：三大作品按学习节奏分散到 W3-W10 完成，不堆在最后两周。</li>
+  <li><strong>Java 并行恢复</strong>：每周抽固定时间（周日上午）恢复 Java，不集中到 W12；Spring AI 作为 Java × AI 交叉点，从 W5 开始引入。</li>
+  <li><strong>投简历节点明确</strong>：W4 末投第一批（作品①完成），W8 末投第二批（作品②完成），W12 末投第三批（作品③完成）。</li>
+  <li><strong>医疗行业贯穿</strong>：所有 demo 与作品使用医疗/保险数据与场景，形成差异化壁垒。</li>
+</ol>
+
+<h4>学习投入分配比例</h4>
+<table>
+  <tr><th>模块</th><th>占比</th><th>小时数</th><th>对应周</th></tr>
+  <tr><td>Agent 与 Agent Runtime</td><td>25%</td><td>84h</td><td>W5-7</td></tr>
+  <tr><td>RAG 与企业知识库</td><td>25%</td><td>84h</td><td>W3-4</td></tr>
+  <tr><td>模型应用基础与 Tool Calling</td><td>15%</td><td>50h</td><td>W1-2</td></tr>
+  <tr><td>评测、可观测性与安全</td><td>15%</td><td>50h</td><td>W8-9</td></tr>
+  <tr><td>AI 平台架构</td><td>10%</td><td>34h</td><td>W10</td></tr>
+  <tr><td>Java 恢复（并行）</td><td>10%</td><td>34h</td><td>W1-12 每周日</td></tr>
+</table>
+
+<h2 id="overview">三、12周总览</h2>
+
+<table>
+  <tr>
+    <th>周</th><th>主线主题</th><th>核心产出</th><th>并行 Java</th><th>作品进度</th><th>投简历</th>
+  </tr>
+  <tr><td>W1</td><td>大模型基础与模型调用</td><td>API 调用程序 + 流式输出 + Prompt 模板</td><td>Java 集合并发复习</td><td>—</td><td></td></tr>
+  <tr><td>W2</td><td>Tool Calling 与 MCP</td><td>OCR Tool + MCP Server/Client</td><td>Spring Boot 复习</td><td>—</td><td></td></tr>
+  <tr><td>W3</td><td>RAG 基础</td><td>文档摄取 + pgvector + 检索 demo</td><td>Spring AI 入门</td><td>作品① 启动</td><td></td></tr>
+  <tr><td>W4</td><td>企业级 RAG</td><td>ES 混合检索 + rerank + 权限</td><td>Spring AI Tool Calling</td><td>作品① 完成</td><td><strong>★ 投第一批</strong></td></tr>
+  <tr><td>W5</td><td>Agent 基础</td><td>ReAct + Tool Loop + Trace</td><td>Spring AI ChatClient</td><td>作品② 启动</td><td></td></tr>
+  <tr><td>W6</td><td>LangGraph 状态机</td><td>状态图 + Checkpoint + HITL</td><td>Spring AI RAG Advisor</td><td>作品② 推进</td><td></td></tr>
+  <tr><td>W7</td><td>多 Agent 与 A2A</td><td>Router + Supervisor + Handoff</td><td>Spring AI MCP Client</td><td>作品② 推进</td><td></td></tr>
+  <tr><td>W8</td><td>评测与可观测性</td><td>测试集 + Trace 看板 + RAGAS</td><td>Spring AI Observability</td><td>作品② 完成</td><td><strong>★ 投第二批</strong></td></tr>
+  <tr><td>W9</td><td>Agent 安全与治理</td><td>白名单 + 审批 + 审计 + 执行预算</td><td>Spring Security</td><td>—</td><td></td></tr>
+  <tr><td>W10</td><td>大模型平台架构</td><td>AI 中台架构图 + 核心模块 demo</td><td>Spring AI 整合</td><td>作品③ 启动</td><td></td></tr>
+  <tr><td>W11</td><td>Java 强化 + Spring AI 实战</td><td>作品③ 核心模块落地</td><td>Java 重点投入</td><td>作品③ 推进</td><td></td></tr>
+  <tr><td>W12</td><td>面试冲刺 + 作品打磨</td><td>三个作品 GitHub 整理 + 模拟面试</td><td>Java 八股冲刺</td><td>作品③ 完成</td><td><strong>★ 投第三批</strong></td></tr>
+</table>
+
+<h2 id="stack">四、技术栈与框架选型</h2>
+
+<div class="card b">
+  <h4>主框架组合（一主一辅一企业集成）</h4>
+  <table>
+    <tr><th>定位</th><th>框架</th><th>语言</th><th>用途</th></tr>
+    <tr><td><strong>主攻</strong></td><td>LangGraph</td><td>Python</td><td>Agent 状态机编排、长任务、HITL、中断恢复</td></tr>
+    <tr><td><strong>企业集成</strong></td><td>Spring AI</td><td>Java</td><td>企业 Java 系统接入 AI、Tool Calling、RAG、MCP</td></tr>
+    <tr><td><strong>辅修</strong></td><td>OpenAI Agents SDK</td><td>Python</td><td>快速理解标准 Agent Runtime 抽象</td></tr>
+  </table>
+</div>
+
+<div class="card c">
+  <h4>向量数据库学习顺序</h4>
+  <table>
+    <tr><th>阶段</th><th>选型</th><th>理由</th><th>使用周</th></tr>
+    <tr><td>第一阶段</td><td>PostgreSQL + pgvector</td><td>上手快、可练权限与向量统一管理</td><td>W3</td></tr>
+    <tr><td>第二阶段</td><td>Elasticsearch 混合检索</td><td>用户有 ES 经验，医疗编码/药品名需 BM25+向量</td><td>W4</td></tr>
+    <tr><td>第三阶段</td><td>Milvus</td><td>大规模平台架构面试加分</td><td>W10</td></tr>
+  </table>
+</div>
+
+<div class="card d">
+  <h4>知识库平台选型</h4>
+  <table>
+    <tr><th>方案</th><th>使用场景</th><th>使用周</th></tr>
+    <tr><td>Dify</td><td>POC、快速验证、低代码理解</td><td>W3（对比体验）</td></tr>
+    <tr><td>RAGFlow</td><td>复杂文档解析研究（扫描件、表格）</td><td>W4（研究源码）</td></tr>
+    <tr><td>自研</td><td>面试作品、企业生产系统</td><td>W3-4 作品①</td></tr>
+  </table>
+</div>
+
+<h2 id="works">五、三大作品定位与产出节奏</h2>
+
+<table>
+  <tr><th>作品</th><th>主题</th><th>技术栈</th><th>制作周</th><th>验证能力</th><th>优先级</th></tr>
+  <tr>
+    <td><strong>作品①</strong></td>
+    <td>企业保险知识库（RAG）</td>
+    <td>Python + LangChain + pgvector + ES + BGE + bge-reranker</td>
+    <td>W3-4</td>
+    <td>RAG、知识库、数据架构</td>
+    <td><span class="pill pill-red">必做</span></td>
+  </tr>
+  <tr>
+    <td><strong>作品②</strong></td>
+    <td>特药理赔 Agent（LangGraph）</td>
+    <td>Python + LangGraph + OCR Tool + RAG Tool + MySQL Tool + 规则引擎 + HITL</td>
+    <td>W5-8</td>
+    <td>Agent、FDE 落地、长任务编排</td>
+    <td><span class="pill pill-red">必做</span></td>
+  </tr>
+  <tr>
+    <td><strong>作品③</strong></td>
+    <td>企业 Agent 平台最小版（Spring AI）</td>
+    <td>Java + Spring AI + 模型网关 + Tool Registry + MCP + Trace</td>
+    <td>W10-12</td>
+    <td>平台架构、Java 工程化、AI 中台</td>
+    <td><span class="pill pill-yel">选做</span></td>
+  </tr>
+</table>
+
+<h2 id="week1">Week 1：大模型基础与模型调用</h2>
+
+<div class="week-header">
+  <div class="week-num">1</div>
+  <div class="week-title">大模型基础与模型调用 <span class="week-sub">28h · 打地基</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>建立大模型完整基础知识体系，能独立调用主流模型 API，理解 token、上下文窗口、采样参数的本质，能写生产级 Prompt 模板。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>大模型原理（宏观）</strong>
+    <ul>
+      <li>Transformer 架构、Self-Attention、Multi-Head Attention</li>
+      <li>Token / Tokenizer / BPE / Tiktoken</li>
+      <li>Embedding 的本质与维度</li>
+      <li>上下文窗口、KV Cache</li>
+      <li>Prefill vs Decode 阶段</li>
+      <li>资源：李宏毅大模型课程 B 站（选看 Transformer 那几节）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>采样参数与输出控制</strong>
+    <ul>
+      <li>Temperature、Top P、Top K、Stop Sequences</li>
+      <li>Structured Output（JSON Mode、JSON Schema）</li>
+      <li>Function Calling 概念入门</li>
+      <li>推理模型（o1/o3/DeepSeek-R1）vs 普通对话模型的差异</li>
+      <li>多模态模型（视觉理解）的能力边界</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>模型选型与权衡</strong>
+    <ul>
+      <li>开源 vs 闭源 vs 本地部署的选择维度</li>
+      <li>准确率、延迟、吞吐、成本、上下文长度的权衡</li>
+      <li>SFT、LoRA、量化、蒸馏的概念（不深入算法）</li>
+      <li>模型幻觉成因与缓解策略</li>
+      <li>主流模型对比：GPT-4o / Claude / Qwen / DeepSeek / Llama</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>API 调用实战（Python）</strong>
+    <ul>
+      <li>OpenAI / 通义 / 智谱 / DeepSeek API 调用</li>
+      <li>流式输出（SSE）处理</li>
+      <li>JSON 结构化输出与校验</li>
+      <li>Token 统计与成本计算</li>
+      <li>多模型切换封装</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Prompt 工程基础</strong>
+    <ul>
+      <li>System Prompt / User Prompt / Assistant Prompt</li>
+      <li>Zero Shot、Few Shot、Chain of Thought</li>
+      <li>CoT 的工程使用边界（什么时候用、什么时候不用）</li>
+      <li>Prompt 模板与变量管理</li>
+      <li>Prompt Injection 攻击与防御</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Prompt 工程进阶 + 本地部署体验</strong>
+    <ul>
+      <li>输出格式约束、JSON Schema 强约束</li>
+      <li>Prompt 测试集概念</li>
+      <li>Prompt A/B 测试概念</li>
+      <li>Ollama 本地跑 Qwen3，理解量化与显存占用</li>
+      <li>vLLM 概念了解（不深入）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>本周产出整合 + Java 恢复</strong>
+    <ul>
+      <li>整理本周代码到 GitHub</li>
+      <li>写一篇博客/笔记：模型选型决策框架</li>
+      <li><strong>Java 恢复（每周日上午固定）</strong>：Java 集合、并发基础复习</li>
+      <li>Spring Boot 项目骨架搭建</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① 多模型 API 调用封装库（Python，支持流式/JSON/Token统计/多模型切换）<br>
+  ② Prompt 模板管理系统（含测试集概念）<br>
+  ③ 模型选型决策文档（博客/笔记）<br>
+  ④ GitHub 仓库初始化 + Java 项目骨架
+</div>
+
+<h2 id="week2">Week 2：Tool Calling 与 MCP</h2>
+
+<div class="week-header">
+  <div class="week-num">2</div>
+  <div class="week-title">Tool Calling 与 MCP <span class="week-sub">28h · Agent 前置</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>掌握 Function Calling 完整工程实践，理解 MCP 协议（Host/Client/Server/Tools/Resources/Prompts），能独立实现一个 MCP Server 和 MCP Client。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Function Calling 深入</strong>
+    <ul>
+      <li>OpenAI / Claude / Qwen Function Calling 规范对比</li>
+      <li>工具描述（Tool Schema）写法</li>
+      <li>参数校验与错误处理</li>
+      <li>多工具并行调用</li>
+      <li>多轮工具调用循环</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>实战工具开发①：OCR Tool</strong>
+    <ul>
+      <li>基于 PaddleOCR 或云 OCR 实现医疗单据 OCR</li>
+      <li>包装成 Function Calling 兼容的 Tool</li>
+      <li>参数：图片路径/URL；返回：结构化字段</li>
+      <li>错误处理与降级策略</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>实战工具开发②：数据库查询 Tool</strong>
+    <ul>
+      <li>Text2SQL Tool：自然语言 → SQL → 执行 → 返回结果</li>
+      <li>只读权限限制、参数化执行</li>
+      <li>规则引擎 Tool：基于 Drools 或简单规则脚本</li>
+      <li>工具权限与白名单设计</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>MCP 协议学习</strong>
+    <ul>
+      <li>MCP Host / Client / Server 三方关系</li>
+      <li>Tools / Resources / Prompts 三类能力</li>
+      <li>Transport（stdio / SSE / HTTP）</li>
+      <li>Tool Discovery、能力协商、进度跟踪、取消</li>
+      <li>权限与认证机制</li>
+      <li>MCP 安全风险（Tool Poisoning 等）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>实现一个 MCP Server</strong>
+    <ul>
+      <li>基于 Python MCP SDK 实现</li>
+      <li>暴露医疗相关 Tools：OCR、保单查询、规则校验</li>
+      <li>实现 Resources：保单模板、规则文档</li>
+      <li>实现 Prompts：理赔审核 Prompt 模板</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>实现一个 MCP Client + 工具权限</strong>
+    <ul>
+      <li>MCP Client 调用自研 Server</li>
+      <li>工具白名单机制</li>
+      <li>参数校验与沙箱执行</li>
+      <li>错误处理、超时、重试</li>
+      <li>对比 MCP vs 直接 Function Calling 的差异</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>整合 + Java 恢复</strong>
+    <ul>
+      <li>整理 Tool + MCP 代码到 GitHub</li>
+      <li>画一张 Function Calling → MCP 演进图</li>
+      <li><strong>Java 恢复</strong>：Spring Boot 复习（REST API + 依赖注入 + 配置管理）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① OCR Tool + DB Query Tool + Rule Engine Tool（Function Calling 兼容）<br>
+  ② 一个可运行的 MCP Server（医疗场景）<br>
+  ③ 一个 MCP Client + 工具权限白名单<br>
+  ④ Spring Boot 项目骨架完善
+</div>
+
+<h2 id="week3">Week 3：RAG 基础</h2>
+
+<div class="week-header">
+  <div class="week-num">3</div>
+  <div class="week-title">RAG 基础 <span class="week-sub">28h · 作品①启动</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>掌握 Naive RAG 完整流程，能用 pgvector 跑通一个文档问答 demo，并启动作品①保险知识库的搭建。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>RAG 概念与流程</strong>
+    <ul>
+      <li>Naive RAG 完整流程：摄取→解析→切分→Embedding→检索→生成</li>
+      <li>RAG 四阶段：Naive → Advanced → Modular → Agentic</li>
+      <li>LangChain RAG quickstart 跑通</li>
+      <li>Dify 知识库体验（对比低代码方案）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>文档解析与清洗</strong>
+    <ul>
+      <li>PyMuPDF / unstructured 解析 PDF</li>
+      <li>Word / PPT / Excel 解析</li>
+      <li>OCR 与版面分析（PaddleOCR）</li>
+      <li>表格结构识别（Table Transformer）</li>
+      <li>文本清洗：去噪、去重、规范化</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Chunk 切分策略</strong>
+    <ul>
+      <li>固定长度切分</li>
+      <li>按段落/标题切分</li>
+      <li>滑动窗口</li>
+      <li>Parent-Child Chunk</li>
+      <li>Sentence Window</li>
+      <li>语义切分（基于 Embedding 相似度）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Embedding 与 pgvector</strong>
+    <ul>
+      <li>Embedding 模型选型：BGE / GTE / OpenAI ada</li>
+      <li>PostgreSQL + pgvector 安装与使用</li>
+      <li>HNSW vs IVFFlat 索引对比</li>
+      <li>向量入库、相似度查询</li>
+      <li>Metadata 存储与过滤</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>检索与生成</strong>
+    <ul>
+      <li>向量检索（Top-K）</li>
+      <li>BM25 关键词检索（pg_trgm 或 ES）</li>
+      <li>引用溯源实现</li>
+      <li>无答案拒答策略</li>
+      <li>Prompt 模板：问答 + 引用 + 拒答</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品①启动：保险知识库基础版</strong>
+    <ul>
+      <li>数据：5-10 份公开保险条款 PDF（重疾险/医疗险）</li>
+      <li>架构：摄取 pipeline + pgvector + LangChain + 通义 API</li>
+      <li>功能：上传 PDF → chunk → embedding → 检索 → 问答 + 引用</li>
+      <li>放 GitHub，写 README</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>整合 + Java 恢复</strong>
+    <ul>
+      <li>作品①基础版跑通，README 完善</li>
+      <li>画 RAG 流程图</li>
+      <li><strong>Java 恢复</strong>：Spring AI 入门（ChatClient、Model Adapter）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① RAG 基础 demo（pgvector + LangChain）<br>
+  ② <strong>作品①基础版</strong>：保险知识库最小可用版（GitHub）<br>
+  ③ RAG 流程图笔记<br>
+  ④ Spring AI 入门 demo
+</div>
+
+<h2 id="week4">Week 4：企业级 RAG（投简历节点）</h2>
+
+<div class="week-header">
+  <div class="week-num">4</div>
+  <div class="week-title">企业级 RAG <span class="week-sub">28h · 作品①完成 · 投简历</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>把 Naive RAG 升级到 Advanced RAG，引入混合检索、rerank、权限过滤、文档版本管理、RAG 评测。作品①完成生产级版本，第4周末投第一批简历。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Elasticsearch 混合检索</strong>
+    <ul>
+      <li>ES BM25 检索搭建</li>
+      <li>向量检索 + BM25 融合（RRF 算法）</li>
+      <li>医疗场景适配：药品名、ICD 编码、保单号精确匹配</li>
+      <li>Metadata 过滤</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Rerank 与 Query 改写</strong>
+    <ul>
+      <li>bge-reranker 模型使用</li>
+      <li>Query Rewrite（HyDE、Query 扩展、Multi-Query）</li>
+      <li>Query Decomposition（问题分解）</li>
+      <li>多路召回融合</li>
+      <li>Context Compression</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>权限控制与文档治理</strong>
+    <ul>
+      <li>chunk 级权限标签（部门/角色）</li>
+      <li>检索时 Metadata filter（用户身份过滤）</li>
+      <li>文档版本管理与失效</li>
+      <li>增量索引策略</li>
+      <li>缓存失效机制</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>RAG 评测</strong>
+    <ul>
+      <li>RAGAS 四指标：Faithfulness / Answer Relevancy / Context Precision / Context Recall</li>
+      <li>构造评测集（20-30 个医疗问答对）</li>
+      <li>跑 RAGAS 自动评测</li>
+      <li>分析薄弱环节，针对性优化</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品①企业级完成</strong>
+    <ul>
+      <li>整合：pgvector + ES 混合检索 + rerank + 权限 + 评测</li>
+      <li>架构图绘制（draw.io 或 excalidraw）</li>
+      <li>README 完整化：架构、难点、优化点、评测结果</li>
+      <li>Streamlit/Gradio 前端界面</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>简历改造 + 投简历准备</strong>
+    <ul>
+      <li>简历突出：医疗/保险行业 + 大数据 + Java + RAG 作品</li>
+      <li>三个面试故事定稿（数据治理→RAG、Java架构→工程化、SQL建模→Text2SQL）</li>
+      <li>整理目标公司清单（医疗AI / 保险科技 / 健康险）</li>
+      <li>BOSS / 猎聘账号准备</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>开始投简历 + Java 恢复</strong>
+    <ul>
+      <li><strong>★ 投第一批简历</strong>（医疗AI、保险科技公司为主）</li>
+      <li><strong>Java 恢复</strong>：Spring AI Tool Calling（与本周 Tool 主题呼应）</li>
+      <li>准备面试常见问题清单</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① 企业级 RAG 系统完整版（混合检索 + rerank + 权限 + 评测）<br>
+  ② <strong>作品①完成</strong>：保险知识库生产版（GitHub + README + 架构图 + 评测结果）<br>
+  ③ 改造版简历 + 三个面试故事<br>
+  ④ <strong>投第一批简历</strong>
+</div>
+
+<div class="milestone">W4 末里程碑：作品①完成 + 简历投出 + 具备面试 RAG 岗位的能力</div>
+
+<h2 id="week5">Week 5：Agent 基础</h2>
+
+<div class="week-header">
+  <div class="week-num">5</div>
+  <div class="week-title">Agent 基础 <span class="week-sub">28h · 作品②启动</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>理解 Agent 的核心抽象，掌握 ReAct、Plan-and-Execute、Reflection 等执行模式，能实现一个带 Trace 和状态管理的 Agent Loop。启动作品②特药理赔 Agent。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Agent 核心概念</strong>
+    <ul>
+      <li>Agent vs Workflow vs Agentic Workflow 的区别</li>
+      <li>Tool Calling 作为 Agent 的执行原语</li>
+      <li>ReAct（Reasoning + Acting）模式</li>
+      <li>Plan-and-Execute 模式</li>
+      <li>Reflection、Self Correction</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Agent 执行模式深入</strong>
+    <ul>
+      <li>Router 模式（动态路由到子 Agent）</li>
+      <li>Supervisor 模式（中央调度）</li>
+      <li>状态机模式</li>
+      <li>DAG 工作流</li>
+      <li>什么场景用固定工作流，什么场景允许模型动态决策</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Agent 状态与控制</strong>
+    <ul>
+      <li>Agent State（保存在哪里、怎么持久化）</li>
+      <li>Agent Memory（短期/长期）</li>
+      <li>避免死循环：最大步骤数、最大 Token 数</li>
+      <li>中断恢复机制</li>
+      <li>Human in the Loop（审批、确认）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Agent 实战①：ReAct Loop</strong>
+    <ul>
+      <li>用 LangChain 实现一个 ReAct Agent</li>
+      <li>接入 W2 的 OCR Tool + DB Query Tool + Rule Engine Tool</li>
+      <li>实现 Trace 记录（每步思考、工具调用、结果）</li>
+      <li>错误处理与重试</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Agent 实战②：Plan-and-Execute</strong>
+    <ul>
+      <li>实现 Plan-and-Execute 模式</li>
+      <li>动态任务拆解</li>
+      <li>工具选择策略</li>
+      <li>并行工具调用</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品②启动：特药理赔 Agent 需求设计</strong>
+    <ul>
+      <li>场景：用户上传理赔材料（医疗单据、处方、保单）</li>
+      <li>流程：OCR → 信息抽取 → 保单匹配 → 规则校验 → 知识库查询 → 人工审批 → 结论</li>
+      <li>设计 Agent 状态结构</li>
+      <li>识别所需工具：OCR、保单查询、规则引擎、知识库检索</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>OpenAI Agents SDK 学习 + Java 恢复</strong>
+    <ul>
+      <li>OpenAI Agents SDK：Agent / Runner / Tool / Handoff / Guardrail / Session / Trace</li>
+      <li>对比 LangChain Agent 抽象</li>
+      <li><strong>Java 恢复</strong>：Spring AI ChatClient + Advisor</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① ReAct Agent + Plan-and-Execute Agent（带 Trace）<br>
+  ② <strong>作品②需求设计文档</strong> + Agent 状态结构设计<br>
+  ③ OpenAI Agents SDK 实践 demo
+</div>
+
+<h2 id="week6">Week 6：LangGraph 状态机编排</h2>
+
+<div class="week-header">
+  <div class="week-num">6</div>
+  <div class="week-title">LangGraph 状态机编排 <span class="week-sub">28h · 作品②推进</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>掌握 LangGraph 的核心抽象（State/Node/Edge/Checkpointer/Interrupt），能用 LangGraph 实现带中断恢复和 Human in the Loop 的复杂 Agent。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>LangGraph 核心概念</strong>
+    <ul>
+      <li>State、Node、Edge、Conditional Edge</li>
+      <li>Checkpointer（状态持久化）</li>
+      <li>Interrupt（中断机制）</li>
+      <li>Command（恢复机制）</li>
+      <li>Subgraph（子图）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>LangGraph 实战①：状态图 + 条件分支</strong>
+    <ul>
+      <li>定义 State（含 messages、tool_results、current_step）</li>
+      <li>实现 Node：OCR、抽取、校验、检索、生成</li>
+      <li>实现 Conditional Edge（基于校验结果路由）</li>
+      <li>Tool Node 集成</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>LangGraph 实战②：Checkpoint + 中断恢复</strong>
+    <ul>
+      <li>使用 MemorySaver / SqliteSaver 持久化</li>
+      <li>实现 Interrupt（如等待人工审批）</li>
+      <li>实现 Command（恢复执行）</li>
+      <li>长任务断点续跑</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>LangGraph 实战③：Human in the Loop</strong>
+    <ul>
+      <li>在关键节点插入人工审批</li>
+      <li>审批通过/驳回的分支处理</li>
+      <li>审批超时降级</li>
+      <li>人工修改 Agent 状态</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品②推进：理赔 Agent 核心流程</strong>
+    <ul>
+      <li>用 LangGraph 搭建理赔 Agent 骨架</li>
+      <li>集成 W2 的工具：OCR、保单查询、规则引擎</li>
+      <li>集成 W4 的 RAG 知识库</li>
+      <li>实现状态图：OCR → 抽取 → 校验 → 检索 → 审批 → 结论</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品②推进：人工审批与中断恢复</strong>
+    <ul>
+      <li>理赔金额 > 5000 元触发人工审批</li>
+      <li>审批中断 → 状态持久化 → 异步恢复</li>
+      <li>审批驳回 → 修改 Agent 状态 → 重新执行</li>
+      <li>Trace 记录全程</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>整合 + Java 恢复</strong>
+    <ul>
+      <li>作品②核心流程跑通</li>
+      <li>LangGraph 流程图绘制</li>
+      <li><strong>Java 恢复</strong>：Spring AI RAG Advisor（与本周 RAG 集成呼应）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① LangGraph 实战 demo（含 Checkpoint、Interrupt、HITL）<br>
+  ② <strong>作品②核心流程跑通</strong>：理赔 Agent 状态机版本<br>
+  ③ Spring AI RAG Advisor 集成 demo
+</div>
+
+<h2 id="week7">Week 7：多 Agent 协作与 A2A</h2>
+
+<div class="week-header">
+  <div class="week-num">7</div>
+  <div class="week-title">多 Agent 协作与 A2A <span class="week-sub">28h · 作品②推进</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>掌握多 Agent 协作模式（Router/Supervisor/Handoff），理解 A2A 协议，把作品②升级为多 Agent 架构。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>多 Agent 协作模式</strong>
+    <ul>
+      <li>Router Agent（中央路由）</li>
+      <li>Supervisor Agent（中央调度）</li>
+      <li>Agent Handoff（任务委托）</li>
+      <li>Agent Registry / Tool Registry</li>
+      <li>多 Agent 通信机制</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>LangGraph 多 Agent 实现</strong>
+    <ul>
+      <li>Supervisor 模式实现</li>
+      <li>子 Agent 定义：OCR Agent、Knowledge Agent、Rule Agent、Review Agent</li>
+      <li>Handoff 机制（子 Agent 以工具形式暴露给 Supervisor）</li>
+      <li>并行节点执行</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>A2A 协议学习</strong>
+    <ul>
+      <li>A2A vs MCP 的层级差异（MCP 工具接入，A2A Agent 间协作）</li>
+      <li>A2A 核心概念：Agent Card、Task、Message</li>
+      <li>能力发现机制</li>
+      <li>长任务协作</li>
+      <li>跨框架、跨厂商 Agent 通信</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品②升级：多 Agent 架构</strong>
+    <ul>
+      <li>把单 Agent 理赔流程升级为多 Agent</li>
+      <li>OCR Agent：负责材料识别</li>
+      <li>Knowledge Agent：负责保单/规则检索</li>
+      <li>Rule Agent：负责规则校验</li>
+      <li>Review Agent：负责结论生成与解释</li>
+      <li>Supervisor 协调</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Agent Runtime 概念</strong>
+    <ul>
+      <li>Agent Runtime 是什么（执行环境、调度、隔离）</li>
+      <li>Agent Harness（测试框架）</li>
+      <li>沙箱执行</li>
+      <li>资源限制（CPU/内存/Token/步数）</li>
+      <li>对比 OpenAI Agents SDK 的 Runner 抽象</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品②完善：Trace 与可观测性初步</strong>
+    <ul>
+      <li>记录每个 Agent 的执行轨迹</li>
+      <li>Token 消耗统计</li>
+      <li>工具调用成功率</li>
+      <li>异常处理与降级</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>整合 + Java 恢复</strong>
+    <ul>
+      <li>作品②多 Agent 版本跑通</li>
+      <li>多 Agent 协作流程图绘制</li>
+      <li><strong>Java 恢复</strong>：Spring AI MCP Client（与本周 MCP 呼应）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① 多 Agent 协作 demo（Router + Supervisor + Handoff）<br>
+  ② <strong>作品②多 Agent 版本跑通</strong><br>
+  ③ A2A 协议笔记<br>
+  ④ Spring AI MCP Client demo
+</div>
+
+<h2 id="week8">Week 8：评测与可观测性（投简历节点）</h2>
+
+<div class="week-header">
+  <div class="week-num">8</div>
+  <div class="week-title">评测与可观测性 <span class="week-sub">28h · 作品②完成 · 投简历</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>掌握 Agent 系统的评测与可观测性建设，完成作品②的评测与 Trace 看板，第8周末投第二批简历。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Trace 与可观测性</strong>
+    <ul>
+      <li>Trace / Span / Prompt 记录</li>
+      <li>模型调用记录、工具调用记录</li>
+      <li>Agent 执行轨迹记录</li>
+      <li>OpenTelemetry 概念</li>
+      <li>LangSmith / Langfuse 体验</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Token 与成本看板</strong>
+    <ul>
+      <li>Token 消耗统计（按 Agent / Tool / 用户）</li>
+      <li>成本计算与看板</li>
+      <li>延迟与错误率监控</li>
+      <li>实时告警机制</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Agent 评测</strong>
+    <ul>
+      <li>工具选择准确率</li>
+      <li>参数生成准确率</li>
+      <li>工具调用成功率</li>
+      <li>任务完成率</li>
+      <li>轨迹评测（LLM as Judge）</li>
+      <li>人工评测、对抗测试</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>RAG 评测深化</strong>
+    <ul>
+      <li>RAGAS 跑作品①评测集</li>
+      <li>对比不同优化策略的指标变化</li>
+      <li>回归测试机制</li>
+      <li>测试集版本管理</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品②完成：评测 + Trace 看板</strong>
+    <ul>
+      <li>构造理赔场景测试集（20-30 个 case）</li>
+      <li>跑 Agent 评测（任务完成率、工具调用成功率）</li>
+      <li>Trace 看板（每个 case 的执行轨迹可视化）</li>
+      <li>README 完整化：架构图、流程图、评测结果、难点</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>简历更新 + 投第二批简历</strong>
+    <ul>
+      <li>简历加入作品②</li>
+      <li>更新面试故事（加入 Agent 经验）</li>
+      <li>扩展目标公司清单（含 Agent 方向岗位）</li>
+      <li><strong>★ 投第二批简历</strong>（Agent 工程师 / 多 Agent 系统岗）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>面试复盘 + Java 恢复</strong>
+    <ul>
+      <li>回顾 W4 投出简历后的面试反馈</li>
+      <li>整理被问倒的问题，针对性补缺</li>
+      <li><strong>Java 恢复</strong>：Spring AI Observability（与本周可观测性呼应）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① Trace 看板 + Token 成本看板<br>
+  ② Agent 评测体系（含测试集、LLM as Judge）<br>
+  ③ <strong>作品②完成</strong>：特药理赔 Agent 完整版（GitHub + 评测 + Trace）<br>
+  ④ <strong>投第二批简历</strong>
+</div>
+
+<div class="milestone">W8 末里程碑：作品①②完成 + 具备面试 Agent 工程师岗位的能力</div>
+
+<h2 id="week9">Week 9：Agent 安全与治理</h2>
+
+<div class="week-header">
+  <div class="week-num">9</div>
+  <div class="week-title">Agent 安全与治理 <span class="week-sub">28h · 高级岗加分</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>掌握 Agent 系统的安全风险与治理机制，能给作品①②加上安全防护层。这是高级岗位（技术负责人/架构师）的加分项。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Prompt Injection 防护</strong>
+    <ul>
+      <li>Direct Prompt Injection</li>
+      <li>Indirect Prompt Injection（来自文档/工具返回）</li>
+      <li>防御策略：输入过滤、输出校验、指令隔离</li>
+      <li>工具返回内容隔离</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>数据越权与泄露防护</strong>
+    <ul>
+      <li>知识库越权（检索时过滤不严）</li>
+      <li>敏感信息泄露（PII / 医疗数据）</li>
+      <li>数据脱敏策略</li>
+      <li>租户隔离</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>工具滥用防护</strong>
+    <ul>
+      <li>任意 SQL 执行风险</li>
+      <li>任意代码执行风险</li>
+      <li>最小权限原则</li>
+      <li>工具白名单</li>
+      <li>参数校验与沙箱执行</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>审批与审计</strong>
+    <ul>
+      <li>Human Approval 机制（高风险动作审批）</li>
+      <li>Agent 身份与权限</li>
+      <li>审计日志设计</li>
+      <li>合规要求（医疗数据 HIPAA / 国内数据安全法）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>执行预算与限制</strong>
+    <ul>
+      <li>执行预算（Token / 调用次数 / 时长）</li>
+      <li>最大步骤数</li>
+      <li>最大 Token 数</li>
+      <li>超限降级策略</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品①②安全加固</strong>
+    <ul>
+      <li>给保险知识库加权限过滤、脱敏</li>
+      <li>给理赔 Agent 加工具白名单、审批、审计</li>
+      <li>记录安全事件日志</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>整合 + Java 恢复</strong>
+    <ul>
+      <li>安全加固后的作品①②测试</li>
+      <li>安全架构图绘制</li>
+      <li><strong>Java 恢复</strong>：Spring Security（与本周安全主题呼应）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① Agent 安全防护层（Prompt Injection 防护、权限、审计）<br>
+  ② 作品①②安全加固版<br>
+  ③ 安全架构图 + 合规分析文档
+</div>
+
+<h2 id="week10">Week 10：大模型平台架构</h2>
+
+<div class="week-header">
+  <div class="week-num">10</div>
+  <div class="week-title">大模型平台架构 <span class="week-sub">28h · 作品③启动</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>设计一个小型 AI 中台架构，理解模型网关、Registry、Runtime、可观测性等组件。启动作品③企业 Agent 平台最小版。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>AI 中台架构设计</strong>
+    <ul>
+      <li>AI Gateway（模型路由、降级、限流、缓存）</li>
+      <li>Model Registry / Prompt Registry / Agent Registry</li>
+      <li>Tool Registry / MCP Registry</li>
+      <li>Knowledge Base / Vector Store</li>
+      <li>Workflow Engine</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Runtime 与可观测性</strong>
+    <ul>
+      <li>Agent Runtime 设计</li>
+      <li>Memory Service / State Store</li>
+      <li>Evaluation Platform</li>
+      <li>Observability Platform</li>
+      <li>Guardrails</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>治理与成本</strong>
+    <ul>
+      <li>Cost Center（成本归集与分摊）</li>
+      <li>IAM（身份与访问管理）</li>
+      <li>Audit Center（审计中心）</li>
+      <li>Human Approval Center（人工审批中心）</li>
+      <li>Application Marketplace</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>模型网关实现</strong>
+    <ul>
+      <li>多模型统一接口</li>
+      <li>Provider 适配（OpenAI / 通义 / Claude / 本地）</li>
+      <li>路由策略（按复杂度、按成本、按可用性）</li>
+      <li>主备模型与降级</li>
+      <li>Token 统计与限流</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品③启动：企业 Agent 平台骨架</strong>
+    <ul>
+      <li>基于 Spring AI 搭建 Java 后端</li>
+      <li>模型网关模块</li>
+      <li>Tool Registry + MCP Registry</li>
+      <li>Prompt 管理</li>
+      <li>基础 Trace</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>架构图与文档</strong>
+    <ul>
+      <li>完整 AI 中台架构图</li>
+      <li>组件职责说明</li>
+      <li>技术选型决策文档</li>
+      <li>与作品①②的集成关系图</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>整合 + Java 强化</strong>
+    <ul>
+      <li>作品③骨架跑通</li>
+      <li>AI 中台架构图定稿</li>
+      <li><strong>Java 强化</strong>：Spring AI 全模块串讲</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① AI 中台完整架构图 + 决策文档<br>
+  ② 模型网关实现（多模型路由、降级、限流）<br>
+  ③ <strong>作品③骨架</strong>：企业 Agent 平台最小版
+</div>
+
+<h2 id="week11">Week 11：Java 强化 + Spring AI 实战</h2>
+
+<div class="week-header">
+  <div class="week-num">11</div>
+  <div class="week-title">Java 强化 + Spring AI 实战 <span class="week-sub">28h · 作品③推进</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>把 Java 从"恢复"提升到"能面试"水平，Spring AI 实战整合，推进作品③核心模块落地。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Java 八股复习</strong>
+    <ul>
+      <li>Java 集合（HashMap / ConcurrentHashMap 原理）</li>
+      <li>Java 并发（线程池、锁、CAS、AQS）</li>
+      <li>JVM（内存模型、GC、调优）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Spring Boot + 中间件</strong>
+    <ul>
+      <li>Spring Boot 核心机制</li>
+      <li>Redis 缓存与分布式锁</li>
+      <li>MySQL 索引与优化</li>
+      <li>Kafka 消息队列</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Spring AI 深入</strong>
+    <ul>
+      <li>ChatClient + Advisor 高级用法</li>
+      <li>ToolCallback + Structured Output</li>
+      <li>Chat Memory（持久化对话）</li>
+      <li>VectorStore 抽象（接 pgvector / ES）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>Spring AI MCP 集成</strong>
+    <ul>
+      <li>Spring AI 作为 MCP Client</li>
+      <li>Spring AI 实现 MCP Server</li>
+      <li>Observability 集成</li>
+      <li>把 W2 的 Python MCP Server 接入 Spring AI</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品③核心模块落地</strong>
+    <ul>
+      <li>模型网关（Spring AI 实现）</li>
+      <li>Tool Registry + MCP Registry</li>
+      <li>Prompt 管理 + 版本控制</li>
+      <li>Trace + Token 成本看板</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品③权限与审计</strong>
+    <ul>
+      <li>Spring Security 集成</li>
+      <li>RBAC 权限模型</li>
+      <li>审计日志</li>
+      <li>多租户隔离</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>整合 + 面试准备</strong>
+    <ul>
+      <li>作品③核心模块跑通</li>
+      <li>Java 面试题刷题（重点：并发、JVM、Spring）</li>
+      <li>Spring AI 面试题整理</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① Java 八股复习笔记 + 面试题集<br>
+  ② Spring AI 深度实战 demo<br>
+  ③ <strong>作品③核心模块落地</strong>
+</div>
+
+<h2 id="week12">Week 12：面试冲刺 + 作品打磨</h2>
+
+<div class="week-header">
+  <div class="week-num">12</div>
+  <div class="week-title">面试冲刺 + 作品打磨 <span class="week-sub">28h · 投第三批简历</span></div>
+</div>
+
+<h4>本周目标</h4>
+<p>三个作品全部打磨完成，GitHub 整理，模拟面试，投第三批简历（含架构师/技术负责人岗）。</p>
+
+<div class="day-grid">
+  <div class="day-label">Day 1<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品①最终打磨</strong>
+    <ul>
+      <li>README 终版（架构图、流程图、评测结果、难点、优化点）</li>
+      <li>代码清理、注释完善</li>
+      <li>录制演示视频（3-5 分钟）</li>
+      <li>Demo 在线部署（HuggingFace Space / Streamlit Cloud）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 2<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品②最终打磨</strong>
+    <ul>
+      <li>README 终版（多 Agent 架构图、Trace 看板截图、评测结果）</li>
+      <li>理赔流程演示视频</li>
+      <li>在线 Demo 部署</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 3<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>作品③最终打磨</strong>
+    <ul>
+      <li>README 终版（AI 中台架构图、模块说明）</li>
+      <li>架构决策文档</li>
+      <li>部署文档</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 4<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>GitHub 整体整理</strong>
+    <ul>
+      <li>个人 GitHub 主页优化（README、置顶三个作品）</li>
+      <li>建立 Portfolio 仓库（导航到三个作品）</li>
+      <li>技术博客发布（1-2 篇深度文章）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 5<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>简历终版 + 投第三批</strong>
+    <ul>
+      <li>简历加入三个作品</li>
+      <li>更新面试故事（含架构经验）</li>
+      <li><strong>★ 投第三批简历</strong>（含技术负责人/架构师岗）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 6<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>模拟面试</strong>
+    <ul>
+      <li>RAG 方向 10 题模拟（自答 + 复盘）</li>
+      <li>Agent 方向 10 题模拟</li>
+      <li>系统设计题模拟（设计一个医疗 AI 平台）</li>
+      <li>Java 八股模拟</li>
+    </ul>
+  </div>
+</div>
+
+<div class="day-grid">
+  <div class="day-label">Day 7<br><span style="font-size:11px;font-weight:400;color:#888;">4h</span></div>
+  <div class="day-content">
+    <strong>查漏补缺 + 反问准备</strong>
+    <ul>
+      <li>回顾所有面试反馈，补最后缺口</li>
+      <li>准备反问清单（团队、技术栈、数据基础、AI 落地阶段）</li>
+      <li>面试当天 checklist</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deliverable">
+  <strong>本周产出：</strong>
+  ① 三个作品最终版（GitHub + 在线 Demo + 演示视频）<br>
+  ② 简历终版 + 面试故事全集<br>
+  ③ <strong>投第三批简历</strong>（含架构师/技术负责人岗）<br>
+  ④ 模拟面试复盘记录
+</div>
+
+<div class="milestone">W12 末里程碑：三个作品完成 + 简历三批投完 + 具备面试高级岗位的能力</div>
+
+<h2 id="resume">投简历节点与策略</h2>
+
+<div class="card a">
+  <h4>三个投简历节点</h4>
+  <table>
+    <tr><th>节点</th><th>时间</th><th>已有作品</th><th>主投方向</th></tr>
+    <tr><td><strong>第一批</strong></td><td>W4 末</td><td>作品①（保险知识库）</td><td>RAG 工程师、知识库、医疗 AI、保险科技</td></tr>
+    <tr><td><strong>第二批</strong></td><td>W8 末</td><td>作品①②（含 Agent）</td><td>Agent 工程师、多 Agent 系统、AI 应用</td></tr>
+    <tr><td><strong>第三批</strong></td><td>W12 末</td><td>作品①②③（含平台）</td><td>AI 解决方案架构师、技术负责人、平台岗</td></tr>
+  </table>
+</div>
+
+<div class="card b">
+  <h4>主投公司方向</h4>
+  <table>
+    <tr><th>类别</th><th>代表公司</th></tr>
+    <tr><td>医疗 AI</td><td>医联、丁香园 AI、平安好医生 AI、零氪科技、推想科技、深透医疗</td></tr>
+    <tr><td>保险科技</td><td>众安科技、信美相互 AI、水滴 AI、暖哇科技、保险极客</td></tr>
+    <tr><td>健康险/寿险 AI 中台</td><td>平安、泰康、太平洋 AI 团队</td></tr>
+    <tr><td>医疗大数据</td><td>医渡云、零氪、中电数据</td></tr>
+    <tr><td>AI 创业公司（通用）</td><td>智谱、月之暗面、MiniMax、百川（应用岗非算法）</td></tr>
+  </table>
+</div>
+
+<h2 id="risk">风险与应对</h2>
+
+<div class="warn">
+  <strong>风险1：时间不足</strong><br>
+  应对：每周日做一次进度检查，如果落后超过 2 天，压缩选做项（作品③、A2A 深入、Milvus）。
+</div>
+
+<div class="warn">
+  <strong>风险2：面试早于学习完成</strong><br>
+  应对：W4 末投第一批简历后，可能立即收到面试。遇到答不上的问题，诚实说"这部分还在学，原理是…，预计 X 周后能上手"，回去立刻补。
+</div>
+
+<div class="warn">
+  <strong>风险3：双语言（Python + Java）负担过重</strong><br>
+  应对：Python 为主线（LangGraph），Java 为辅线（Spring AI，每周日恢复）。如果 Java 进度跟不上，作品③可以简化为"架构图 + 核心模块 demo"，不用完整实现。
+</div>
+
+<div class="warn">
+  <strong>风险4：医疗数据获取困难</strong><br>
+  应对：使用公开保险条款 PDF（重疾险/医疗险）、公开医疗文档、合成数据。不使用真实患者数据。
+</div>
+
+<h2 id="eval">给评审的提问清单</h2>
+
+<div class="card c">
+  <p>请评审重点评估以下几个问题：</p>
+  <ol style="padding-left: 24px;">
+    <li><strong>时间分配合理性</strong>：每天 4 小时、12 周 336 小时，按当前模块分配是否合理？有没有哪个模块被低估或高估？</li>
+    <li><strong>技术栈选型</strong>：Python（LangGraph）+ Java（Spring AI）双语言并行，对在职学习者是否过于激进？是否应该聚焦单语言？</li>
+    <li><strong>作品顺序与深度</strong>：作品①（RAG）→ 作品②（Agent）→ 作品③（平台）的顺序是否合理？深度是否足够支撑面试？</li>
+    <li><strong>投简历节点</strong>：W4/W8/W12 三个节点是否过早或过晚？W4 末只有作品①是否够投？</li>
+    <li><strong>模块覆盖完整性</strong>：相比你之前给出的 10 大模块体系，本方案是否有遗漏？特别是 Agent Runtime、A2A、模型网关的深度是否足够？</li>
+    <li><strong>医疗行业结合度</strong>：三个作品都用医疗/保险场景，是否过于聚焦反而限制了通用性？</li>
+    <li><strong>Java 恢复节奏</strong>：每周日上午恢复 Java，从 W5 开始引入 Spring AI，节奏是否合理？</li>
+    <li><strong>风险应对</strong>：四个风险点（时间、面试早于学习、双语言、数据）的应对策略是否可行？</li>
+  </ol>
+</div>
+
+<div class="footer">
+  FDE 面试学习路径 v2 · 12 周系统化方案 · 基于用户画像定制<br>
+  用户画像：36 岁 / Java+大数据 / 医疗保险行业 / 每天可投入 4 小时 / 目标中小厂+医疗 AI<br>
+  文档版本：v2.0 · 2026-07-21
+</div>
+
+</body>
+</html>

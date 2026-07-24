@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE Day1 学习手册 · 大模型核心基础（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  .flow { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 16px; margin: 12px 0; }
+  .flow .step { display: inline-block; background: #E6F1FB; color: #0C447C; border: 1px solid #185FA5; border-radius: 6px; padding: 5px 10px; font-size: 12.5px; margin: 3px 2px; font-weight: 500; }
+  .flow .arrow { color: #BA7517; font-weight: 700; margin: 0 1px; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoBubble { position: absolute; background: #185FA5; color: #fff; padding: 5px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; display: none; user-select: none; white-space: nowrap; }
+  #annoBubble:hover { background: #0C447C; }
+  #annoBubble::after { content: ""; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #185FA5; border-bottom: 0; }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  /* 左右双面板：左=重要 / 右=待查（贴浏览器视口两侧） */
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+
+  /* 双类型标注：待查=黄 / 重要=粉红 */
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoBubble { background: #fff; padding: 4px; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  #annoBubble::after { display: none; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-tag { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 8px; margin-right: 6px; font-weight: 700; vertical-align: middle; }
+  .anno-item .ai-tag.q { background: #FFF3B0; color: #854F0B; }
+  .anno-item .ai-tag.i { background: #F4C0D1; color: #72243E; }
+
+  /* 窄屏：左右面板变窄并排 */
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div>
+      <div class="title">★ 重要标注</div>
+      <div class="count">0 条</div>
+    </div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div>
+      <div class="title">📌 待查标注</div>
+      <div class="count">0 条</div>
+    </div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<div class="topnav">
+  <span class="brand">Day1 学习手册</span>
+  <a href="#s1">1.Transformer</a><a href="#s2">2.Self-Attention</a><a href="#s3">3.Multi-Head</a><a href="#s4">4.Token/Embedding</a>
+  <span class="sep"></span>
+  <a href="#s5">5.上下文窗口</a><a href="#s6">6.KV Cache</a><a href="#s7">7.Prefill/Decode</a><a href="#s8">8.推理模型</a>
+  <span class="sep"></span>
+  <a href="#s9">达标线①</a><a href="#s10">达标线②</a><a href="#s11">自测</a><a href="#s12">速记卡</a>
+</div>
+
+<h1>FDE Day 1 学习手册 · 大模型核心基础</h1>
+<p class="sub">W1 Day1 · A 级（必须掌握，面试核心）· 4h · 学完能讲透"一次模型请求的来龙去脉"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>这是整个 8 周的地基。后面 RAG、Agent、模型网关、Trace 成本，全部建立在这些概念之上。面试官考察"你是不是真懂大模型"，第一刀就砍在这里。<br>
+  <strong>学完能回答：</strong>① 一次 API 请求从发出到返回 token 的完整过程；② 上下文长度、延迟、成本三者关系；③ 为什么长上下文贵、为什么 Decode 慢、推理模型和普通模型怎么选。<br>
+  <strong>使用方法：</strong>先通读理解原理 → 重点看每节「面试话术」和「易错点」→ 做末尾自测清单 → 配合《Day1 评测题.md》自测。
+</div>
+
+<!-- ============ 1. Transformer ============ -->
+<h2 id="s1">一、Transformer 总体架构</h2>
+
+<h3>1.1 为什么会有 Transformer</h3>
+<p>在 Transformer 之前，序列建模主要靠 RNN/LSTM。RNN 的致命问题有两个：</p>
+<ul>
+  <li><strong>串行计算</strong>：第 t 步依赖第 t-1 步的隐状态，无法并行，训练慢。</li>
+  <li><strong>长距离依赖弱</strong>：信息要一步步传递，远处的信号会被稀释或遗忘。</li>
+</ul>
+<p>Transformer（2017，《Attention is All You Need》）用 <strong>Self-Attention</strong> 替代循环结构：任意两个 token 之间一步直达，距离为 O(1)，且整个序列可以并行计算。这是大模型能训到千亿参数的技术前提。</p>
+
+<h3>1.2 整体结构：Encoder-Decoder → Decoder-only</h3>
+<p>原始 Transformer 是 <strong>Encoder-Decoder</strong> 结构（用于翻译）。但 GPT 之后，主流大模型（Qwen、DeepSeek、LLaMA、Claude）几乎都采用 <strong>Decoder-only</strong> 结构。</p>
+<table>
+<tr><th>结构</th><th>代表</th><th>特点</th></tr>
+<tr><td>Encoder-only</td><td>BERT</td><td>双向注意力，适合理解任务（分类、检索），不擅长生成</td></tr>
+<tr><td>Encoder-Decoder</td><td>T5、原始 Transformer</td><td>编码器理解输入，解码器生成输出，适合翻译/摘要</td></tr>
+<tr><td>Decoder-only</td><td>GPT / Qwen / DeepSeek / LLaMA</td><td>单向因果注意力，统一"接龙"范式，生成+理解通吃</td></tr>
+</table>
+
+<h3>1.3 Decoder-only 为什么成为主流</h3>
+<ul>
+  <li><strong>统一范式</strong>：所有任务都归约为"给定上文，预测下一个 token"，一个架构通吃翻译、问答、写代码、Agent。</li>
+  <li><strong>训练效率高</strong>：因果注意力 + teacher forcing，每个位置都能提供监督信号，样本利用率高。</li>
+  <li><strong>Scaling Law 友好</strong>：参数和数据规模上去后，能力持续提升，没有明显的架构瓶颈。</li>
+  <li><strong>推理简单</strong>：自回归生成，KV Cache 加速天然契合。</li>
+</ul>
+
+<h3>1.4 一个 token 在 Transformer 里经历了什么</h3>
+<p>一个 token 进入模型后，要穿过 N 个相同的 Transformer Block（N 叫层数/depth，如 32 层）。每个 Block 包含：</p>
+<div class="flow">
+  <span class="step">输入 token 向量</span><span class="arrow">→</span>
+  <span class="step">LayerNorm</span><span class="arrow">→</span>
+  <span class="step">Self-Attention</span><span class="arrow">→</span>
+  <span class="step">残差相加</span><span class="arrow">→</span>
+  <span class="step">LayerNorm</span><span class="arrow">→</span>
+  <span class="step">FFN 前馈网络</span><span class="arrow">→</span>
+  <span class="step">残差相加</span><span class="arrow">→</span>
+  <span class="step">输出给下一层</span>
+</div>
+<p>关键细节：</p>
+<ul>
+  <li><strong>残差连接（Residual）</strong>：输入直接加到输出上，缓解深层网络梯度消失，让模型可以训得很深。</li>
+  <li><strong>LayerNorm</strong>：对每个 token 的向量做归一化，稳定训练。现代模型多用 Pre-Norm（先归一化再进 Attention/FFN）。</li>
+  <li><strong>FFN（前馈网络）</strong>：两层全连接 + 激活（如 SwiGLU），是模型"记忆知识"的主要载体，参数量占整个模型约 2/3。</li>
+  <li><strong>Attention 负责"信息混合"</strong>（token 之间交流），<strong>FFN 负责"知识变换"</strong>（每个 token 独立加工）。</li>
+</ul>
+
+<div class="iv">Decoder-only 用"预测下一个 token"这一个目标，就把理解、生成、推理全学会了。架构统一带来工程红利：一套推理引擎、一套 KV Cache、一套 Scaling Law，适用于所有任务。面试时如果被问"为什么不用 Encoder-Decoder"，核心答"统一范式 + 训练效率 + Scaling"。</div>
+
+<div class="warn">不要把"Attention 就是模型全部"。Attention 只占参数量约 1/3，FFN 占 2/3。Attention 负责 token 间信息流动，FFN 才是知识存储。很多人误以为大模型全靠 Attention，这是错的。</div>
+
+<!-- ============ 2. Self-Attention ============ -->
+<h2 id="s2">二、Self-Attention 机制</h2>
+
+<h3>2.1 直觉：每个 token "看" 所有其他 token</h3>
+<p>在处理"医疗保险理赔"时，"理赔"这个 token 要理解自己的含义，需要知道前面是"医疗保险"而不是"车辆保险"。Self-Attention 让序列中每个 token 直接和所有 token 计算相关性，加权聚合信息，生成一个"融入了上下文"的新表示。</p>
+
+<h3>2.2 Q / K / V 的物理含义</h3>
+<p>每个 token 的向量通过三个不同的权重矩阵投影成三个向量：</p>
+<ul>
+  <li><strong>Q（Query，查询）</strong>：当前 token 想找什么样的信息。相当于"我在找什么"。</li>
+  <li><strong>K（Key，键）</strong>：当前 token 能提供什么样的信息。相当于"我有什么"。</li>
+  <li><strong>V（Value，值）</strong>：当前 token 实际提供的内容。</li>
+</ul>
+<p>类比检索：Q 是搜索词，K 是文档标题/关键词，V 是文档正文。用 Q 去和所有 K 算相似度，得到权重，再对 V 加权求和，就得到了"最相关的信息聚合"。</p>
+
+<h3>2.3 计算公式</h3>
+<div class="formula">Attention(Q, K, V) = softmax( Q · K<sup>T</sup> / √d<sub>k</sub> ) · V</div>
+<p>步骤拆解：</p>
+<ol>
+  <li><code>Q · K<sup>T</sup></code>：每个 token 的 Q 和所有 token 的 K 做点积，得到 n×n 的注意力分数矩阵（n 是序列长度）。</li>
+  <li><code>/ √d<sub>k</sub></code>：缩放，除以 Key 向量维度的平方根。</li>
+  <li><code>softmax</code>：对每一行归一化，变成概率分布（加起来为 1），表示当前 token 对其他 token 的关注度。</li>
+  <li><code>· V</code>：用这个注意力权重对 V 加权求和，得到每个 token 的新表示。</li>
+</ol>
+
+<h3>2.4 为什么要除以 √d<sub>k</sub>（缩放）</h3>
+<p>这是高频面试题。当 d<sub>k</sub> 较大时，Q·K<sup>T</sup> 的点积值会变大（点积是 d<sub>k</sub> 个乘积之和，方差随 d<sub>k</sub> 线性增长）。点积过大会让 softmax 进入<strong>饱和区</strong>——输出接近 one-hot（一个接近 1，其余接近 0），导致：</p>
+<ul>
+  <li>梯度几乎为 0，训练停滞。</li>
+  <li>注意力过度集中在单个 token 上，失去"软"加权的能力。</li>
+</ul>
+<p>除以 √d<sub>k</sub> 把点积的方差控制在 1 左右，让 softmax 工作在敏感区间。<strong>一句话：缩放是为了稳定训练，防止 softmax 饱和。</strong></p>
+
+<h3>2.5 Causal Mask（因果掩码）</h3>
+<p>Decoder-only 是自回归生成，<strong>当前 token 只能看它前面的 token，不能看后面的</strong>（否则就"偷看答案"了）。实现方式是在注意力分数矩阵上加一个下三角掩码：把上三角（未来位置）置为 -∞，softmax 后这些位置变成 0。</p>
+<div class="formula">
+Mask = [<br>
+&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;-∞&nbsp;&nbsp;-∞&nbsp;&nbsp;-∞<br>
+&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;-∞&nbsp;&nbsp;-∞<br>
+&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;-∞<br>
+&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;0<br>
+]
+</div>
+<p>这就是"因果注意力"（Causal Attention），也叫单向注意力。它是 Decoder 能自回归生成的根本保证。</p>
+
+<div class="iv">Q 是"我要找什么"，K 是"我能提供什么"，V 是"我实际的内容"。Q·K<sup>T</sup> 算相关性，softmax 变权重，乘 V 做加权聚合。除以 √d<sub>k</sub> 是为了防止点积过大让 softmax 饱和、梯度消失。Decoder-only 还要加因果掩码，让每个 token 看不到未来的 token。</div>
+
+<div class="warn">① Q、K、V 不是模型自带的，而是同一个输入向量经三个<strong>不同的可学习权重矩阵</strong>投影得到的，所以同一个 token 作为 Query 和作为 Key 时的"身份"不同。② "Self-Attention"的"Self"指 Q/K/V 来自同一个序列，不是来自外部。Cross-Attention（Encoder-Decoder 里）才是 Q 来自一个序列、K/V 来自另一个序列。</div>
+
+<!-- ============ 3. Multi-Head Attention ============ -->
+<h2 id="s3">三、Multi-Head Attention 与 MQA/GQA</h2>
+
+<h3>3.1 为什么要多头</h3>
+<p>单头 Attention 只能学一种关注模式。但语言里关系是多样的：一个 token 可能同时要关注"语法主谓宾"、"指代消解"、"语义相似"、"位置相邻"等不同关系。Multi-Head 把这能力拆成多个"头"，每个头在<strong>不同的子空间</strong>学习不同的关注模式，最后拼回来。</p>
+
+<h3>3.2 多头怎么算</h3>
+<p>把 d<sub>model</sub> 维向量拆成 h 个头，每个头维度 d<sub>head</sub> = d<sub>model</sub> / h。每个头独立做 Attention，最后 concat 后再过一个线性层融合。</p>
+<div class="formula">
+MultiHead(Q,K,V) = Concat(head<sub>1</sub>, ..., head<sub>h</sub>) · W<sup>O</sup><br>
+其中 head<sub>i</sub> = Attention(Q·W<sub>i</sub><sup>Q</sup>, K·W<sub>i</sub><sup>K</sup>, V·W<sub>i</sub><sup>V</sup>)
+</div>
+<p>注意：多头不是把计算量乘以 h，而是把 d<sub>model</sub> 拆开，总计算量基本不变（略有投影开销）。这是"用同样的算力换更强的表达力"。</p>
+
+<h3>3.3 头数的影响</h3>
+<ul>
+  <li><strong>头多</strong>：能学更多样的关系模式，但每个头维度变小，单头表达能力下降；投影参数增加。</li>
+  <li><strong>头少</strong>：每个头维度大，表达强，但关系模式种类受限。</li>
+  <li>实践中 d<sub>head</sub> 常取 64 或 128，是经验上的甜点。</li>
+</ul>
+
+<h3>3.4 MQA 与 GQA：现代模型省显存的关键</h3>
+<p>这是 2023 年后的重要演进，<strong>直接影响 KV Cache 显存和推理成本</strong>，面试加分项。</p>
+<table>
+<tr><th>变体</th><th>Q 头数</th><th>K/V 头数</th><th>KV Cache 显存</th><th>代表</th></tr>
+<tr><td>MHA（标准多头）</td><td>h</td><td>h</td><td>基准</td><td>原始 Transformer</td></tr>
+<tr><td>MQA（多查询注意力）</td><td>h</td><td>1</td><td>1/h</td><td>PaLM、StarCoder</td></tr>
+<tr><td>GQA（分组查询注意力）</td><td>h</td><td>g（中间值）</td><td>g/h</td><td>LLaMA-2/3、Qwen2</td></tr>
+</table>
+<p>核心思想：Q 保持多头（保证表达力），但<strong>多个 Q 头共享同一组 K/V</strong>。因为 KV Cache 存的是 K 和 V，减少 K/V 头数就能直接减少缓存显存，让同样显存能支撑更大的 batch 和更长的上下文。GQA 是 MHA 和 MQA 的折中，效果接近 MHA、显存接近 MQA，成为主流。</p>
+
+<div class="eng">你在做模型网关、选 vLLM 部署时，GQA 模型（如 Qwen2、LLaMA-3）的 KV Cache 显存只有 MHA 模型的 1/4 ~ 1/8，同样 GPU 能服务更多并发、更长上下文。这是选型时要看的硬指标——看模型的 n_kv_heads（K/V 头数）而不是只看总参数量。</div>
+
+<div class="iv">多头是为了让模型在不同子空间学习不同的关注关系。现代模型用 GQA（Q 多头、K/V 分组共享），在几乎不损失效果的情况下大幅减少 KV Cache 显存。面试说到这层会显得你懂最新工程趋势。</div>
+
+<div class="warn">不要说"多头就是多个 Attention 叠加"。多头是<strong>并行拆分</strong>，不是串行叠加；总维度守恒，计算量基本不变。另外 GQA 不是"随便共享"，而是相邻的几个 Q 头共享一组 K/V，是有分组的。</div>
+
+<!-- ============ 4. Token / Embedding ============ -->
+<h2 id="s4">四、Token / Tokenizer / Embedding / 位置编码</h2>
+
+<h3>4.1 Token 是什么</h3>
+<p>Token 是模型处理文本的最小单位，<strong>既不是"词"也不是"字"</strong>，而是介于两者之间的"子词"（subword）。比如 "unhappiness" 可能被切成 ["un", "happiness"] 或 ["un", "happ", "iness"]。中文"医疗保险"可能被切成 ["医疗", "保险"] 或 ["医", "疗", "保", "险"]，具体看 tokenizer。</p>
+<p>为什么用子词而不是词/字：</p>
+<ul>
+  <li>用词：词表巨大（几十万），且无法处理新词、拼写错误。</li>
+  <li>用字/字符：序列太长，且单字缺少语义。</li>
+  <li>子词（BPE 等）：高频词整体保留，低频/新词拆成子词，词表适中（3万-15万），兼顾效率和泛化。</li>
+</ul>
+
+<h3>4.2 主流 Tokenizer</h3>
+<table>
+<tr><th>算法</th><th>原理</th><th>代表</th></tr>
+<tr><td>BPE（Byte Pair Encoding）</td><td>从字符级开始，反复合并语料中出现频率最高的相邻字节对</td><td>GPT 系列、Qwen、LLaMA</td></tr>
+<tr><td>WordPiece</td><td>类似 BPE，但合并依据是似然增益而非频率</td><td>BERT</td></tr>
+<tr><td>SentencePiece</td><td>把文本当原始字节流处理，不依赖空格分词，对中日韩友好</td><td>LLaMA、T5</td></tr>
+<tr><td>Tiktoken</td><td>OpenAI 的高效 BPE 实现（cl100k_base 等）</td><td>GPT-3.5/4</td></tr>
+</table>
+<p>注意：不同模型的 tokenizer 不通用，<strong>token 数不能跨模型直接换算</strong>。"医疗保险理赔"在 Qwen、DeepSeek、Claude 上的 token 数可能都不一样。这也是为什么调用不同 API 要用各自的 tokenizer 计费。</p>
+
+<h3>4.3 BPE 工作原理（简版）</h3>
+<ol>
+  <li>初始词表 = 所有单字符（或字节）。</li>
+  <li>统计语料中所有相邻 token 对的出现频率。</li>
+  <li>把频率最高的对合并成一个新 token，加入词表。</li>
+  <li>重复 2-3，直到词表达到目标大小（如 5 万）。</li>
+</ol>
+<p>编码新文本时，按学到的合并规则贪心地切分。高频词会作为整体保留，低频/未见词被拆成已知子词，永远不会出现"无法表示"的词（OOV 问题被解决）。</p>
+
+<h3>4.4 Embedding：从 token id 到语义向量</h3>
+<p>tokenizer 把文本变成一串整数 id（如 [1234, 5678, ...]），但整数没有语义。Embedding 层是一个查找表（矩阵），把每个 id 映射成一个 d<sub>model</sub> 维向量（如 4096 维）。这个向量在训练中学习，<strong>最终让语义相近的 token 在向量空间里距离也近</strong>。</p>
+<p>Embedding 是模型"理解语言"的起点——后面所有 Attention、FFN 都在这个向量空间里操作。可以说大模型的所有能力，都建立在这个学到的语义空间之上。</p>
+
+<h3>4.5 位置编码：为什么 Transformer 需要它</h3>
+<p>Self-Attention 本身是<strong>顺序无关</strong>的——打乱 token 顺序，Attention 结果只是重新排列，不会"知道"顺序错了。但语言顺序至关重要（"狗咬人" vs "人咬狗"）。所以必须额外把位置信息注入 token 向量，这就是位置编码。</p>
+<ul>
+  <li><strong>绝对位置编码</strong>（原始 Transformer、GPT-2）：用 sin/cos 函数生成固定位置向量，加到 embedding 上。</li>
+  <li><strong>可学习位置编码</strong>（BERT、早期 GPT）：位置向量也是可学习参数。</li>
+  <li><strong>RoPE 旋转位置编码</strong>（LLaMA、Qwen、DeepSeek，<strong>当前主流</strong>）：不直接加到向量上，而是<strong>在 Q 和 K 上施加旋转</strong>，让 Q·K<sup>T</sup> 的结果只依赖两个 token 的<strong>相对距离</strong>。好处是天然支持相对位置、易于长度外推（用 YaRN 等技术可扩展到更长上下文）。</li>
+</ul>
+
+<div class="eng">RoPE 是现代大模型的标配。理解它能解释"为什么有的模型能扩到 128K/1M 上下文"——通过 RoPE 插值/外推。面试若被问"长上下文怎么做出来的"，要提到位置编码外推（NTK-aware、YaRN）+ KV Cache 优化，而不是只说"训练数据变长"。</div>
+
+<h3>4.6 中英文 token 差异（实操）</h3>
+<p>同样意思的文本，英文比中文省 token（因为 BPE 对英文训练数据多，合并得更整）。粗略经验：</p>
+<ul>
+  <li>英文：1 token ≈ 4 个字符 ≈ 0.75 个单词。</li>
+  <li>中文：1 个汉字常占 1-2 个 token（看模型，Qwen 对中文优化较好，可能 1 字 ≈ 0.6-1 token）。</li>
+</ul>
+<p><strong>结论</strong>：中文场景的 token 成本和上下文消耗比英文高，做 RAG 时 chunk 大小、prompt 长度都要按实际 tokenizer 实测，不能照搬英文经验值。<strong>估算要用对应模型的 tokenizer（如 tiktoken 对 OpenAI，Qwen 用自己的），不能用字符数 ÷ 4 去套</strong>。</p>
+
+<div class="iv">Token 是子词单元，不是词不是字；不同模型 tokenizer 不通用，token 数不能跨模型换算。Embedding 把 id 变成语义向量，是模型理解语言的起点。Transformer 本身不感知顺序，靠位置编码注入顺序信息，现代模型主流用 RoPE（旋转位置编码），支持相对位置和长度外推。</div>
+
+<div class="warn">① 不要说"1 个汉字 = 1 个 token"或"1 个英文单词 = 1 个 token"，必须实测。② token 数直接影响 API 计费和上下文占用，做成本估算和 RAG chunk 切分时一定要用目标模型的 tokenizer 实测，否则预算和效果都会偏。③ 位置编码不是"可有可无"，没有它 Transformer 会把"狗咬人"和"人咬狗"当一回事。</div>
+
+<!-- ============ 5. 上下文窗口 ============ -->
+<h2 id="s5">五、上下文窗口</h2>
+
+<h3>5.1 定义</h3>
+<p>上下文窗口（Context Window）是模型一次能处理的<strong>输入 + 输出 token 总上限</strong>。例如 Qwen2-72B 上下文 128K，意味着 prompt + 生成内容合计不能超过 128K token。超出会报错或被截断。</p>
+
+<h3>5.2 为什么有上限</h3>
+<ul>
+  <li><strong>计算量 O(n²)</strong>：Self-Attention 的注意力矩阵是 n×n，序列翻倍计算量变 4 倍。长上下文 Prefill 计算量爆炸。</li>
+  <li><strong>KV Cache 显存</strong>：序列越长，缓存的 K/V 越多，显存线性增长（详见第六节）。</li>
+  <li><strong>训练长度限制</strong>：模型训练时见过的最长序列有限，超出后效果会下降（虽然 RoPE 外推能缓解，但有上限）。</li>
+</ul>
+
+<h3>5.3 长上下文的三个代价</h3>
+<div class="eng">
+<p><strong>① 计算代价（Prefill）</strong>：Attention 是 O(n²)，prompt 从 4K 涨到 128K，Prefill 计算量涨 1024 倍。这是长上下文 TTFT（首 token 延迟）高的根本原因。</p>
+<p><strong>② 显存代价（KV Cache）</strong>：每多 1K token，KV Cache 多占一份显存。128K 上下文单请求的 KV Cache 可能几 GB，导致单卡能并发的请求数大幅下降。</p>
+<p><strong>③ 效果代价（Lost in the Middle）</strong>：研究表明模型对超长上下文中间的信息利用率低——开头和结尾记得清楚，中间容易"看不到"。这是 RAG 仍要做的理由：把相关内容精准放到开头，比塞满长上下文更有效。</p>
+</div>
+
+<h3>5.4 超出窗口怎么办</h3>
+<ul>
+  <li><strong>截断</strong>：扔掉超出部分（早期 API 默认行为，会丢信息）。</li>
+  <li><strong>报错</strong>：直接拒绝请求（多数现代 API）。</li>
+  <li><strong>滑窗 / 压缩</strong>：自己实现摘要、滑窗、检索，只把相关内容放进窗口——这正是 RAG 的价值。</li>
+</ul>
+
+<h3>5.5 长上下文 vs RAG（关键选型判断）</h3>
+<table>
+<tr><th>维度</th><th>长上下文（塞满 128K）</th><th>RAG（检索后喂小窗口）</th></tr>
+<tr><td>成本</td><td>高（每次都付 128K input 费）</td><td>低（只付检索到的几 K）</td></tr>
+<tr><td>延迟</td><td>高（Prefill 慢）</td><td>低</td></tr>
+<tr><td>知识量</td><td>受窗口限制</td><td>几乎无限（知识库可很大）</td></tr>
+<tr><td>准确性</td><td>中间易丢信息</td><td>精准定位（有引用）</td></tr>
+<tr><td>更新</td><td>每次重传全部</td><td>改知识库即可</td></tr>
+</table>
+<p><strong>结论</strong>：长上下文不是 RAG 的替代，而是补充。企业知识库该用 RAG（可更新、可引用、可控成本），长上下文适合"一次性分析单个长文档"场景。</p>
+
+<div class="iv">上下文窗口是输入+输出的 token 总上限，受 O(n²) 计算量、KV Cache 显存、训练长度三重限制。长上下文贵且慢，还有"中间迷失"问题，所以企业场景该用 RAG 而不是堆上下文。面试被问"为什么不直接用长上下文代替 RAG"，答成本/延迟/可更新性/可引用性。</div>
+
+<!-- ============ 6. KV Cache ============ -->
+<h2 id="s6">六、KV Cache</h2>
+
+<h3>6.1 问题：Decode 阶段的重复计算</h3>
+<p>自回归生成时，每生成一个新 token，它要和<strong>所有历史 token</strong> 算 Attention。如果不缓存，生成第 100 个 token 时，前 99 个 token 的 K/V 要重新算一遍；生成第 101 个时又算一遍……计算量是 O(n²) 级的浪费。</p>
+
+<h3>6.2 解决：缓存历史 K/V</h3>
+<p>既然历史 token 的 K/V 在每步都不变，那就把它们<strong>算一次、缓存起来</strong>。每生成新 token 时，只算新 token 自己的 Q/K/V，把新 K/V 追加到缓存，然后用新 Q 和缓存里所有 K 算注意力。<strong>每步计算量从 O(n) 降到 O(1)</strong>（只算新 token 与历史的关系），整体生成成本从 O(n²) 降到 O(n)。</p>
+<div class="flow">
+  <span class="step">第1步: 算全部 token 的 K/V，缓存</span><span class="arrow">→</span>
+  <span class="step">第2步: 只算新 token 的 Q/K/V，追加 K/V 到缓存</span><span class="arrow">→</span>
+  <span class="step">用新 Q × 缓存所有 K</span><span class="arrow">→</span>
+  <span class="step">加权聚合缓存所有 V</span><span class="arrow">→</span>
+  <span class="step">输出新 token</span>
+</div>
+
+<h3>6.3 显存占用估算（重要）</h3>
+<div class="formula">
+KV Cache 显存 = 2 × n<sub>layers</sub> × seq_len × n<sub>kv_heads</sub> × d<sub>head</sub> × dtype_bytes
+</div>
+<p>其中：<strong>2</strong> = K 和 V 两份；n<sub>layers</sub> = 层数；seq_len = 序列长度；n<sub>kv_heads</sub> = K/V 头数（GQA 下远小于 Q 头数）；d<sub>head</sub> = 每个头维度；dtype_bytes = 数据类型字节数（fp16=2，int8=1）。</p>
+
+<h4>实操估算：7B 模型、32K 上下文、fp16</h4>
+<p>假设 32 层，GQA 下 n<sub>kv_heads</sub>=8，d<sub>head</sub>=128：</p>
+<div class="formula">
+2 × 32 × 32768 × 8 × 128 × 2 bytes<br>
+= 4,294,967,296 bytes ≈ <strong>4 GB</strong>（单请求！）
+</div>
+<p>而 7B 模型参数本身 fp16 才约 14 GB。<strong>一个 32K 请求的 KV Cache 就占了模型参数的近 30%</strong>。这就是为什么长上下文服务并发上不去——显存被 KV Cache 吃光了。</p>
+
+<h3>6.4 KV Cache 的工程影响</h3>
+<div class="eng">
+<ul>
+  <li><strong>多轮对话</strong>：每轮把历史 K/V 留在缓存，下一轮不用重算历史，所以多轮对话比每次重传全文快得多。但缓存要常驻显存，并发用户多时显存压力大。</li>
+  <li><strong>Batch</strong>：多个请求的 KV Cache 共占显存，能 batch 多少取决于剩余显存。GQA 模型省缓存 → 同卡能 batch 更多 → 吞吐高。</li>
+  <li><strong>vLLM 的 PagedAttention</strong>：把 KV Cache 像虚拟内存一样分页管理，减少显存碎片，让 batch 吞吐提升 2-4 倍。这是 vLLM 快的核心原因之一。</li>
+  <li><strong>量化 KV Cache</strong>：把缓存存成 int8/int4，显存减半甚至 1/4，代价是精度略降。长上下文服务常用。</li>
+</ul>
+</div>
+
+<div class="iv">KV Cache 缓存历史 token 的 K/V，避免每生成一个 token 就重算全部历史，把生成成本从 O(n²) 降到 O(n)。代价是吃显存，长上下文单请求的 KV Cache 可能几 GB，直接限制并发。这也是 GQA、PagedAttention、KV 量化这些技术存在的理由。面试算一道"7B/32K 多少显存"能直接证明你懂工程。</div>
+
+<div class="warn">① KV Cache 只在 <strong>Decode 阶段</strong>用，Prefill 阶段是第一次算、要填满缓存。② 不要把 KV Cache 和"上下文窗口"混为一谈——窗口是 token 数上限，KV Cache 是存这些 token 的 K/V 占的显存。③ 多轮对话里，如果用无状态 API（每次重传全部历史），KV Cache 每轮都要重算 Prefill，并不会自动复用——是否复用取决于推理引擎是否支持前缀缓存（prefix caching）。</div>
+
+<!-- ============ 7. Prefill / Decode ============ -->
+<h2 id="s7">七、Prefill 与 Decode</h2>
+
+<h3>7.1 两个阶段</h3>
+<p>一次生成请求在推理引擎里分两个阶段：</p>
+<table>
+<tr><th>阶段</th><th>做什么</th><th>计算特征</th><th>GPU 利用率</th></tr>
+<tr><td><strong>Prefill（预填充）</strong></td><td>一次性处理整个 prompt，算出所有 prompt token 的 K/V 填入缓存</td><td>计算密集（大批矩阵乘）</td><td>高</td></tr>
+<tr><td><strong>Decode（解码）</strong></td><td>逐个生成输出 token，每步只处理 1 个新 token</td><td>访存密集（每步要读全部权重+缓存）</td><td>低</td></tr>
+</table>
+
+<h3>7.2 三个延迟指标（必背）</h3>
+<ul>
+  <li><strong>TTFT（Time To First Token）</strong>：首 token 延迟 = Prefill 时间。prompt 越长，TTFT 越高（O(n²)）。</li>
+  <li><strong>TPOT（Time Per Output Token）</strong>：每个输出 token 的平均生成时间，反映 Decode 速度。受 batch 大小、模型大小影响。</li>
+  <li><strong>ITL（Inter-Token Latency）</strong>：相邻 token 间的延迟，体感"卡顿"的来源。</li>
+</ul>
+<p>端到端延迟 ≈ TTFT + (输出 token 数 × TPOT)。用户体感"快不快"主要看 TTFT（多久出第一个字）和 TPOT（出字速度）。</p>
+
+<h3>7.3 为什么 Decode 慢且 GPU 利用率低</h3>
+<p>Decode 每步只处理 <strong>1 个 token</strong>，却要把<strong>整个模型权重 + 全部 KV Cache</strong> 从显存读到计算单元。计算量极小（1 个 token 的矩阵向量乘），但访存量巨大（读几十 GB 权重）。这就是<strong>访存瓶颈</strong>——GPU 算力闲置，大部分时间在等数据从显存搬过来。</p>
+<p>而 Prefill 一次处理几百上千 token，是大矩阵乘，计算量大、能喂满 GPU，所以利用率高。</p>
+
+<h3>7.4 怎么缓解 Decode 瓶颈</h3>
+<ul>
+  <li><strong>Continuous Batching（连续批处理）</strong>：不同请求的 Decode 步动态拼成 batch，把多个"1 token"凑成大矩阵，提高利用率。vLLM 的核心特性。</li>
+  <li><strong>Speculative Decoding（投机解码）</strong>：用小模型先猜几个 token，大模型一次验证多个，减少大模型的前向次数。</li>
+  <li><strong>Chunked Prefill</strong>：把长 prompt 切块 prefill，和 decode 交错执行，避免长 prefill 阻塞其他请求。</li>
+</ul>
+
+<div class="eng">你做模型网关和 vLLM 部署时，TTFT 和 TPOT 是两个核心 SLA 指标。RAG 场景 prompt 长 → TTFT 高，要控制检索召回的 chunk 数量；Agent 多轮 → 累计输出 token 多，TPOT 影响大。容量规划时，长 prefill 请求会占满 GPU 拖慢其他人，需要 Continuous Batching + 限流。</div>
+
+<div class="iv">Prefill 一次处理整个 prompt，计算密集、GPU 满载，决定 TTFT；Decode 逐 token 生成，访存密集、GPU 闲置，决定 TPOT。长 prompt 让 TTFT 高，多轮生成让 TPOT 累计明显。Continuous Batching 和投机解码是缓解 Decode 瓶颈的主流手段。</div>
+
+<div class="warn">不要说"Decode 慢是因为模型大"。Decode 慢的本质是<strong>访存瓶颈</strong>——每步算 1 个 token 却要读全部权重，算力闲置。这也是为什么 batch 越大 Decode 反而越高效（把多个 1 token 拼成大矩阵，摊薄访存）。</div>
+
+<!-- ============ 8. 推理模型 vs 普通模型 ============ -->
+<h2 id="s8">八、推理模型 vs 普通对话模型</h2>
+
+<h3>8.1 区别</h3>
+<table>
+<tr><th>维度</th><th>普通对话模型（如 Qwen-Plus、DeepSeek-V3）</th><th>推理模型（如 DeepSeek-R1、o1 类）</th></tr>
+<tr><td>行为</td><td>直接生成答案</td><td>先产生长思维链(CoT)推理，再给答案</td></tr>
+<tr><td>训练</td><td>SFT + RLHF 对齐</td><td>在基础模型上用 RL（强化学习）训练推理能力，加冷启动 SFT</td></tr>
+<tr><td>延迟</td><td>低（答案 token 少）</td><td>高（思考 token 可能几千）</td></tr>
+<tr><td>成本</td><td>低</td><td>高（思考 token 也计费）</td></tr>
+<tr><td>擅长</td><td>日常对话、分类、抽取、写代码</td><td>数学、逻辑、复杂规划、多步推理</td></tr>
+<tr><td>不擅长</td><td>复杂多步推理</td><td>简单任务（杀鸡用牛刀，慢且贵）</td></tr>
+</table>
+
+<h3>8.2 API 调用差异</h3>
+<ul>
+  <li>推理模型返回里通常多一个 <code>reasoning_content</code> 字段，是模型的思考过程；<code>content</code> 才是最终答案。</li>
+  <li>思考 token <strong>计费</strong>，且通常不展示给用户，但会占上下文和延迟。</li>
+  <li>部分推理模型不支持 function calling 或支持有限，做 Agent 时要注意兼容性。</li>
+</ul>
+
+<h3>8.3 在你的「特药理赔 Agent」里怎么选</h3>
+<div class="eng">
+<ul>
+  <li><strong>用推理模型</strong>：规则校验后的<strong>风险等级判断</strong>（需要综合多条款推理）、<strong>复杂拒赔理由生成</strong>（要引用多条规则串联）。</li>
+  <li><strong>用普通模型</strong>：OCR 字段抽取、意图分类、简单的材料完整性检查、结论模板填充——这些是分类/抽取任务，推理模型反而又慢又贵。</li>
+  <li><strong>混合策略</strong>：Agent 主流程用普通模型保证速度，只在关键决策节点（高风险判断）调用推理模型。这正符合 v4 里"规则/RAG/Agent/人工职责划分"的思路。</li>
+</ul>
+</div>
+
+<div class="iv">推理模型先思考再答，擅长复杂推理但慢且贵；普通模型直接答，适合分类/抽取/对话。关键决策用推理模型，常规步骤用普通模型，这是 Agent 里降本提速的实战思路。调用时注意 reasoning_content 字段和思考 token 计费。</div>
+
+<div class="warn">① 不是所有任务都该用推理模型——简单分类用它，又慢又贵还可能过度思考。② 推理模型的思考内容默认不返回给用户，做 Trace 时要单独记录 reasoning_content 用于调试。③ 部分推理模型 function calling 支持不完整，做 Agent 前要验证。</div>
+
+<!-- ============ 9. 达标线① ============ -->
+<h2 id="s9">九、面试达标线①：一次 API 请求的完整过程</h2>
+<p>这是 Day 1 最核心的面试题，必须能流畅讲完整条链路。</p>
+
+<div class="flow">
+  <span class="step">1.客户端发 HTTP 请求</span><span class="arrow">→</span>
+  <span class="step">2.网关鉴权/限流/路由</span><span class="arrow">→</span>
+  <span class="step">3.Tokenizer 切分</span><span class="arrow">→</span>
+  <span class="step">4.Embedding+位置编码</span><span class="arrow">→</span>
+  <span class="step">5.Prefill(填 KV Cache)</span><span class="arrow">→</span>
+  <span class="step">6.Decode 循环(采样)</span><span class="arrow">→</span>
+  <span class="step">7.反 Tokenize</span><span class="arrow">→</span>
+  <span class="step">8.SSE 流式返回</span>
+</div>
+
+<ol>
+  <li><strong>客户端发请求</strong>：把 prompt、模型名、参数（temperature、max_tokens 等）打包成 JSON，POST 到 API 端点。</li>
+  <li><strong>网关层</strong>：鉴权（API Key）、限流、配额检查、模型路由（决定转发到哪个模型实例）、记录 Trace ID。</li>
+  <li><strong>Tokenizer 切分</strong>：用该模型的 tokenizer 把 prompt 文本切成 token id 序列。这一步决定了输入 token 数（计费依据）。</li>
+  <li><strong>Embedding + 位置编码</strong>：每个 token id 查表得到向量，加上（或旋转注入）位置编码，得到初始输入向量序列。</li>
+  <li><strong>Prefill 阶段</strong>：整个 prompt 序列一次性过 N 层 Transformer Block，每层算 Attention（带因果掩码）和 FFN，把每层的 K/V 存入 KV Cache。最后一层输出 logits。<strong>这一步计算密集，决定 TTFT。</strong></li>
+  <li><strong>Decode 循环</strong>：取最后位置 logits 经 softmax 得到下一个 token 的概率分布 → 按采样策略（temperature/top_p/top_k）采样出下一个 token → 把新 token 的 K/V 追加到缓存 → 重复直到遇到 stop token 或达 max_tokens。<strong>每步访存密集，决定 TPOT。</strong></li>
+  <li><strong>反 Tokenize</strong>：把生成的 token id 序列用 tokenizer 解码回文本。</li>
+  <li><strong>流式返回</strong>：每生成一个 token 就通过 SSE（Server-Sent Events）推给客户端，实现"打字机"效果。非流式则等全部生成完一次性返回。</li>
+</ol>
+
+<div class="iv">讲这道题的层次：① 能讲清 8 个步骤的顺序和每步做什么（及格）；② 能点出 Prefill/Decode 的计算特征差异和 TTFT/TPOT 来源（良好）；③ 能结合网关、KV Cache、采样、流式说出工程细节（优秀）。建议背下这条链路，面试时从头讲到尾 2 分钟。</div>
+
+<!-- ============ 10. 达标线② ============ -->
+<h2 id="s10">十、面试达标线②：上下文长度 / 延迟 / 成本三者关系</h2>
+
+<h3>10.1 三者关系总览</h3>
+<table>
+<tr><th>因素</th><th>对延迟的影响</th><th>对成本的影响</th><th>原因</th></tr>
+<tr><td>上下文变长</td><td>TTFT ↑↑（Prefill O(n²)）</td><td>Input 费用 ↑（按 token 计）</td><td>注意力矩阵 n×n，计算量平方增长；KV Cache 显存线性增长压低并发</td></tr>
+<tr><td>输出变长</td><td>端到端 ↑（TPOT × n）</td><td>Output 费用 ↑（输出单价更高）</td><td>逐 token 生成，每步访存瓶颈</td></tr>
+<tr><td>批并发增大</td><td>单请求 TPOT 可能略 ↑</td><td>单请求成本 ↓（摊薄）</td><td>Continuous Batching 提高利用率</td></tr>
+</table>
+
+<h3>10.2 为什么长上下文又贵又慢</h3>
+<ul>
+  <li><strong>计算量</strong>：Self-Attention 对 n 个 token 要算 n×n 注意力矩阵，prompt 翻倍计算量变 4 倍。128K 比 4K 的 Prefill 计算量大约 1024 倍。</li>
+  <li><strong>显存</strong>：KV Cache 随序列线性增长，128K 单请求缓存几 GB，单卡并发请求数骤降，单请求分摊的固定成本上升。</li>
+  <li><strong>计费</strong>：API 按输入 token 计费，长 prompt 直接贵；部分长上下文模型输入单价本身就更高。</li>
+</ul>
+
+<h3>10.3 工程取舍：RAG vs 长上下文</h3>
+<p>正因为长上下文又贵又慢，企业场景不该"全塞进去"，而要用 RAG 把相关内容精准检索出来、只喂几 K。这是 RAG 在长上下文时代依然核心的原因——<strong>不是模型不能长，而是用长上下文不划算</strong>。</p>
+
+<div class="iv">上下文越长，Prefill 计算量平方增长（TTFT 高）、KV Cache 显存线性增长（并发低）、Input 费用线性增长。所以长上下文又贵又慢，企业知识场景该用 RAG 精准喂小窗口，而不是堆满长上下文。输出 token 比输入贵（单价高 + 逐 token 生成慢），所以控制 prompt 长度和输出长度都能省钱。</div>
+
+<!-- ============ 11. 自测清单 ============ -->
+<h2 id="s11">十一、Day 1 自测清单</h2>
+<p>逐条勾选，全部能自信说出才算 Day 1 过关：</p>
+<div class="checklist">
+<ul>
+<li>能解释 Self-Attention 的 Q/K/V 含义和计算公式，说清为什么除以 √d<sub>k</sub>。</li>
+<li>能解释 Multi-Head 为什么要多头，以及 GQA 如何省 KV Cache 显存。</li>
+<li>能说清 Decoder-only 为何成为主流（统一范式 + 训练效率 + Scaling）。</li>
+<li>知道 token 是子词单元，不同模型 tokenizer 不通用，能用目标模型估算中文 token 数。</li>
+<li>能解释 Embedding 的作用，以及为什么 Transformer 需要位置编码（RoPE 是什么）。</li>
+<li>能说清上下文窗口的限制因素（O(n²)、KV Cache 显存、训练长度）。</li>
+<li>能解释 KV Cache 原理，并估算 7B/32K 的 KV Cache 显存（约 4GB）。</li>
+<li>能区分 Prefill 和 Decode 的计算特征，说清 TTFT/TPOT 来源。</li>
+<li>能区分推理模型和普通模型，判断特药理赔 Agent 各步骤该用哪种。</li>
+<li>能从头到尾讲完一次 API 请求的 8 个步骤。</li>
+<li>能说清上下文长度/延迟/成本三者关系，解释为什么用 RAG 而非堆长上下文。</li>
+</ul>
+</div>
+
+<!-- ============ 12. 速记卡 ============ -->
+<h2 id="s12">十二、高频面试题速记卡</h2>
+
+<div class="qcard"><div class="q">Q：为什么 Self-Attention 要除以 √d<sub>k</sub>？</div><div class="a">防止点积过大让 softmax 饱和、梯度消失，把方差控制在敏感区间以稳定训练。</div></div>
+
+<div class="qcard"><div class="q">Q：KV Cache 为什么能加速？</div><div class="a">缓存历史 token 的 K/V，每步只算新 token，把生成成本从 O(n²) 降到 O(n)。</div></div>
+
+<div class="qcard"><div class="q">Q：Prefill 和 Decode 哪个是访存瓶颈？</div><div class="a">Decode。每步只算 1 个 token 却要读全部权重和缓存，算力闲置在等数据。</div></div>
+
+<div class="qcard"><div class="q">Q：为什么长上下文又贵又慢？</div><div class="a">Attention 是 O(n²)，Prefill 计算量平方增长；KV Cache 线性吃显存压低并发；input token 按量计费。</div></div>
+
+<div class="qcard"><div class="q">Q：Decoder-only 为什么是主流？</div><div class="a">统一"预测下一个 token"范式通吃所有任务，训练效率高，Scaling Law 友好，推理与 KV Cache 契合。</div></div>
+
+<div class="qcard"><div class="q">Q：GQA 是什么，为什么重要？</div><div class="a">多个 Q 头共享一组 K/V，在几乎不损效果下大幅减少 KV Cache 显存，让同卡并发和上下文长度翻倍。</div></div>
+
+<div class="qcard"><div class="q">Q：token 和词一样吗？</div><div class="a">不一样，token 是子词单元；不同模型 tokenizer 不通用，token 数必须用目标模型实测，不能按字符数估算。</div></div>
+
+<div class="qcard"><div class="q">Q：推理模型和普通模型怎么选？</div><div class="a">复杂多步推理用推理模型，分类/抽取/对话用普通模型；Agent 里关键决策用推理、常规步骤用普通以降本提速。</div></div>
+
+<div class="qcard"><div class="q">Q：Transformer 为什么需要位置编码？</div><div class="a">Self-Attention 本身顺序无关，打乱 token 顺序结果只是重排；位置编码注入顺序信息，现代模型用 RoPE 支持相对位置和长度外推。</div></div>
+
+<div class="qcard"><div class="q">Q：TTFT 和 TPOT 分别由什么决定？</div><div class="a">TTFT 由 Prefill 决定（prompt 越长越高）；TPOT 由 Decode 决定（受 batch 和模型大小影响）。</div></div>
+
+<div class="ft">FDE Day1 学习手册 · 大模型核心基础（面试级）· 配合《Day1 评测题.md》自测使用</div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_day1_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){
+    try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); }
+    catch(e){ return []; }
+  }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function typeLabel(t){ return t === 'important' ? '★ 重要' : '📌 待查'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+  function listOf(type){ return type === 'important' ? LIST_IMP : LIST_QRY; }
+  function countOf(type){ return type === 'important' ? COUNT_L : COUNT_R; }
+  function badgeOf(type){ return type === 'important' ? BADGE_L : BADGE_R; }
+  function toggleOf(type){ return type === 'important' ? TOGGLE_L : TOGGLE_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save();
+    render();
+    sel.removeAllRanges();
+    hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time';
+    time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del';
+    del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time);
+    foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+
+  function setBadge(el, n){
+    if(n > 0){ el.style.display = 'flex'; el.textContent = n; }
+    else { el.style.display = 'none'; }
+  }
+
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else {
+      list.forEach(function(a){ container.appendChild(makeItem(a)); });
+    }
+  }
+
+  function render(){
+    renderList('important');
+    renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条';
+    COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length);
+    setBadge(BADGE_R, qrys.length);
+  }
+
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash');
+    void el.offsetWidth;
+    el.classList.add('flash');
+  }
+
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark);
+    parent.normalize();
+  }
+
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    var marks = document.querySelectorAll('mark.anno[data-id="' + id + '"]');
+    marks.forEach(unwrapMark);
+    save();
+    render();
+    showTip('已删除');
+  }
+
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(node){
+        return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){
+      var len = node.nodeValue.length;
+      map.push({ node: node, start: full.length, end: full.length + len });
+      full += node.nodeValue;
+    });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE Day1 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'Day1-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){
+      document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark);
+    });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save();
+    render();
+    showTip('已清空' + label);
+  }
+
+  document.querySelectorAll('[data-export]').forEach(function(btn){
+    btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); });
+  });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){
+    btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); });
+  });
+
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+
+  restore();
+})();
+</script>
+</body>
+</html>

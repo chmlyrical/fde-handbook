@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W6D2 学习手册 · LLMOps 版本管理（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W6D2 学习手册</span>
+  <a href="#s1">1.为何版本化</a><a href="#s2">2.Prompt版</a><a href="#s3">3.模型配置版</a><a href="#s4">4.Embedding版</a><a href="#s5">5.评测集版</a>
+  <span class="sep"></span>
+  <a href="#s6">6.一键回归</a><a href="#s7">7.AB报告</a><a href="#s8">8.Trace成本</a><a href="#s9">9.错误沉淀</a><a href="#s10">10.回滚对比审</a>
+  <span class="sep"></span>
+  <a href="#s11">11.Langfuse</a><a href="#s12">达标①</a><a href="#s13">达标②</a><a href="#s14">自测</a><a href="#s15">速记</a>
+</div>
+
+<h1>FDE W6D2 学习手册 · LLMOps 版本管理</h1>
+<p class="sub">W6 Day2 · A 级（必须掌握，面试核心）· 4h · 学完能讲透"为什么 LLM 应用要像代码一样多版本管理，以及一键离线回归怎么实现、错误 Case 怎么沉淀成评测集"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W6D1 讲了"评什么"，Day2 讲"怎么让评测可持续、可回滚、可审计"。LLM 应用的 Prompt/模型/Embedding/评测集每天都在变，没有版本管理就会"昨天还好好的今天崩了还查不出原因"。<br>
+  <strong>学完能回答：</strong>① 为什么要 Prompt/模型/Embedding/评测集多版本管理（可回滚/可对比/可审计）；② 一键离线回归怎么实现、出什么 A/B 报告；③ Trace/Token 成本/错误 Case 怎么保存复盘；④ 错误 Case 怎么沉淀成评测集形成飞轮。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W6D2-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 为何版本化 ============ -->
+<h2 id="s1">一、为什么 LLM 应用需要版本管理（而传统应用已有 Git）</h2>
+<p>传统代码有 Git，但 LLM 应用多了几类"非代码但决定行为"的资产，它们变化频繁且难以用 Git diff 看懂：</p>
+<table>
+<tr><th>资产</th><th>为什么难管</th><th>变化频率</th></tr>
+<tr><td>Prompt</td><td>自然语言，效果靠评测才知道，看 diff 看不出好坏</td><td>高（周级）</td></tr>
+<tr><td>模型配置</td><td>model/temperature/top_p/超时，改了行为就变</td><td>中</td></tr>
+<tr><td>Embedding 模型/版本</td><td>换版本后向量空间变，检索结果全变</td><td>低但影响大</td></tr>
+<tr><td>评测集</td><td>随业务/条款演进，是"标尺"本身</td><td>中</td></tr>
+</table>
+<div class="eng">核心诉求就三个词：<strong>可回滚</strong>（新 Prompt 翻车能秒回旧版）、<strong>可对比</strong>（改一版跑全量看指标 diff）、<strong>可审计</strong>（哪天谁改了什么、线上效果如何，能追溯）。这和企业"变更管理"一脉相承，只是对象多了 Prompt 这种软资产。</div>
+<div class="iv">LLM 应用除了代码还有 Prompt/模型配置/Embedding/评测集四类"行为资产"，它们变化快且看 diff 看不出效果。版本管理为的是可回滚、可对比、可审计——和传统变更管理一脉相承，只是多了软资产。</div>
+<div class="warn">① 别以为"Prompt 又不是代码，不用版本化"——Prompt 是生产行为的决定因素，没版本化就会"改崩了无法回滚"。② 评测集本身也要版本化：你用 v1 评测集说 v2 Prompt 变好，可能只是评测集变了，要锁定对照。③ Git 不够——Prompt 的"效果"需要评测数据关联，纯 Git 看不到指标。</div>
+
+<!-- ============ 2. Prompt 版 ============ -->
+<h2 id="s2">二、Prompt 版本</h2>
+<p>每个 Prompt 应有唯一版本号（如 <code>prompt:v12</code>），并存：内容、创建人、创建时间、关联评测结果、上线状态。</p>
+<h3>2.1 Prompt 版本最佳实践</h3>
+<ul>
+  <li><strong>模板与变量分离</strong>：系统提示写模板，运行时填变量（用户问题、检索片段），模板进版本管理。</li>
+  <li><strong>变更要有"为什么"</strong>：每条版本记录关联一个改进目标（如"降低拒答率"）。</li>
+  <li><strong>灰度 + 回归</strong>：新 Prompt 先离线全量回归通过，再小流量灰度，再全量。</li>
+</ul>
+<h3>2.2 特药理赔示例</h3>
+<p>系统提示从 v11「请严格按知识库回答」改为 v12「请严格按知识库回答；知识库无把握时必须输出 should_refuse=true 并转人工」，这个改动必须打版本，因为直接影响拒答与高风险漏判指标。</p>
+<div class="eng">Prompt 版本要"内容 + 元数据 + 评测快照"三位一体。上线前用一键回归（见 s6）跑全量评测集，指标不退化才允许灰度。回滚时不仅回 Prompt 文本，还要能回滚到对应的"已知好"状态。</div>
+<div class="iv">Prompt 版本 = 内容 + 创建人/时间 + 关联评测结果 + 上线状态。模板与变量分离，变更要写"为什么改"。新版本先离线回归再灰度。特药场景里"加 should_refuse 指令"这种改动必须打版本。</div>
+<div class="warn">① Prompt 文本回滚了，但没回滚关联的配置/评测快照，等于半回滚，容易出诡异问题。② 把 Prompt 硬编码在代码里、靠 Ctrl+Z 回滚是灾难——必须集中管理。③ 同一 Prompt 不同变量组合效果不同，回归要覆盖典型变量。</div>
+
+<!-- ============ 3. 模型配置版 ============ -->
+<h2 id="s3">三、模型配置版本</h2>
+<p>模型配置指 <code>model / temperature / top_p / max_tokens / 超时 / 重试</code> 等。换模型或调参都算配置变更。</p>
+<table>
+<tr><th>变更</th><th>风险</th><th>管控</th></tr>
+<tr><td>换模型（如 Qwen→DeepSeek）</td><td>能力/格式/成本全变</td><td>必须全量回归 + 成本对比</td></tr>
+<tr><td>调 temperature</td><td>稳定性变化</td><td>回归 + 抽样人工</td></tr>
+<tr><td>改 max_tokens</td><td>截断/成本</td><td>回归边界 case</td></tr>
+</table>
+<div class="eng">保险场景对"确定性"要求高，模型配置版本要和 Prompt 版本绑定成"一次发布单元"。例如配置 <code>model=qwen-plus, T=0.1</code> 作为一个 pinned 版本，保证每次跑评测和生产用的是同一组参数，否则指标不可比。</div>
+<div class="iv">模型配置版本 = model/temperature/top_p/max_tokens/超时/重试。换模型风险最大，必须全量回归+成本对比。特药场景把它和 Prompt 绑成"发布单元"，固定参数保证评测与生产一致、指标可比。</div>
+<div class="warn">① 生产用 A 模型、评测用 B 模型，得出的"通过"毫无意义——评测必须 pin 住配置版本。② 不同模型对 JSON/结构化输出支持不同，换模型要重测 schema 兼容性。③ 成本随模型/参数剧烈变化，回归报告必含成本对比。</div>
+
+<!-- ============ 4. Embedding 版 ============ -->
+<h2 id="s4">四、Embedding 版本</h2>
+<p>Embedding 模型版本决定向量空间。换版本后<strong>旧向量全部失效</strong>，必须重建索引，否则检索结果错乱。</p>
+<div class="formula">
+换 Embedding 版本 → 向量空间漂移 → 旧索引不可用 → 必须重嵌 + 重建向量库 → 重跑 RAG 评测
+</div>
+<h3>4.1 关键风险</h3>
+<ul>
+  <li><strong>混合版本灾难</strong>：库里一半旧向量一半新向量，检索时余弦相似度无意义。</li>
+  <li><strong>ACL/来源未同步</strong>：重建索引时若文档治理（W3）没同步，会重新摄入脏数据。</li>
+</ul>
+<div class="eng">保险知识库用 Embedding 做特药条款检索。Embedding 版本变更是"高影响低频率"操作，必须：① 全量重嵌 + 重建索引；② 跑 W3 的 RAG Eval 50 case 验证召回不退化；③ 和 Prompt/模型版本一起纳入发布单元。绝不能"悄悄换 embedding 不重测"。</div>
+<div class="iv">Embedding 版本决定向量空间，换了旧向量全失效，必须全量重嵌+重建索引+重跑 RAG 评测。最怕"库里新旧向量混用"，相似度直接失真。它是高影响低频率变更，要和 Prompt/模型绑成发布单元。</div>
+<div class="warn">① 换 Embedding 不重建索引 = 检索结果错乱，且很难排查（因为"看起来在跑"）。② 新旧向量绝不能混库。③ 重建索引时别忘了同步文档治理（W3 的来源校验/ACL），否则脏数据重新进库。</div>
+
+<!-- ============ 5. 评测集版 ============ -->
+<h2 id="s5">五、评测集版本（标尺本身也要版本化）</h2>
+<p>评测集是"标尺"。如果标尺在变，你测出的"变好"可能是假象。</p>
+<table>
+<tr><th>做法</th><th>说明</th></tr>
+<tr><td>评测集打版本</td><td>如 <code>evalset:v3</code>，记录 case 数、覆盖维度、构造日期</td></tr>
+<tr><td>发布单元绑定评测集版本</td><td>某次 Prompt 回归用 evalset:v3，结果快照关联 v3</td></tr>
+<tr><td>变更评测集要记录原因</td><td>"新增 5 条超适应症对抗样本"</td></tr>
+</table>
+<div class="eng">对比两次 Prompt 效果，必须"同一评测集版本"才有意义。如果评测集也升级了（加了更难 case），完成率下降可能是标尺变严而非 Prompt 变差——要能区分。错误 Case 沉淀（见 s9）本质是"评测集版本的演进"。</div>
+<div class="iv">评测集是标尺，必须打版本。两次对比要用同一评测集版本，否则"变好"可能是标尺变了。评测集升级导致完成率下降，要能区分是"标尺变严"还是"Prompt 变差"。错误 Case 沉淀就是评测集版本的迭代。</div>
+<div class="warn">① 用不同版本评测集比出的"提升"是无效结论。② 评测集只能"加难"不能"偷偷减 case"来刷分——那是作弊。③ 评测集版本和 Prompt 版本要能双向追溯。</div>
+
+<!-- ============ 6. 一键回归 ============ -->
+<h2 id="s6">六、一键离线回归：架构与实现</h2>
+<p>"一键回归"= 给定新版本（Prompt/配置），自动跑全量评测集，产出与上一版的指标对比报告。</p>
+<pre><code># 一键回归伪代码
+def regression(new_prompt_v, base_prompt_v, evalset_v):
+    new = run_all(new_prompt_v, evalset_v)   # 全量跑新版本
+    base = load_snapshot(base_prompt_v, evalset_v)  # 读基线快照
+    report = diff(new.metrics, base.metrics)        # 生成 A/B 对比
+    if report.regressed():  block_release()         # 指标退化则拦截
+    else: approve_gray()                             # 否则进灰度
+    save_snapshot(new_prompt_v, new.metrics)</code></pre>
+<h3>6.1 关键工程点</h3>
+<ul>
+  <li><strong>可复现</strong>：固定 model/temperature/评测集版本，结果才能比。</li>
+  <li><strong>并发跑</strong>：30+50+各 Tool case 全量可能慢，要批处理 + 限流（防 API 限流/烧钱）。</li>
+  <li><strong>基线是快照</strong>：上一版指标存库，回归直接 diff，不重跑也能比（省成本）。</li>
+  <li><strong>拦截门禁</strong>：任何核心指标退化（如漏判率升高、完成率降）自动阻断发布。</li>
+</ul>
+<div class="eng">一键回归是"质量门禁"。特药理赔场景里，新 Prompt 若让高风险漏判率从 0 变 0.5%，门禁应直接拦截，不准发。它把 W6D1 的指标设计落成了"可自动执行的发布卡点"。</div>
+<div class="iv">一键回归 = 给定新版本自动跑全量评测集、产出与基线指标 diff 的报告。要点：可复现（锁版本）、基线是存的快照（省成本）、指标退化自动拦截发布。它是把评测指标落成"质量门禁"。</div>
+<div class="warn">① 回归时 model/评测集没锁版本，diff 不可信。② 全量跑很贵很慢，要批处理+限流，否则烧钱或被 API 拒。③ 只比总分不比分层，退化藏在某子指标里发现不了——门禁要看分层指标。</div>
+
+<!-- ============ 7. AB报告 ============ -->
+<h2 id="s7">七、A/B 报告：指标对比看什么</h2>
+<p>回归产出的 A/B 报告要让人一眼看出"该不该发"。</p>
+<table>
+<tr><th>维度</th><th>看什么</th><th>决策含义</th></tr>
+<tr><td>任务完成率</td><td>Δ 值、是否退化</td><td>核心功能好坏</td></tr>
+<tr><td>高风险漏判率</td><td>是否从 0 变 &gt;0</td><td>一票否决</td></tr>
+<tr><td>单任务成本 P95</td><td>token/工具成本变化</td><td>经济性</td></tr>
+<tr><td>各分层指标</td><td>Smoke/功能/边界/对抗各自 Δ</td><td>定位退化在哪层</td></tr>
+<tr><td>回归样本</td><td>哪些 case 从对变错</td><td>定性复盘</td></tr>
+</table>
+<div class="eng">报告要给"决策者"看，不只给算法看。特药场景的 A/B 报告里，高风险漏判率和成本必须置顶——业务方最关心"会不会赔错钱、要花多少钱"。用颜色标红退化项，一眼可视。</div>
+<div class="iv">A/B 报告看：任务完成率 Δ、高风险漏判率是否变 0→正、单任务成本 P95、各分层 Δ、以及哪些 case 从对变错。安全与成本指标置顶，退化项标红。报告给业务决策者看，不只算法。</div>
+<div class="warn">① 报告只给总分不给分层，决策者看不出"哪类 case 退化了"。② 漏判率这种小数字变化（0→0.5%）容易被平均掩盖，要单独置顶显示。③ 只报提升不报退化样本清单，无法复盘根因。</div>
+
+<!-- ============ 8. Trace成本 ============ -->
+<h2 id="s8">八、Trace、Token 成本、错误 Case 保存与复盘</h2>
+<p>每次运行（评测 or 生产）都要落"Trace"——完整记录输入、每步 tool_call、中间状态、输出、token、耗时、成本。</p>
+<h3>8.1 为什么存 Trace</h3>
+<ul>
+  <li><strong>复盘</strong>：某 case 错了，能还原"它当时调了什么、看到什么、怎么决策"。</li>
+  <li><strong>成本归因</strong>：哪类任务 token 烧最多，定位优化点。</li>
+  <li><strong>审计</strong>：监管要求能追溯某笔理赔的决策链路。</li>
+  <li><strong>飞轮燃料</strong>：错误 Trace 是沉淀评测集的来源（见 s9）。</li>
+</ul>
+<h3>8.2 错误 Case 怎么存</h3>
+<p>把"跑错/跑偏/成本高"的运行自动打标，存入"错误 Case 池"，附：输入、期望、实际、根因标签（OCR/规则/编排/模型）。</p>
+<div class="eng">用 Langfuse（<code>langfuse.com</code>）天然支持 Trace 记录、token 成本统计、会话回放。保险场景 Trace 还承载合规审计——某笔拒赔如果被投诉，要能调出完整决策链路自证合规。</div>
+<div class="iv">每次运行落 Trace（输入/tool_call/中间态/输出/token/成本/耗时），用于复盘、成本归因、合规审计、以及喂给错误 Case 池。Langfuse 可天然记录 Trace 与成本并做回放。错误 Case 自动打标入池。</div>
+<div class="warn">① 不存 Trace = 出错只能重跑猜原因，不可复盘。② Trace 含用户隐私（理赔材料），要脱敏+权限控制，别裸存。③ 错误 Case 池若不治理会无限膨胀，要定期归档/提炼进评测集。</div>
+
+<!-- ============ 9. 错误沉淀 ============ -->
+<h2 id="s9">九、错误 Case 沉淀为评测集（飞轮）</h2>
+<p>这是 LLMOps 最值钱的"飞轮"：生产/评测中暴露的错误，变成新的评测 case，下次改动自动被守。</p>
+<div class="formula">
+线上/评测错误 → 打标入错误池 → 专家审核提炼 → 加入评测集新版本 → 下次回归自动守护 → 新错误继续补
+</div>
+<h3>9.1 沉淀流程</h3>
+<ol>
+  <li><strong>采集</strong>：错误 Trace 自动进错误池（或人工上报）。</li>
+  <li><strong>审核</strong>：专家确认"确实是该测的失败模式"，标注期望输出/风险标签。</li>
+  <li><strong>提炼</strong>：去重、泛化（不要只存这一条，存一类），写入 evalset 新版本。</li>
+  <li><strong>守护</strong>：后续每次一键回归自动覆盖该 case，防止回归。</li>
+</ol>
+<div class="eng">特药场景：一次线上"超适应症用药被错误批准"的事故，被提炼成 3 条对抗样本（不同药品+不同诊断组合）加入评测集。此后任何 Prompt 改动若再犯，回归立刻标红。这就是"错误不犯第二次"的工程化保证。</div>
+<div class="iv">错误 Case 飞轮：错误 Trace → 入错误池 → 专家审核提炼（去重泛化）→ 加入评测集新版本 → 下次回归自动守护。特药场景一次"超适应症被错批"的事故，可提炼成多条对抗样本，保证此类错误不再犯。</div>
+<div class="warn">① 把单条错误直接塞进评测集不泛化——要提炼成"一类"，否则只防住那一恰好输入。② 错误池不审核就全收，会混入噪声/误标，污染评测集。③ 飞轮要有人维护，否则池子膨胀、评测集变慢变脏。</div>
+
+<!-- ============ 10. 回滚对比审 ============ -->
+<h2 id="s10">十、可回滚 / 可对比 / 可审计（达标线①基础）</h2>
+<table>
+<tr><th>能力</th><th>怎么做</th><th>保险场景价值</th></tr>
+<tr><td>可回滚</td><td>版本化 + 一键切回上一已知好版本</td><td>新 Prompt 翻车，5 分钟恢复，避免持续错赔</td></tr>
+<tr><td>可对比</td><td>基线快照 + 一键回归 diff</td><td>每次改动用数据说话，不靠拍脑袋</td></tr>
+<tr><td>可审计</td><td>版本+Trace+评测快照全留痕</td><td>监管查某笔理赔决策，能追溯当时用的 Prompt/模型/结果</td></tr>
+</table>
+<div class="eng">三者是"发布工程成熟度"的标志。没有可回滚，一次坏改动就是事故；没有可对比，优化无从证明；没有可审计，金融业务过不了合规。FDE 面试会把这三点当"工程素养"硬指标。</div>
+<div class="iv">可回滚=版本化+一键切回；可对比=基线快照+一键回归 diff；可审计=版本+Trace+评测快照全留痕。三者是 LLM 应用发布成熟度的标志，金融场景缺任何一个都过不了合规或会出事故。</div>
+<div class="warn">① "能回滚"不等于"回滚过"——要演练回滚流程，否则真出事手忙脚乱。② 审计留痕若不含"当时用的评测集版本"，追溯不完整。③ 三者要自动化，靠人工记文档必漏。</div>
+
+<!-- ============ 11. Langfuse ============ -->
+<h2 id="s11">十一、工程落地：结合 Langfuse</h2>
+<p>Langfuse（<code>langfuse.com</code>）是开源 LLMOps 平台，覆盖本日多个诉求：</p>
+<table>
+<tr><th>本日诉求</th><th>Langfuse 能力</th></tr>
+<tr><td>Trace 记录</td><td>SDK 自动记录每步生成/工具调用，支持回放</td></tr>
+<tr><td>Token 成本</td><td>按 trace 统计 token 与花费，看趋势</td></tr>
+<tr><td>版本与回归</td><td>prompt 版本管理 + 评测数据集 + 对比（数据集运行对比）</td></tr>
+<tr><td>错误复盘</td><td>按标签筛选失败 trace，导出为评测 case</td></tr>
+</table>
+<div class="info"><strong>落地建议：</strong>① 用 Langfuse 的 Prompt 管理做 Prompt 版本；② 用 Datasets 功能存评测集并跑版本对比；③ 把生产错误 trace 标 <code>error</code> 标签，定期导出进 Datasets 形成飞轮；④ 成本看板对接财务做预算管控。</div>
+<div class="eng">不要自研一套 Trace/版本系统，除非有强定制需求。Langfuse 这类平台把"版本+Trace+评测+对比"打通，省下大量重复造轮子。但注意：Prompt 内容、Trace 里的理赔材料属敏感数据，私有化部署或开启脱敏。</div>
+<div class="iv">Langfuse 覆盖本日多数诉求：Prompt 版本管理、Datasets 存评测集并做版本对比、Trace 回放、Token 成本统计、错误 trace 导出成评测 case。建议直接用它而非自研，但敏感数据要私有化/脱敏。</div>
+<div class="warn">① 用 SaaS 版 Langfuse 却把理赔材料明文传上去 = 数据合规事故，金融业务必须私有化或脱敏。② 平台只是工具，版本规范/飞轮流程还得自己建，别以为接了平台就自动合规。③ 不要同时用多个平台各管一点，数据割裂。</div>
+
+<!-- ============ 12. 达标线① ============ -->
+<h2 id="s12">十二、面试达标线①：为什么需要多版本管理（可回滚/可对比/可审计）</h2>
+<table>
+<tr><th>诉求</th><th>为什么必须</th><th>反例（没有会怎样）</th></tr>
+<tr><td>可回滚</td><td>Prompt/模型改动常翻车，需秒回已知好版本</td><td>坏改动持续生效，持续错赔</td></tr>
+<tr><td>可对比</td><td>改动效果要靠数据证明，而非感觉</td><td>"我觉得变好"无法说服业务/审计</td></tr>
+<tr><td>可审计</td><td>金融合规要追溯每次决策用的版本与结果</td><td>监管检查时无据可查，违规</td></tr>
+</table>
+<div class="iv">核心是三类行为资产（Prompt/模型配置/Embedding/评测集）变化快且看 diff 看不出效果，所以必须版本化。版本化带来可回滚（翻车秒恢复）、可对比（一键回归 diff）、可审计（金融合规追溯）。这三点也是发布工程成熟度标志。</div>
+
+<!-- ============ 13. 达标线② ============ -->
+<h2 id="s13">十三、面试达标线②：一键回归怎么实现 + 错误 Case 怎么沉淀成评测集</h2>
+<div class="formula">
+一键回归 = 锁定版本(新Prompt+模型配置+同一评测集) → 批跑全量 → 与基线快照 diff → 分层指标门禁 → 通过进灰度
+错误沉淀 = 错误Trace → 错误池 → 专家审核泛化 → 评测集新版本 → 回归自动守护
+</div>
+<ol>
+  <li><strong>一键回归实现</strong>：① 把新 Prompt/配置 + 固定评测集版本作为入参；② 批处理跑全量（限流防烧钱）；③ 读上一版指标快照做 diff；④ 分层指标（含漏判率、成本 P95）设门禁，退化则拦截；⑤ 通过则存新快照、进灰度。</li>
+  <li><strong>错误 Case 沉淀</strong>：① 错误/高成本 Trace 自动打标入池；② 专家审核确认失败模式、标注期望与风险标签；③ 去重泛化提炼成"一类"case，写进评测集新版本；④ 后续每次回归自动守护，防回归。</li>
+</ol>
+<div class="iv">一键回归靠"锁版本+批跑+基线快照 diff+分层门禁"实现，核心是结果可复现、退化可拦截。错误 Case 沉淀靠"错误池→专家审核泛化→进评测集→回归守护"的飞轮，保证同类错误不犯第二次。两者合起来就是可持续的 LLMOps。</div>
+
+<!-- ============ 14. 自测清单 ============ -->
+<h2 id="s14">十四、W6D2 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说出 LLM 应用比传统应用多出的四类"行为资产"（Prompt/模型配置/Embedding/评测集）及版本化三诉求（回滚/对比/审计）。</li>
+<li>能解释 Prompt 版本为什么"内容+元数据+评测快照"三位一体，模板与变量为何分离。</li>
+<li>能说明模型配置版本为什么要和 Prompt 绑成"发布单元"，评测必须 pin 住配置。</li>
+<li>能讲清 Embedding 换版本为什么必须全量重嵌+重建索引，混合版本为何灾难。</li>
+<li>能解释评测集本身为什么要版本化，以及"标尺变了导致变好"的假象怎么避免。</li>
+<li>能画出一键回归的流程，说出可复现、基线快照、分层门禁三个关键点。</li>
+<li>能说明 A/B 报告要看哪些维度，为什么漏判率/成本要置顶、分层 Δ 不能省。</li>
+<li>能解释为什么每次运行要存 Trace，以及 Trace 在复盘/成本/审计/飞轮中的作用。</li>
+<li>能描述错误 Case 飞轮：错误 Trace→错误池→专家审核泛化→进评测集→回归守护。</li>
+<li>能区分可回滚/可对比/可审计，并联系保险合规说清价值。</li>
+<li>能说出 Langfuse 在本日的角色（Prompt 版本/Datasets 对比/Trace/成本/错误导出）。</li>
+<li>能讲清"错误要泛化成一类再进评测集"，以及敏感数据要私有化/脱敏。</li>
+</ul>
+</div>
+
+<!-- ============ 15. 速记卡 ============ -->
+<h2 id="s15">十五、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：LLM 应用为什么不能只靠 Git 做版本管理？</div><div class="a">除了代码还有 Prompt/模型配置/Embedding/评测集四类"行为资产"，变化快且看 diff 看不出效果，需要关联评测数据。版本化要可回滚/可对比/可审计。</div></div>
+<div class="qcard"><div class="q">Q：一键回归的核心是什么？</div><div class="a">锁版本（新 Prompt+配置+同一评测集）跑全量，和基线快照 diff，分层指标设门禁，退化拦截、通过进灰度。核心是结果可复现。</div></div>
+<div class="qcard"><div class="q">Q：换 Embedding 模型为什么危险？</div><div class="a">向量空间变，旧向量失效，必须全量重嵌+重建索引；新旧混库会让相似度失真。属高影响低频率变更，要重跑 RAG 评测。</div></div>
+<div class="qcard"><div class="q">Q：评测集为什么要版本化？</div><div class="a">它是标尺。两次对比须用同一评测集版本，否则"变好"可能是标尺变严。评测集升级导致完成率降，要能区分标尺变严还是 Prompt 变差。</div></div>
+<div class="qcard"><div class="q">Q：错误 Case 怎么变成评测集？</div><div class="a">错误 Trace 入池→专家审核确认失败模式→去重泛化成"一类"→写进评测集新版本→后续回归自动守护，防再犯。</div></div>
+<div class="qcard"><div class="q">Q：A/B 报告里什么指标要置顶？</div><div class="a">高风险漏判率（一票否决）和单任务成本 P95，以及各分层 Δ。退化项标红，让决策者一眼看出该不该发。</div></div>
+<div class="qcard"><div class="q">Q：Trace 为什么要存？</div><div class="a">用于复盘（还原决策）、成本归因、合规审计（金融追溯决策链路）、以及喂给错误 Case 池形成飞轮。不存就不可复盘。</div></div>
+<div class="qcard"><div class="q">Q：可回滚/可对比/可审计分别解决什么？</div><div class="a">回滚=翻车秒恢复；对比=改动用数据证明；审计=金融合规追溯。三者是发布成熟度标志，缺一不可。</div></div>
+<div class="qcard"><div class="q">Q：为什么错误要"泛化"再进评测集？</div><div class="a">只存单条只能防那一个恰好输入；泛化成"一类"才能真防该类失败模式。否则飞轮变成噪声库。</div></div>
+<div class="qcard"><div class="q">Q：用 Langfuse 的 SaaS 版存理赔材料有什么风险？</div><div class="a">明文传敏感理赔数据=数据合规事故。金融业务必须私有化部署或开启脱敏，且版本规范/飞轮流程还得自己建。</div></div>
+
+<div class="ft">FDE W6D2 学习手册 · LLMOps 版本管理（面试级）· 配合《FDE-W6D2-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w6d2_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W6D2 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W6D2-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

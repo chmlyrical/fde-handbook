@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W2D5 学习手册 · MCP Server（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W2D5 学习手册</span>
+  <a href="#s1">1.总览</a><a href="#s2">2.骨架</a><a href="#s3">3.保单Tool</a><a href="#s4">4.OCR</a>
+  <span class="sep"></span>
+  <a href="#s5">5.规则Tool</a><a href="#s6">6.schema</a><a href="#s7">7.Resource</a><a href="#s8">8.Prompt</a>
+  <span class="sep"></span>
+  <a href="#s9">9.分工</a><a href="#s10">10.调试</a><a href="#s11">11.可观测</a><a href="#s12">12.SpringAI</a>
+  <span class="sep"></span>
+  <a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W2D5 学习手册 · MCP Server</h1>
+<p class="sub">W2 Day5 · B 级（必须掌握，面试高频）· 4h · 学完能亲手定义一个 MCP Server（医保场景：保单查询/OCR/规则校验 Tool + 文档 Resource + 审核 Prompt）</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W2D4 讲了 MCP 的协议模型与三种原语概念，今天落到"怎么实现一个 MCP Server"。重点在 Tool 的三段式（schema + 实现 + 注册）、Resource 与 Tool 的分工、与 Spring AI（Java）对接。候选人 Java 背景，会同时讲 Python SDK（官方参考）与 Java/Spring AI 落地。<br>
+  <strong>学完能回答：</strong>① 怎么定义一个 MCP Tool（inputSchema 设计 + 函数实现 + 注册）；② Resource 和 Tool 在 MCP 里的分工边界；③ 用 Python SDK 搭一个医保场景 Server 的骨架。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「工程含义」「面试话术」「易错点」→ 做自测清单 → 配合《W2D5 评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 总览 ============ -->
+<h2 id="s1">一、MCP Server 整体结构（医保场景）</h2>
+<p>一个 MCP Server = 一个进程（stdio）或 HTTP 服务，向 Client 暴露若干 <strong>Tools / Resources / Prompts</strong>。本日以"特药理赔审核"为例，目标 Server 包含：</p>
+<table>
+<tr><th>能力</th><th>类型</th><th>作用</th></tr>
+<tr><td>保单查询</td><td>Tool</td><td>按保单号查状态/额度/被保人</td></tr>
+<tr><td>病历 OCR</td><td>Tool</td><td>图片/PDF → 结构化文本</td></tr>
+<tr><td>特药规则校验</td><td>Tool</td><td>输入诊断+药品 → 是否符合报销</td></tr>
+<tr><td>保单文档</td><td>Resource</td><td>某保单的原始 PDF 文本（只读上下文）</td></tr>
+<tr><td>理赔审核话术</td><td>Prompt</td><td>预置"标准审核提示词"模板</td></tr>
+</table>
+<div class="info"><strong>权威资源（中文/官方，非 OpenAI）：</strong>
+<ul>
+<li>MCP Python SDK：<a href="https://github.com/modelcontextprotocol/python-sdk">github.com/modelcontextprotocol/python-sdk</a></li>
+<li>MCP 官方示例（modelcontextprotocol 组织下 examples 仓库）</li>
+<li>B站 Spring AI 第 49–56 集 MCP 全套：<a href="https://www.bilibili.com/video/BV1GfyGBqEm6">BV1GfyGBqEm6</a></li>
+</ul>
+</div>
+<div class="eng">工程含义：Server 是"能力提供方"，要把业务系统（保单库、OCR 引擎、规则引擎）包成标准 MCP 接口。医保团队已有 Java 后端，用 Spring AI 的 MCP Server 能力（@Tool / McpServer）更顺手；Python SDK 适合做原型与官方语义对齐。</div>
+<div class="iv">一个 MCP Server 暴露 Tools/Resources/Prompts。医保例子：保单查询/OCR/规则校验做成 Tool，保单原文做成 Resource，审核话术做成 Prompt。Server 把"内部业务系统"包成标准协议接口，Client 无需懂内部实现。</div>
+<div class="warn">① 别把所有能力都塞成一个 Tool——"查询+校验+写库"挤一个 Tool 既不好发现也难鉴权，应按职责拆。② Resource 不是"另一个 Tool"，它不执行动作，只是把数据喂进上下文。③ 面试常考"这个需求该用 Tool 还是 Resource"，见 s9。</div>
+
+<!-- ============ 2. 骨架 ============ -->
+<h2 id="s2">二、用 Python SDK 搭 Server 骨架</h2>
+<h3>2.1 选择实现方式</h3>
+<p>官方 Python SDK 提供高层封装 <code>FastMCP</code>（装饰器式，最常用）和低层 <code>Server</code>（手写 handler）。面试与落地推荐 <code>FastMCP</code>：用 <code>@mcp.tool()</code> / <code>@mcp.resource()</code> / <code>@mcp.prompt()</code> 声明能力，SDK 自动生成 schema 并注册。</p>
+<h3>2.2 最小骨架</h3>
+<pre><code>from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("insurance-claim-server")  # Server 名（serverInfo）
+
+@mcp.tool()
+def query_policy(policy_no: str) -> dict:
+    """按保单号查询保单状态、额度、被保人。"""
+    # 调内部保单库（此处省略）
+    return {"policy_no": policy_no, "status": "active", "limit": 50000}
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")  # 或 transport="streamable-http"</code></pre>
+<h3>2.3 运行与连接</h3>
+<div class="formula">
+python server.py → Host 以 stdio 拉起子进程 → initialize 握手 → tools/list 拿到 query_policy
+</div>
+<div class="eng">骨架要"先跑通再丰富"：先用一个 hello Tool 验证握手+list，再逐步加医保业务 Tool。生产里 Server 名、transport、能力要在配置里固化，并打日志便于排障。</div>
+<div class="iv">Python SDK 用 FastMCP 最省事：建 mcp 实例，@mcp.tool() 装饰函数即注册，run(transport=...) 选 stdio 或 streamable-http。SDK 自动从类型注解生成 inputSchema，开发者只写业务逻辑。</div>
+<div class="warn">① 别手写 JSON-RPC 协议细节（除非做极致定制），用 SDK 避免协议版本错配。② transport 名要对照固定验证版 2025-11-25（stdio / streamable-http），别用已弃用的 sse。③ 函数没有 docstring，模型就不知道这 Tool 干嘛、不会调——description 由 docstring 生成。</div>
+
+<!-- ============ 3. 保单 Tool ============ -->
+<h2 id="s3">三、定义第一个 Tool：保单查询（schema + 实现 + 注册）</h2>
+<h3>3.1 三段式</h3>
+<ol>
+  <li><strong>schema（输入契约）</strong>：由函数签名 + 类型注解 + docstring 生成 inputSchema（参数名、类型、必填、描述）。</li>
+  <li><strong>实现（业务逻辑）</strong>：函数体调内部保单库，返回结构化结果。</li>
+  <li><strong>注册（暴露给 Client）</strong>：@mcp.tool() 装饰即注册，握手后出现在 tools/list。</li>
+</ol>
+<h3>3.2 完善示例</h3>
+<pre><code>@mcp.tool()
+def query_policy(policy_no: str, fields: list[str] | None = None) -> dict:
+    """
+    按保单号查询保单信息。
+    :param policy_no: 保单号，如 'PA2024-123456'
+    :param fields: 可选，指定返回字段；为空返回全部
+    :return: 含 status/limit/insured 的字典
+    """
+    rec = policy_db.get(policy_no)          # 内部查询（医保核心库）
+    if not rec:
+        return {"found": False, "policy_no": policy_no}
+    return {"found": True, **rec}</code></pre>
+<div class="iv">定义一个 MCP Tool 就三步：① 写 inputSchema（靠类型注解+docstring，声明参数与含义）；② 写实现（调内部系统、返回结构化数据）；③ 注册（@mcp.tool() 装饰，自动进 tools/list）。模型靠 description 决定调不调、靠 schema 填参。</div>
+<div class="eng">工程上 Tool 返回要稳定可解析：用 dict/Pydantic 模型，字段命名清晰，错误走结构化返回（如 {"found": False}）而非抛未捕获异常。医保生产会对内部查询加超时、降级与审计。</div>
+<div class="warn">① schema 的 description 决定调用准确率——"保单号"要写清格式示例，否则模型可能传错。② 返回尽量结构化、别返回超长自由文本，下游难解析。③ 别在 Tool 里做权限判断——那是 Host 层职责（见 D4 Q9/Q13）。</div>
+
+<!-- ============ 4. OCR ============ -->
+<h2 id="s4">四、实现 OCR Tool</h2>
+<p>OCR Tool 把病历/发票图片或 PDF 转成结构化文本，供后续规则校验与生成使用。注意它是<strong>有副作用吗</strong>——OCR 本身是只读识别（readOnlyHint=true），但可能写临时文件。</p>
+<pre><code>@mcp.tool()
+def ocr_document(image_path: str) -> dict:
+    """
+    对病历/发票图片做 OCR，返回结构化文本与关键字段。
+    :param image_path: 图片或 PDF 路径
+    :return: { text, fields: {patient, hospital, date} }
+    """
+    text = ocr_engine.recognize(image_path)   # 调用 OCR 引擎
+    return {"text": text, "fields": extract_fields(text)}</code></pre>
+<div class="eng">医保落地：OCR 引擎可能是内部 Java 服务或本地 PaddleOCR。用 stdio 本地跑 OCR 省去网络与鉴权；若 OCR 是共享 GPU 服务，则单独做 Remote HTTP Server。OCR 输出要进"引用溯源"（原文对应哪段），供理赔结论回溯。</div>
+<div class="iv">OCR Tool = 图片/PDF → 结构化文本。标注 readOnlyHint=true（只识别不写业务库）。工程上 OCR 结果要保留原文用于引用溯源，避免"模型凭空编诊断"。</div>
+<div class="warn">① OCR 结果有误差，别直接当事实喂给规则校验——要保留置信度/原文，让下游可质疑。② 大文件 OCR 要设超时与分片，别卡死 Server。③ readOnlyHint 只是提示，真实写临时文件也要受 Server 文件系统权限约束（D4 s12）。</div>
+
+<!-- ============ 5. 规则 Tool ============ -->
+<h2 id="s5">五、实现特药规则校验 Tool</h2>
+<p>规则校验 Tool 是"理赔大脑"：输入诊断、药品、既往史，对照特药目录/适应症/医保限制，输出是否可报销及理由。</p>
+<pre><code>@mcp.tool()
+def check_drug_rule(diagnosis: str, drug_name: str, policy_no: str) -> dict:
+    """
+    校验某特药是否符合报销规则。
+    :param diagnosis: 诊断名称
+    :param drug_name: 药品名（如 '奥希美替尼'）
+    :param policy_no: 保单号（用于额度关联）
+    :return: { covered: bool, reason, max_amount }
+    """
+    rule = drug_rule_db.lookup(drug_name, diagnosis)   # 特药目录+适应症
+    if not rule or not rule.covered:
+        return {"covered": False, "reason": "不在适应症范围", "max_amount": 0}
+    return {"covered": True, "reason": rule.reason, "max_amount": rule.limit}</code></pre>
+<div class="eng">规则校验是"确定性问题"，要低随机（T=0）、可解释。返回的 reason 要能回溯到具体条款（引用溯源），供拒付时向客户解释。医保场景规则常变，把规则外置到 DB/配置，Tool 只做"查+算"。</div>
+<div class="iv">规则校验 Tool：输入诊断+药品+保单号，对照特药目录输出"是否报销+理由+上限"。它是确定逻辑，返回要带可解释的 reason 与引用，拒付时能讲清依据。</div>
+<div class="warn">① 规则逻辑别硬编码进 Tool——要外置（DB/配置），否则改规则要发版。② 返回的 covered=false 要区分"真不符合"和"信息不足"，避免模型把"查不到"当"不报销"。③ 规则 Tool 是 readOnly（只查只算），但"提交理赔结论"才是写操作，要分开（D4 s9/s10）。</div>
+
+<!-- ============ 6. schema ============ -->
+<h2 id="s6">六、inputSchema 设计要点</h2>
+<table>
+<tr><th>要点</th><th>做法</th><th>为什么</th></tr>
+<tr><td>参数描述清晰</td><td>docstring 写清格式/示例/取值范围</td><td>模型靠描述选参、填参</td></tr>
+<tr><td>类型精确</td><td>用 str/int/bool/枚举，必要时 Pydantic</td><td>生成正确 schema，减少填错</td></tr>
+<tr><td>必填 vs 可选</td><td>无默认=必填，有默认=可选</td><td>影响模型是否需补参</td></tr>
+<tr><td>枚举约束</td><td>用 Literal 限制取值</td><td>防止模型传非法值</td></tr>
+<tr><td>避免超长自由文本</td><td>大文本走 Resource，Tool 只收引用</td><td>Tool 参数应精简</td></tr>
+</table>
+<pre><code>from typing import Literal
+@mcp.tool()
+def check_drug_rule(diagnosis: str, drug_name: str,
+                    region: Literal["北京","上海","全国"] = "全国") -> dict:
+    ...</code></pre>
+<div class="eng">schema 质量是调用准确率的命门。医保场景参数多（诊断/药品/地区/保单），用 Literal 枚举把"地区"锁死，能大幅降低模型传错。生产会把 schema 当"接口契约"评审，而非随手写。</div>
+<div class="iv">inputSchema 设计四要点：描述写清（含示例）、类型精确、必填/可选分明、非法值用枚举锁死。schema 是模型与 Tool 的"契约"，质量直接决定调用准确率。</div>
+<div class="warn">① 参数描述含糊 → 模型选错 Tool 或填错参，这是 MCP 调用失败的头号原因。② 别把整篇病历塞进 Tool 参数——长文本用 Resource 传引用。③ schema 改了要同步版本，避免 Client 缓存的旧 schema 错配。</div>
+
+<!-- ============ 7. Resource ============ -->
+<h2 id="s7">七、定义 Resource：保单文档</h2>
+<p>Resource 是<strong>只读数据/上下文</strong>，由应用注入模型上下文，而非模型触发执行。用 <code>@mcp.resource()</code> 声明，URI 作为句柄。</p>
+<pre><code>@mcp.resource("policy://{policy_no}/document")
+def policy_document(policy_no: str) -> str:
+    """返回某保单的原始条款文本（只读上下文）。"""
+    return policy_store.load_text(policy_no)</code></pre>
+<p>Client/Host 通过 <code>resources/read</code> 按 URI 读取，把文本塞进提示上下文，让模型"看到原文"再做判断（配合引用溯源）。</p>
+<div class="eng">医保场景：保单原文、特药目录、医保政策条文都适合做成 Resource——它们是"知识"，不是"动作"。Resource 让模型基于真实文本推理，减少编造；同时支持引用（哪段条款支持结论）。</div>
+<div class="iv">Resource = 只读数据，用 @mcp.resource("uri") 声明，Host 通过 resources/read 按 URI 读入上下文。保单原文/特药目录/政策条文都该做成 Resource——它们是"知识"不是"动作"。</div>
+<div class="warn">① Resource 不是 Tool，模型不能"调用"它执行，只能由应用读入上下文——别混淆触发方式。② Resource 内容可能很大，要分页/截断，别一次塞爆上下文。③ Resource 的 URI 设计要有规范（如 policy://{no}），方便 Host 引用与缓存。</div>
+
+<!-- ============ 8. Prompt ============ -->
+<h2 id="s8">八、定义 Prompt：理赔审核模板</h2>
+<p>Prompt 是<strong>用户可选的提示词模板</strong>，带参数，由用户在 Host 里点选填入。用 <code>@mcp.prompt()</code> 声明。</p>
+<pre><code>@mcp.prompt()
+def claim_review_prompt(policy_no: str, drug_name: str) -> str:
+    """生成标准理赔审核提示词。"""
+    return f"""你是特药理赔审核员。请基于保单 {policy_no} 与药品 {drug_name}：
+1) 核对诊断与药品适应症；
+2) 引用保单条款给出能否报销；
+3) 不确定时明确拒答并说明缺什么材料。"""</code></pre>
+<div class="eng">Prompt 模板把"专家经验"沉淀成可复用范式，降低前端每次拼 prompt 的成本，也保证审核口径一致（合规需要）。医保团队可把"审核 SOP"固化成多个 Prompt 模板。</div>
+<div class="iv">Prompt = 用户选的提示词模板（@mcp.prompt），带参数、可复用。把"理赔审核 SOP"固化成模板，保证口径一致、降低拼 prompt 成本，是合规资产。</div>
+<div class="warn">① Prompt 模板是 user-controlled，不是模型自动调——别和 Tool 混淆。② 模板里要内置"不确定就拒答"约束，防止模型硬编（见 D6 拒答）。③ 模板参数要校验，避免注入（用户传恶意内容拼进 prompt）。</div>
+
+<!-- ============ 9. 分工 ============ -->
+<h2 id="s9">九、Resource 与 Tool 的分工边界（达标线②）</h2>
+<table>
+<tr><th>维度</th><th>Tool</th><th>Resource</th></tr>
+<tr><td>本质</td><td>动作（执行函数）</td><td>数据（只读上下文）</td></tr>
+<tr><td>触发方</td><td>模型（推理中自主决定）</td><td>应用/Host（读入上下文）</td></tr>
+<tr><td>副作用</td><td>可有（写/算/调外部）</td><td>无</td></tr>
+<tr><td>返回</td><td>结构化结果供下游用</td><td>文本/数据供模型"阅读"</td></tr>
+<tr><td>医保例子</td><td>查保单、OCR、规则校验</td><td>保单原文、特药目录</td></tr>
+</table>
+<div class="formula">
+判断标准：要不要"执行一个动作/产生副作用" → Tool；只是"把一段知识放进上下文" → Resource
+</div>
+<div class="iv">分工一句话：Tool 是"做"（模型触发、可有副作用），Resource 是"给"（应用注入、只读知识）。该执行动作（查/OCR/校验）用 Tool；该提供原文/目录（保单文本、特药表）用 Resource。混淆二者会导致权限错配与发现混乱。</div>
+<div class="warn">① "查一个值"看似读，但若是"模型要主动调业务系统拿结果"就用 Tool；若是"静态知识直接进上下文"才用 Resource。② 把 Resource 当 Tool 用会丢失动作语义与鉴权边界；反之把 Tool 当 Resource 会让模型无法触发。③ 面试常考这个边界，要结合"触发方+副作用"判断。</div>
+
+<!-- ============ 10. 调试 ============ -->
+<h2 id="s10">十、本地调试与 tools/list 验证</h2>
+<h3>10.1 调试步骤</h3>
+<ol>
+  <li>单独跑 Server，确认进程正常启动、无 import 错误。</li>
+  <li>用 MCP Inspector / SDK 客户端发起 <code>initialize</code>，确认握手成功、版本对齐。</li>
+  <li>调 <code>tools/list</code> 确认三个 Tool + Resource + Prompt 都在，schema 正确。</li>
+  <li>用 <code>tools/call</code> 实测参数与返回，检查错误路径（如保单不存在）。</li>
+</ol>
+<h3>10.2 常见坑</h3>
+<ul>
+  <li>docstring 缺失 → tools/list 里 description 为空 → 模型不调。</li>
+  <li>返回非 JSON 可序列化 → Client 解析失败。</li>
+  <li>内部异常未捕获 → 整个 call 报错而非结构化返回。</li>
+</ul>
+<div class="eng">医保生产：Server 要有健康检查与结构化错误（如 {"error":"policy_not_found"}），并接日志/监控。tools/list 结果建议缓存（按 Server 版本失效），减少握手开销。</div>
+<div class="iv">调试四步：跑进程 → initialize 验握手 → tools/list 验能力+schema → tools/call 实测。常见坑：docstring 空导致不调用、返回不可序列化、异常未捕获。生产要结构化错误+日志+监控。</div>
+
+<!-- ============ 11. 可观测 ============ -->
+<h2 id="s11">十一、错误处理与可观测</h2>
+<ul>
+  <li><strong>结构化错误</strong>：返回 <code>{"ok": false, "error": "...", "code": "..."}</code> 而非抛裸异常。</li>
+  <li><strong>超时与降级</strong>：内部查询（保单库/OCR）设超时，失败返回降级结果或显式错误。</li>
+  <li><strong>日志与 Trace</strong>：记录每次 call 的入参、出参、耗时、错误，便于理赔审计。</li>
+  <li><strong>审计</strong>：医保场景 Tool 调用要留痕（谁、查了哪个保单），满足合规。</li>
+</ul>
+<div class="eng">可观测是生产 Server 的底线。理赔涉及钱与客户隐私，每次 Tool 调用都要可回溯、可审计；异常要"fail visible"（明确报错）而非静默返回错数据。</div>
+<div class="iv">MCP Server 可观测三件套：结构化错误（不抛裸异常）、超时降级、日志+审计 Trace。医保场景每次调用留痕，异常要 fail visible 而非静默错返。</div>
+<div class="warn">① 别"静默返回错误数据"——模型会当真，导致错赔。② 审计日志别记明文隐私（脱敏）。③ 超时设置要合理，OCR 大图可比查询类更长。</div>
+
+<!-- ============ 12. SpringAI ============ -->
+<h2 id="s12">十二、与 Spring AI（Java）对接：候选人落地路径</h2>
+<p>候选人是 Java 背景，医保主力后端是 Spring。Spring AI 提供 MCP Server 能力：用 <code>@Tool</code> / <code>ToolCallback</code> 声明工具，框架负责协议层。B站 Spring AI 第 49–56 集 MCP 全套（BV1GfyGBqEm6）讲透 Java 侧实现。</p>
+<pre><code>@Tool(description = "按保单号查询保单状态与额度")
+public Map&lt;String,Object&gt; queryPolicy(@ToolParam("保单号") String policyNo) {
+    return policyService.query(policyNo);   // 复用现有 Java 保单服务
+}</code></pre>
+<div class="info">Java 落地优势：直接复用医保现有 Spring 微服务（保单库、规则引擎），把"已有方法"用 @Tool 包一层即变成 MCP 能力，几乎零重写。Python SDK 适合做原型与官方语义对齐。</div>
+<div class="eng">工程策略：核心业务用 Spring AI MCP Server（复用 Java 资产）；探索性/算法型 Tool（如 OCR 后处理）可用 Python Server，由 Host 同时连多个 Client。选型看团队栈，不强行统一语言。</div>
+<div class="iv">Java 候选人用 Spring AI 做 MCP Server 最顺：@Tool 注解把现有 Spring 方法包成 MCP 能力，复用保单/规则微服务。Python SDK 用于原型。B站 BV1GfyGBqEm6 第49-56集讲 Java 侧全套。</div>
+<div class="warn">① 别以为"必须用 Python"——MCP 是协议，任何语言都能实现，Java 用 Spring AI 完全够。② @Tool 的 description 同样关键（模型靠它选）。③ 复用现有服务时要保留原有权限/审计，别因包了 MCP 就绕过。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：怎么定义一个 MCP Tool</h2>
+<div class="formula">
+定义 Tool = ①写 inputSchema（类型注解+docstring，声明参数与含义） → ②写实现（调内部系统、返回结构化结果） → ③注册（@mcp.tool() 装饰，进 tools/list）
+</div>
+<table>
+<tr><th>环节</th><th>必须能讲清</th></tr>
+<tr><td>schema</td><td>参数名/类型/必填/描述由注解+docstring 生成；枚举锁非法值</td></tr>
+<tr><td>实现</td><td>调内部业务、返回可解析结构化结果、错误结构化返回</td></tr>
+<tr><td>注册</td><td>@mcp.tool()（Python）/ @Tool（Spring AI）装饰即注册，握手后进 tools/list</td></tr>
+<tr><td>医保例</td><td>保单查询/OCR/规则校验三个 Tool 的 schema+实现要点</td></tr>
+</table>
+<div class="iv">达标线①核心：能完整讲出 Tool 三段式（schema→实现→注册），并以保单查询 Tool 为例说明参数设计、返回结构与注册方式。这是"会不会动手"的硬指标。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：Resource 与 Tool 的分工</h2>
+<div class="formula">
+Tool = 做（模型触发、可有副作用、返回结构化结果） ｜ Resource = 给（应用注入、只读知识、进上下文）
+</div>
+<ul>
+  <li>判定标准：要"执行动作/产生副作用"→ Tool；只是"把知识放进上下文"→ Resource。</li>
+  <li>触发方不同：Tool 由模型在推理中决定；Resource 由 Host/应用读取注入。</li>
+  <li>医保落点：查保单/OCR/规则校验 = Tool；保单原文/特药目录 = Resource；审核 SOP = Prompt。</li>
+</ul>
+<div class="iv">达标线②核心：能用"触发方+副作用+本质"三维讲清 Tool 与 Resource 边界，并正确把医保场景能力归类。混淆二者会导致权限错配与发现混乱。</div>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W2D5 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说出 MCP Server 由哪些能力组成（Tools/Resources/Prompts），并列出医保场景的拆分。</li>
+<li>能用 FastMCP 写出最小 Server 骨架，说明 transport 选 stdio 还是 streamable-http。</li>
+<li>能完整讲出定义一个 Tool 的三段式（schema + 实现 + 注册）。</li>
+<li>能写出保单查询 Tool 的示例（参数、返回、错误处理）。</li>
+<li>能说明 OCR Tool 的 readOnly 性质与"引用溯源"意义。</li>
+<li>能说明规则校验 Tool 为何要低随机、返回可解释 reason 与引用。</li>
+<li>能列出 inputSchema 设计四要点，并用 Literal 锁枚举。</li>
+<li>能写出 Resource 示例（@mcp.resource + URI）并说明它是只读上下文。</li>
+<li>能写出 Prompt 模板示例，并说明它是 user-controlled。</li>
+<li>能讲清 Resource 与 Tool 的分工边界（触发方/副作用/本质）。</li>
+<li>能说出本地调试四步与常见坑（docstring 空、不可序列化、异常未捕获）。</li>
+<li>能说明 MCP Server 的可观测三件套（结构化错误/超时降级/日志审计）。</li>
+<li>能讲清 Java 候选人用 Spring AI（@Tool）落地 MCP Server 的路径与优势。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：定义一个 MCP Tool 分几步？</div><div class="a">三步：①写 inputSchema（注解+docstring 声明参数/含义）；②写实现（调内部系统、返回结构化结果）；③注册（@mcp.tool() 装饰，进 tools/list）。</div></div>
+<div class="qcard"><div class="q">Q：Tool 的 schema 从哪来？</div><div class="a">由函数类型注解 + docstring 生成（FastMCP）；参数描述与枚举决定模型选参填参准确率。description 缺失=模型不调。</div></div>
+<div class="qcard"><div class="q">Q：Resource 和 Tool 什么区别？</div><div class="a">Tool=做（模型触发、可有副作用）；Resource=给（应用注入、只读知识进上下文）。判定看"是否执行动作/产生副作用"。</div></div>
+<div class="qcard"><div class="q">Q：保单原文该做成 Tool 还是 Resource？</div><div class="a">Resource——它是只读知识，由 Host 读入上下文供模型"看原文"，不是模型触发的动作。</div></div>
+<div class="qcard"><div class="q">Q：规则校验 Tool 要注意什么？</div><div class="a">确定性逻辑用低随机(T=0)、返回带可解释 reason 与引用、规则外置（DB/配置）、区分"不符合"与"信息不足"。</div></div>
+<div class="qcard"><div class="q">Q：Java 怎么做 MCP Server？</div><div class="a">用 Spring AI：@Tool 注解把现有 Spring 方法包成 MCP 能力，复用保单/规则微服务。Python SDK 用于原型。</div></div>
+<div class="qcard"><div class="q">Q：调试 MCP Server 四步？</div><div class="a">跑进程 → initialize 验握手/版本 → tools/list 验能力+schema → tools/call 实测（含错误路径）。</div></div>
+<div class="qcard"><div class="q">Q：MCP Server 可观测三件套？</div><div class="a">结构化错误（不抛裸异常）、超时降级、日志+审计 Trace。医保场景每次调用留痕，异常 fail visible。</div></div>
+<div class="qcard"><div class="q">Q：Prompt 模板谁触发？</div><div class="a">user-controlled——用户在 Host 里点选并填参，非模型自动调用，用于固化审核 SOP 保证口径一致。</div></div>
+<div class="qcard"><div class="q">Q：为什么别把所有能力塞一个 Tool？</div><div class="a">难发现、难鉴权、难评测。应按职责拆（查询/OCR/校验分离），提升调用准确率与权限边界。</div></div>
+
+<div class="ft">FDE W2D5 学习手册 · MCP Server（面试级）· 配合《W2D5 评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w2d5_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W2D5 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W2D5-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

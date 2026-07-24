@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W8D2 学习手册 · 容量规划与成本估算（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W8D2 学习手册</span>
+  <a href="#s1">1.成本模式</a><a href="#s2">2.API成本</a><a href="#s3">3.私有成本</a><a href="#s4">4.显存估算</a>
+  <span class="sep"></span>
+  <a href="#s5">5.KV估算</a><a href="#s6">6.并发副本</a><a href="#s7">7.Token计费</a><a href="#s8">8.优化</a>
+  <span class="sep"></span>
+  <a href="#s9">9.选型权衡</a><a href="#s10">10.容量规划</a><a href="#s11">11.案例</a><a href="#s12">12.资源</a>
+  <span class="sep"></span>
+  <a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W8D2 学习手册 · 容量规划与成本估算</h1>
+<p class="sub">W8 Day2 · B 级（工程核心）· 5h · 学完能给出"私有部署 vs API"的可信成本测算，并讲清容量与副本数怎么定</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>Day1 把模型跑成了服务，Day2 算"这笔账划不划算、要几张卡"。候选人有 Java + 大数据背景，冲刺架构/负责人岗——老板最关心"上 LLM 一年花多少、值不值"。<strong>本日是面试里"成本和容量"题的标准答案来源。</strong><br>
+  <strong>学完能回答：</strong>① 私有部署成本怎么估算（GPU 时租 + 显存 + 副本数）；② API vs 私有部署的选型权衡（成本 / 延迟 / 数据合规）。<br>
+  <strong>使用方法：</strong>先理解两种计费模式 → 掌握显存/KV 估算（呼应 Day1）→ 重点背成本公式与选型话术 → 做自测 → 配合《FDE-W8D2-评测题.md》。标注（左下★重要 / 右下📌待查）用于圈出自己易混的成本项。
+</div>
+
+<!-- ============ 1. 成本模式 ============ -->
+<h2 id="s1">一、两类成本模式：API 按 token vs 私有按 GPU 时租</h2>
+<h3>1.1 本质区别</h3>
+<table>
+<tr><th>维度</th><th>API（SaaS，如公有云大模型）</th><th>私有部署（自购/租用 GPU）</th></tr>
+<tr><td>计费单位</td><td>每千 token（输入/输出分别计价）</td><td>GPU 时租 + 电费 + 运维人力</td></tr>
+<tr><td>边际成本</td><td>随调用量线性增长</td><td>固定（卡在跑就计费，闲置也计费）</td></tr>
+<tr><td>数据</td><td>出域（需评估合规）</td><td>不出域</td></tr>
+<tr><td>弹性</td><td>极高，按需扩</td><td>受限于自有/租用卡数</td></tr>
+<tr><td>适合</td><td>调用量波动大、早期验证</td><td>量大、稳定、强合规</td></tr>
+</table>
+<div class="eng">架构师的核心判断：当<strong>月调用量足够大</strong>时，私有部署的"固定成本被摊薄"，单位 token 成本会低于 API；量小则 API 更省。这叫"成本交叉点"，是选型第一性原则。</div>
+<div class="iv">两种模式：API 按 token 计费、边际成本随量线性涨；私有按 GPU 时租（固定）计费、闲置也花钱。量大且稳定时私有更省（固定成本被摊薄），量小波动大时 API 更省——这是选型第一性原则。</div>
+<div class="warn">① 私有部署不是"免费"——卡空跑也计费，所以低利用率是最大浪费。② 别只比单价，API 的输入/输出 token 单价不同，长输出场景 API 成本会飙升。③ "私有一定更便宜"是误区，必须在自己的量纲下算交叉点。</div>
+
+<!-- ============ 2. API 成本 ============ -->
+<h2 id="s2">二、API 模型成本结构</h2>
+<h3>2.1 计费要素</h3>
+<ul>
+  <li><strong>输入 token 单价</strong>：通常低于输出（如输入 ¥0.5/千、输出 ¥1.5/千，示意）。</li>
+  <li><strong>输出 token 单价</strong>：更高（生成更贵）。</li>
+  <li><strong>缓存命中折扣</strong>：相同前缀（如 system prompt）命中缓存可打折（如 5 折）。</li>
+  <li><strong>批量/异步折扣</strong>：离线批量调用常有折扣。</li>
+</ul>
+<div class="formula">单次调用成本 = 输入token/1000 × 输入单价 + 输出token/1000 × 输出单价（缓存命中部分再乘折扣）</div>
+<h3>2.2 长上下文陷阱</h3>
+<p>RAG 每次把长文档塞进 prompt，<strong>输入 token 随文档长度线性增长</strong>，API 成本会随知识库变大而失控。这正是"私有部署 + 长上下文"可能更省的拐点之一。</p>
+<div class="eng">对特药理赔 Agent，prompt 里常含长条款/病历，API 模式输入 token 巨大。架构师要算清"长上下文下 API 成本曲线"，才能说服老板上私有化或上缓存。</div>
+<div class="iv">API 成本 = 输入×输入价 + 输出×输出价，且缓存命中、批量有折扣。RAG 长上下文会让输入 token 暴增、成本失控——这是推动私有化或缓存优化的重要依据。</div>
+<div class="warn">① 很多估算漏算"system prompt + 长文档"这类每请求都发的输入 token，导致成本严重低估。② 缓存折扣有前提（前缀一致），动态拼接的 prompt 命中率低。③ 输出 token 单价高，要控 max_tokens 避免冗长回答烧钱。</div>
+
+<!-- ============ 3. 私有成本 ============ -->
+<h2 id="s3">三、私有部署成本结构</h2>
+<h3>3.1 成本构成</h3>
+<table>
+<tr><th>项</th><th>说明</th></tr>
+<tr><td>GPU 时租 / 折旧</td><td>云租卡（元/小时）或自购折旧（元/月）</td></tr>
+<tr><td>电费</td><td>8 卡机约 2-4 kW，按当地电价</td></tr>
+<tr><td>存储/网络</td><td>模型权重、向量库、带宽</td></tr>
+<tr><td>运维人力</td><td>部署、监控、升级、排障</td></tr>
+<tr><td>闲置损耗</td><td>低利用率时卡空跑的固定浪费</td></tr>
+</table>
+<div class="formula">私有月成本 ≈ (卡数 × 时租 × 720h) + 电费 + 运维 + 存储网络</div>
+<h3>3.2 单位 token 成本推导</h3>
+<div class="formula">单请求成本 ≈ 私有月成本 ÷ 月总请求数；或 ≈ (单次GPU·秒成本) ÷ 单请求吞吐(token/s)</div>
+<div class="eng">私有部署的"省钱"来自<strong>高利用率把固定成本摊薄</strong>。如果一天只跑几小时，单位成本远高于 API。架构师要算"利用率≥X% 才划算"，这是和老板对话的硬指标。</div>
+<div class="iv">私有成本 = GPU 时租(或折旧) + 电费 + 运维 + 存储网络，卡空跑也计费。单位 token 成本 = 月成本 ÷ 月总 token。利用率越高越省；低利用率反而比 API 贵。</div>
+<div class="warn">① 自购卡的"折旧"常被忽略，它和云租卡一样是真实成本。② 电费在 8 卡机上一月也不小，不能漏。③ 运维人力在负责人岗评估里必须计入，否则 TCO 失真。</div>
+
+<!-- ============ 4. 显存估算 ============ -->
+<h2 id="s4">四、GPU 显存估算（呼应 Day1）</h2>
+<h3>4.1 显存 = 权重 + KV Cache + 激活 + 碎片</h3>
+<div class="formula">显存 ≈ 权重(fp16≈2B/参, int4≈0.5B/参) + KV Cache + 激活开销 + 框架碎片</div>
+<h3>4.2 常见模型显存（fp16）</h3>
+<table>
+<tr><th>模型</th><th>参数量</th><th>fp16 权重</th><th>int4 权重</th></tr>
+<tr><td>Qwen2.5-7B</td><td>7B</td><td>~14 GB</td><td>~3.5 GB</td></tr>
+<tr><td>Qwen2.5-14B</td><td>14B</td><td>~28 GB</td><td>~7 GB</td></tr>
+<tr><td>Qwen2.5-32B / DeepSeek-Lite</td><td>32B</td><td>~64 GB</td><td>~16 GB</td></tr>
+<tr><td>DeepSeek-V2/V3（MoE）</td><td>总参大/激活小</td><td>按激活参估算显存</td><td>—</td></tr>
+</table>
+<div class="info">呼应 W8D1：vLLM 的 PagedAttention 提升的是 KV Cache 利用率（碎片部分），不改变权重本身显存。所以"装不装得下"先看权重，并发多少看 KV。</div>
+<div class="eng">容量规划第一步就是"这张卡装不装得下"。架构师开口就能报出 7B/14B/32B 在各量化的显存，这是可信度的基石。MoE 模型要按激活参数算，不能按总参。</div>
+<div class="iv">显存 = 权重 + KV + 激活 + 碎片。fp16 权重约 2B/参，int4 约 0.5B/参：7B≈14G、32B≈64G(fp16)/16G(int4)。装不装得下看权重，能扛多少并发看 KV。MoE 按激活参数算。</div>
+<div class="warn">① 权重显存是下限，KV Cache 会随并发/长度叠加，别只算权重就说"能跑"。② MoE（DeepSeek）总参巨大但激活参小，显存远小于"总参×2B"的朴素估算。③ 碎片和激活需留余量（gpu-memory-utilization 不建议设 1.0）。</div>
+
+<!-- ============ 5. KV 估算 ============ -->
+<h2 id="s5">五、KV Cache 估算（呼应 Day1）</h2>
+<h3>5.1 单请求 KV 显存</h3>
+<div class="formula">单请求KV ≈ 2 × num_layers × hidden_dim × seq_len × bytes_per_elem</div>
+<p>例：某 7B 模型（32 层、4096 隐维、fp16=2B）在 seq_len=8192 时：KV ≈ 2×32×4096×8192×2 ≈ 4.3 GB/请求。可见<strong>长序列下 KV 比权重还夸张</strong>。</p>
+<h3>5.2 KV 与并发的关系</h3>
+<div class="formula">最大并发 ≈ (可用KV显存) ÷ (单请求KV峰值)</div>
+<p>这正是 Day1 说的"长度↑ → 单卡并发↓"。容量规划的杠杆就在这里：降 max_model_len、量化、prefix caching 都能释放 KV 给更多并发。</p>
+<div class="eng">KV Cache 是"并发的硬天花板"。架构师给老板承诺并发数时，必须能反推出"需要几张卡、每张卡留多少 KV"。这是 Day1 指标与 Day2 成本之间的桥梁。</div>
+<div class="iv">单请求 KV ≈ 2×层数×隐维×序列长×字节。长序列下 KV 可能比权重还大，所以 max_model_len 直接决定单卡并发上限（最大并发≈可用KV÷单请求KV）。降长度/量化/前缀缓存都能提并发。</div>
+<div class="warn">① 把 KV 估算漏掉，并发预算会虚高数倍。② prefix caching 能复用相同系统提示的 KV，显著降低重复开销——但 prompt 动态拼接会破坏复用。③ 估算用峰值 seq_len，否则高峰 OOM。</div>
+
+<!-- ============ 6. 并发副本 ============ -->
+<h2 id="s6">六、并发、队列与模型副本数</h2>
+<h3>6.1 副本数推导</h3>
+<div class="formula">副本数 N ≈ 目标峰值QPS ÷ 单实例可承载QPS（在SLA内）</div>
+<h3>6.2 队列与降级</h3>
+<ul>
+  <li><strong>队列</strong>：超出 --max-num-seqs 的请求排队，TTFT 升高（Day1 指标）。</li>
+  <li><strong>横向扩容</strong>：加副本 + 负载均衡（网关轮询/一致性哈希）。</li>
+  <li><strong>降级</strong>：超阈值转小模型 / 返回缓存 / 转人工。</li>
+</ul>
+<div class="eng">副本数不是越多越好——每张卡都是真金白银。架构师要算"SLA 下的副本下限"，并用自动伸缩（按 GPU 利用率）平衡成本与体验。负责人岗还要考虑多租户隔离（每租户独立副本 or 共享+配额）。</div>
+<div class="iv">副本数 ≈ 峰值QPS ÷ 单实例QPS(满足SLA)。超并发的请求会排队（TTFT 升），对策是加副本+负载均衡，或降级到小模型/缓存/人工。副本数是成本与体验的旋钮。</div>
+<div class="warn">① 副本数按"峰值"算会浪费，按"均值"算会崩——要按 SLA 容忍的排队概率选分位数。② 多副本要前面有网关做路由，否则请求扎堆单实例。③ 自动伸缩有冷启动延迟，突发流量要留缓冲副本。</div>
+
+<!-- ============ 7. Token 计费 ============ -->
+<h2 id="s7">七、Token 成本计算（单次 / 日 / 月）</h2>
+<h3>7.1 三步算清</h3>
+<pre><code># 假设：理赔 Agent 日均 2 万次调用，平均每次 输入1500 + 输出400 token
+# API 模式（输入¥1/百万token，输出¥3/百万token，示意）
+api_per_call = 1500/1e6*1 + 400/1e6*3 = 0.0015 + 0.0012 = ¥0.0027
+api_month   = 0.0027 * 20000 * 30 ≈ ¥1620
+
+# 私有模式：1×A100(¥10/h) 跑满
+priv_month  = 10 * 720 + 电费(¥300) + 运维(¥2000) ≈ ¥11,300
+# 但私有承载全部量，单位成本随量摊薄</code></pre>
+<h3>7.2 交叉点思维</h3>
+<div class="info">上例中 API 在小量时便宜，但当调用量翻 10 倍（月 60 万次），API 月成本 ≈ ¥1.6 万 &gt; 私有 ¥1.13 万——<strong>出现交叉点</strong>。量越大私有越香。该交叉点就是选型决策点。</div>
+<div class="eng">给老板汇报永远带"交叉点"：低于 X 调用量用 API，高于则用私有。这是把技术选型翻译成商业语言的硬能力，面试官极看重。</div>
+<div class="iv">Token 成本按"单次→日→月"逐级算。关键是交叉点：量小 API 省，量大私有省（固定成本摊薄）。汇报时给出"月调用超 X 万次就转私有"的决策线，比单纯比单价有力。</div>
+<div class="warn">① 别用"平均调用"算交叉点，要用"目标期末量"。② 私有成本里的运维/电费在量增大时几乎不增，这是它后段更省的原因。③ 混合架构（热链路私有 + 长尾 API）往往总体最优，别二选一。</div>
+
+<!-- ============ 8. 优化 ============ -->
+<h2 id="s8">八、成本优化方案：缓存 / 批处理 / 小模型降级</h2>
+<h3>8.1 三类手段</h3>
+<table>
+<tr><th>手段</th><th>怎么做</th><th>省什么</th></tr>
+<tr><td>缓存</td><td>相同问答/前缀 KV 缓存；结果级缓存（相似问题命中）</td><td>重复请求不进模型，省 token 与算力</td></tr>
+<tr><td>批处理</td><td>离线任务合并批量、用 batch API 拿折扣</td><td>单价折扣 + 算力效率</td></tr>
+<tr><td>小模型降级</td><td>分类/抽取用 7B，复杂推理才上 32B</td><td>大幅降单请求算力成本</td></tr>
+</table>
+<h3>8.2 组合策略</h3>
+<ol>
+  <li>能缓存的缓存（高频条款问答、固定模板）。</li>
+  <li>能批的批（夜间批量生成报告）。</li>
+  <li>能用小模型的用小模型（意图识别、字段抽取）。</li>
+  <li>实在要大模型才上调用的那部分。</li>
+</ol>
+<div class="eng">对医疗保险场景，"分层用模"是降本主力：90% 的简单理赔问答用 7B 小模型，只有复杂特药审核才调 32B。成本可降一个数量级，体验几乎无感。</div>
+<div class="iv">成本优化三板斧：缓存（相同/相似请求不进模型）、批处理（离线合并拿折扣）、小模型降级（简单任务 7B、复杂才 32B）。组合用，医疗场景分层用模可降本一个数量级。</div>
+<div class="warn">① 结果级缓存要防"语义相同但答案过时"（如条款更新后缓存未失效）——需 TTL 或失效策略。② 小模型降级要有"升级触发条件"，否则简单任务误判漏审。③ 批处理只适合非实时，别把在线请求也攒批导致延迟爆。</div>
+
+<!-- ============ 9. 选型权衡 ============ -->
+<h2 id="s9">九、API vs 私有部署：选型权衡</h2>
+<h3>9.1 决策矩阵</h3>
+<table>
+<tr><th>关注点</th><th>API 胜</th><th>私有胜</th></tr>
+<tr><td>成本（大量稳定）</td><td>—</td><td>✅ 摊薄后更低</td></tr>
+<tr><td>成本（小量波动）</td><td>✅ 零固定成本</td><td>—</td></tr>
+<tr><td>数据合规</td><td>—</td><td>✅ 不出域</td></tr>
+<tr><td>上线速度</td><td>✅ 即开即用</td><td>—</td></tr>
+<tr><td>定制（量化/微调）</td><td>—</td><td>✅ 全可控</td></tr>
+<tr><td>弹性峰值</td><td>✅ 无限扩</td><td>受卡数限</td></tr>
+</table>
+<h3>9.2 混合架构（最推荐）</h3>
+<p>热链路/合规敏感用私有，长尾/突发峰值用 API 兜底；或核心模型私有 + embedding/小任务用 API。</p>
+<div class="eng">成熟方案几乎都是混合：私有保合规与稳态成本，API 保弹性与冷启动。架构师要能画出"哪部分走私有、哪部分走 API"的边界，并说明切换条件。</div>
+<div class="iv">选型不是二选一：量小/波动大/要快上线用 API；量大稳定/强合规/要定制用私有。最优往往是混合——稳态私有保成本与合规，峰值 API 兜底弹性。</div>
+<div class="warn">① 强合规行业（医疗/保险/金融）数据不出域常是硬要求，此时"API 更省"要让位于合规。② 别为"显得先进"硬上私有，低利用率会亏钱。③ 混合架构要定义清晰的流量分配与降级策略，否则两难。</div>
+
+<!-- ============ 10. 容量规划 ============ -->
+<h2 id="s10">十、容量规划方法：SLA → 并发 → 副本</h2>
+<h3>10.1 四步法</h3>
+<ol>
+  <li><strong>定 SLA</strong>：如 P99 TTFT ≤ 2s、P99 端到端 ≤ 8s、可用率 99.9%。</li>
+  <li><strong>测单实例上限</strong>：用 Day1 benchmark_serving 在目标卡/量化下测出满足 SLA 的并发与吞吐。</li>
+  <li><strong>算副本</strong>：副本 N = 峰值QPS ÷ 单实例QPS（留 20-30% 缓冲）。</li>
+  <li><strong>算成本</strong>：N × 单卡时租 × 720h + 其他。</li>
+</ol>
+<div class="formula">容量规划 = SLA → 单实例容量(实测) → 副本数(留缓冲) → 月成本</div>
+<div class="eng">容量规划的本质是"用实测数字反推资源"。负责人岗要能把一份规划文档拍在桌上：SLA、实测数据、副本数、月成本、扩容触发条件，全链条闭环。</div>
+<div class="iv">容量规划四步：定 SLA → 实测单实例容量（Day1 压测）→ 副本数=峰值QPS÷单实例QPS(留缓冲) → 算月成本。核心是"用实测数字反推资源"，不是拍脑袋。</div>
+<div class="warn">① 单实例容量必须用真实 benchmark 测，不能套别人数字（卡型/量化/长度不同天差地别）。② 缓冲留太少，突发就崩；留太多烧钱。③ 容量规划要含"扩容触发条件"和"降级预案"，否则只是静态估算。</div>
+
+<!-- ============ 11. 案例 ============ -->
+<h2 id="s11">十一、真实案例：特药理赔 Agent 成本测算</h2>
+<h3>11.1 假设与口径</h3>
+<table>
+<tr><th>项</th><th>值</th></tr>
+<tr><td>日均调用</td><td>5 万次（月 150 万）</td></tr>
+<tr><td>平均 token</td><td>输入 1800 + 输出 500</td></tr>
+<tr><td>API 单价（示意）</td><td>输入 ¥1/百万、输出 ¥3/百万</td></tr>
+<tr><td>私有硬件</td><td>2×A100 80G（¥20/h）跑 Qwen-32B-int4</td></tr>
+</table>
+<h3>11.2 测算</h3>
+<div class="formula">
+API月 ≈ (1800/1e6×1 + 500/1e6×3) × 150万 ≈ ¥4950
+私有月 ≈ 20×720×2(双卡) + 电费¥600 + 运维¥3000 ≈ ¥31,800
+→ 本量纲下 API 更省；若调用量 ×8（月1200万）则 API≈¥3.96万 &gt; 私有≈¥3.18万，交叉点出现
+</div>
+<div class="info">诚实标注：上述为<strong>示意单价与估算</strong>，真实决策需以合同价、实测吞吐、真实调用分布为准。医疗合规若要求不出域，则私有优先级上调，交叉点右移也可接受。</div>
+<div class="eng">这个案例展示"把业务量纲代入公式"的方法。面试时能现场套一个案例并说出交叉点，远比背概念得分高。关键是口径透明、假设明示。</div>
+<div class="iv">案例套路：先列量纲（调用量、token、单价/硬件），再分别算 API 与私有月成本，找交叉点。本例量小 API 省，量×8 后私有反超。医疗合规要求不出域时，私有优先级还应上调。</div>
+<div class="warn">① 案例数字务必标注"示意/估算"，不可当实测结论。② 真实交叉点受合同折扣、缓存命中率影响很大，要 sensitivity 分析。③ 合规硬约束会改写纯成本结论，要显式说明。</div>
+
+<!-- ============ 12. 资源 ============ -->
+<h2 id="s12">十二、学习资源（官方文档，中文非 OpenAI）</h2>
+<ul>
+  <li>vLLM 官方文档（成本相关的量化/显存说明）：<a href="https://docs.vllm.ai" target="_blank" rel="noopener">docs.vllm.ai</a></li>
+  <li>vLLM Benchmark CLI（容量实测来源）：<a href="https://docs.vllm.ai/en/stable/benchmarking/cli/" target="_blank" rel="noopener">docs.vllm.ai/en/stable/benchmarking/cli</a></li>
+  <li>《FDE 面试备战手册.html》"容量与成本"章节（内部资料，概念对照用）</li>
+  <li>B站：大模型推理成本优化：<a href="https://search.bilibili.com/all?keyword=大模型%20推理%20成本%20优化" target="_blank" rel="noopener">search.bilibili.com · 大模型推理成本优化</a></li>
+  <li>B站：KV Cache 与显存估算：<a href="https://search.bilibili.com/all?keyword=KV%20Cache%20显存%20估算" target="_blank" rel="noopener">search.bilibili.com · KV Cache 显存估算</a></li>
+</ul>
+<div class="info">建议：先用手册 s4/s5 的公式在纸上手算一组 7B/32B 显存与 KV，再套 s11 案例模板做一次自己业务的成本测算，最后看 B站视频补全直觉。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：私有部署成本怎么估算</h2>
+<table>
+<tr><th>步骤</th><th>动作</th><th>要点</th></tr>
+<tr><td>1 装得下吗</td><td>权重显存（fp16/int4）+ KV + 激活</td><td>呼应 Day1，MoE 按激活参</td></tr>
+<tr><td>2 并发多少</td><td>最大并发 ≈ 可用KV ÷ 单请求KV峰值</td><td>长度/量化/前缀缓存影响</td></tr>
+<tr><td>3 副本几张</td><td>副本 N = 峰值QPS ÷ 单实例QPS(SLA内)</td><td>留 20-30% 缓冲</td></tr>
+<tr><td>4 月成本</td><td>卡数×时租×720 + 电费 + 运维 + 存储</td><td>闲置也计费，算 TCO</td></tr>
+</table>
+<div class="iv">一句话达标：能从"这张卡装不装得下（权重+KV）→ 单卡扛多少并发 → 要几张副本满足 SLA → 月成本多少"完整推一遍，并点出闲置浪费和 MoE 按激活参估算。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：API vs 私有选型权衡</h2>
+<div class="formula">
+选型第一性原则：量大稳定且合规→私有（固定成本摊薄+不出域）；量小波动大→API（零固定成本+弹性）
+最优常是混合：稳态私有保成本/合规，峰值 API 兜底
+决策线 = 成本交叉点（月调用超 X 万次转私有），需结合合规硬约束上调优先级
+</div>
+<ol>
+  <li><strong>成本维度</strong>：交叉点之前 API 省，之后私有省。</li>
+  <li><strong>延迟维度</strong>：私有内网延迟低、稳定；API 受公网与限流影响。</li>
+  <li><strong>合规维度</strong>：医疗/保险数据不出域常是硬要求，私有优先。</li>
+  <li><strong>弹性维度</strong>：突发峰值 API 无限扩，私有受卡数限，故混合最优。</li>
+</ol>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W8D2 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清 API（按 token）与私有（按 GPU 时租）两类模式的成本本质差异。</li>
+<li>能写出 API 单次成本公式，并点出长上下文导致输入 token 暴增的陷阱。</li>
+<li>能列出私有部署成本结构（时租/电费/运维/存储/闲置），说明卡空跑也计费。</li>
+<li>能估算 7B/14B/32B 在 fp16 与 int4 下的权重显存，并说明 MoE 按激活参算。</li>
+<li>能写出单请求 KV Cache 公式，并解释它如何决定单卡并发上限。</li>
+<li>能推导副本数 N ≈ 峰值QPS ÷ 单实例QPS（留缓冲）。</li>
+<li>能按"单次→日→月"算出 API 与私有成本，并解释交叉点。</li>
+<li>能讲出成本优化三板斧（缓存/批处理/小模型降级）及各自风险。</li>
+<li>能在决策矩阵中比较 API 与私有的成本/延迟/合规/弹性优劣。</li>
+<li>能描述"混合架构"为何最优，并画出私有/API 的流量边界。</li>
+<li>能复述容量规划四步法（SLA→实测单实例→副本→成本）。</li>
+<li>能结合特药理赔案例做成本测算，并诚实标注"示意/估算"。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：API 和私有部署，到底哪个便宜？</div><div class="a">看量。量小波动大→API（零固定成本）；量大稳定→私有（固定成本摊薄）。决策点是"成本交叉点"，且医疗合规常让私有优先。</div></div>
+<div class="qcard"><div class="q">Q：私有部署成本怎么估算？</div><div class="a">卡数×时租×720h + 电费 + 运维 + 存储网络；卡空跑也计费，要算 TCO 而非只看卡租。</div></div>
+<div class="qcard"><div class="q">Q：为什么 RAG 用 API 可能很贵？</div><div class="a">每次把长文档塞进 prompt，输入 token 随知识库线性增长，输入成本失控——这常是推动私有化/缓存的拐点。</div></div>
+<div class="qcard"><div class="q">Q：单卡能扛多少并发？</div><div class="a">最大并发 ≈ 可用 KV 显存 ÷ 单请求 KV 峰值；降低 max_model_len、量化、开 prefix caching 都能提并发。</div></div>
+<div class="qcard"><div class="q">Q：副本数怎么定？</div><div class="a">副本 N ≈ 峰值 QPS ÷ 单实例 QPS（在 SLA 内），并留 20-30% 缓冲防突发。</div></div>
+<div class="qcard"><div class="q">Q：成本优化三板斧？</div><div class="a">缓存（相同/相似请求不进模型）、批处理（离线合并拿折扣）、小模型降级（简单 7B、复杂 32B）。</div></div>
+<div class="qcard"><div class="q">Q：为什么推荐混合架构？</div><div class="a">稳态/合规走私有保成本与不出域，突发峰值走 API 兜底弹性；两难变双赢。</div></div>
+<div class="qcard"><div class="q">Q：容量规划四步？</div><div class="a">定 SLA → 实测单实例容量（Day1 压测）→ 副本数（留缓冲）→ 月成本，核心是用实测反推资源。</div></div>
+<div class="qcard"><div class="q">Q：DeepSeek 这种 MoE 显存怎么估？</div><div class="a">按激活参数量估（远小于总参），不能简单用"总参×2B"；否则会严重高估显存需求。</div></div>
+<div class="qcard"><div class="q">Q：缓存有什么坑？</div><div class="a">结果缓存要防"语义相同但答案过时"（条款更新），需 TTL/失效策略；prompt 动态拼接会降低前缀缓存命中。</div></div>
+
+<div class="ft">FDE W8D2 学习手册 · 容量规划与成本估算（面试级）· 配合《FDE-W8D2-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收收">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w8d2_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W8D2 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W8D2-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

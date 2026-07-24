@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W8D4 学习手册 · 系统设计题（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W8D4 学习手册</span>
+  <a href="#s1">1.考查本质</a><a href="#s2">2.分层</a><a href="#s3">3.选型</a><a href="#s4">4.扩展</a>
+  <span class="sep"></span>
+  <a href="#s5">5.可靠性</a><a href="#s6">6.四类边界</a><a href="#s7">7.RAG平台</a><a href="#s8">8.理赔Agent</a>
+  <span class="sep"></span>
+  <a href="#s9">9.AI中台</a><a href="#s10">10.模型网关</a><a href="#s11">11.评测LLMOps</a><a href="#s12">12.安全</a>
+  <span class="sep"></span>
+  <a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W8D4 学习手册 · 系统设计题</h1>
+<p class="sub">W8 Day4 · A 级（必须掌握，面试核心）· 6h · 学完能现场设计企业 RAG 平台 / 理赔 Agent / AI 中台 / 模型网关，并在设计中体现四类边界</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>前三天你部署了模型（D1）、算了账（D2）、写了方案（D3），Day4 是"现场系统设计"——面试官给你一个开放题（如"设计一个企业 RAG 平台"），看你能不能 30 分钟内画出分层架构、选对组件、讲清扩展与可靠、并体现规则/RAG/Agent/人工边界。候选人有 Java + 大数据 + 医疗保险背景、冲刺架构/负责人岗——<strong>系统设计是这类岗的"定级题"。</strong><br>
+  <strong>学完能回答：</strong>① 现场设计一个企业 RAG 平台（分层 + 组件 + 权衡）；② 在系统设计中体现四类边界（规则/RAG/Agent/人工）。<br>
+  <strong>使用方法：</strong>先背四层架构与每层的"必选组件"→ 重点练四个设计题（s7-s10）→ 把"四类边界"当成设计检查清单 → 做自测 → 配合《FDE-W8D4-评测题.md》。标注（左下★重要 / 右下📌待查）用于圈出自己容易漏的层或组件。
+</div>
+
+<!-- ============ 1. 考查本质 ============ -->
+<h2 id="s1">一、系统设计题考查什么</h2>
+<h3>1.1 面试官在评估</h3>
+<table>
+<tr><th>维度</th><th>他看什么</th></tr>
+<tr><td>结构化思维</td><td>能不能先澄清需求、再分层、后细化，而非上来堆组件</td></tr>
+<tr><td>权衡能力</td><td>每个选型说出 pros/cons，不盲从</td></tr>
+<tr><td>边界意识</td><td>是否清楚哪里该规则、哪里该 AI、哪里必须人工</td></tr>
+<tr><td>落地经验</td><td>有没有容量/可靠/评测的真实考量（呼应 W8D1/D2/D3）</td></tr>
+</table>
+<h3>1.2 标准解题节奏</h3>
+<div class="formula">澄清需求(场景/规模/SLA) → 画四层架构 → 填每层组件+选型理由 → 讲扩展与可靠 → 点四类边界 → 补评测/安全/成本</div>
+<div class="eng">对 36 岁冲刺架构岗的候选人，系统设计不是"背标准答案"，而是展示"我带过系统、踩过坑"。把 Day1 的压测、Day2 的成本、Day3 的边界都带进来，方案才立体。</div>
+<div class="iv">系统设计题考结构化思维、权衡能力、边界意识、落地经验。标准节奏：先澄清需求→画四层架构→填组件+选型理由→讲扩展与可靠→点四类边界→补评测/安全/成本。面试官看你"怎么想"重于"答了什么"。</div>
+<div class="warn">① 一上来就写技术栈=没想清楚需求，直接扣分。② 只画架构不解释权衡=背答案嫌疑。③ 漏掉"可靠性/评测/成本"任一项，方案就不完整——这些恰是高级岗的分水岭。</div>
+
+<!-- ============ 2. 分层 ============ -->
+<h2 id="s2">二、架构分层：接入层 / 编排层 / 能力层 / 数据层</h2>
+<h3>2.1 四层职责</h3>
+<table>
+<tr><th>层</th><th>职责</th><th>典型组件</th></tr>
+<tr><td>接入层</td><td>鉴权、限流、路由、协议适配（OpenAI 兼容）</td><td>网关 / APISIX / Nginx + 鉴权中间件</td></tr>
+<tr><td>编排层</td><td>对话状态、Agent 编排、流程调度、降级</td><td>LangGraph / 自研状态机 / 工作流引擎</td></tr>
+<tr><td>能力层</td><td>模型推理、RAG 检索、规则引擎、工具调用</td><td>vLLM / 向量库 / Drools / 函数服务</td></tr>
+<tr><td>数据层</td><td>知识库、向量/图存储、日志、特征</td><td>Milvus / Neo4j / 对象存储 / Kafka</td></tr>
+</table>
+<h3>2.2 为什么分层</h3>
+<p>分层让<strong>关注点分离</strong>：接入层管"门",编排层管"脑",能力层管"手",数据层管"粮"。每层可独立扩展、独立替换，也便于多租户隔离与权限控制。</p>
+<div class="eng">分层是架构师的基本功。面试画架构图时，自上而下四层一目了然，面试官能快速定位你的设计深度。医疗场景还要在接入层就做合规闸口。</div>
+<div class="iv">四层：接入层（鉴权/限流/路由）、编排层（Agent 流程/状态/降级）、能力层（推理/RAG/规则/工具）、数据层（向量/图/日志）。分层=关注点分离，每层可独立扩缩与替换，也便于多租户隔离。</div>
+<div class="warn">① 把"编排"塞进"能力层"会让 Agent 逻辑和模型耦合，难维护。② 数据层不能只画向量库，还要有原始存储与日志（评测/审计用）。③ 分层不是越多越好，四层对 LLM 系统已够，别为了显得复杂加无意义的层。</div>
+
+<!-- ============ 3. 选型 ============ -->
+<h2 id="s3">三、组件选型（每层怎么选、为什么）</h2>
+<h3>3.1 关键选型对比</h3>
+<table>
+<tr><th>位置</th><th>选项A</th><th>选项B</th><th>取舍</th></tr>
+<tr><td>推理</td><td>vLLM 私有</td><td>公有 API</td><td>合规/量大→私有；弹性/快上线→API（呼应 D2）</td></tr>
+<tr><td>向量库</td><td>Milvus</td><td>pgvector</td><td>海量→Milvus；小量已有 PG→pgvector 省运维</td></tr>
+<tr><td>编排</td><td>LangGraph</td><td>自研状态机</td><td>快→LangGraph；强可控/合规→自研</td></tr>
+<tr><td>网关</td><td>APISIX</td><td>Nginx+自研</td><td>要插件生态→APISIX；简单→Nginx</td></tr>
+</table>
+<h3>3.2 选型的回答模板</h3>
+<div class="formula">选 X 是因为【场景约束Y】；考虑过 Z 但【缺点】；若规模到【阈值】会切到 Z</div>
+<div class="eng">架构师选型不是"用最好的"，是"用最适合当下约束的，并留演进路径"。这种"现在选什么、将来切什么"的表达，最能打动面试官。</div>
+<div class="iv">选型要讲"为什么选 X（场景约束）、为啥不选 Z（缺点）、规模到阈值怎么切"。如向量库小量用 pgvector 省运维，海量切 Milvus。体现"现在适合 + 未来演进"，而非盲目追新。</div>
+<div class="warn">① "都用最火的"=没思考，要结合规模/SLA/团队。② 不提"演进路径"显得静态，高级岗要展示前瞻性。③ 医疗合规下"自研编排/私有推理"往往优于"省事用 SaaS"。</div>
+
+<!-- ============ 4. 扩展 ============ -->
+<h2 id="s4">四、Scalability：横向扩展与容量</h2>
+<h3>4.1 扩展杠杆</h3>
+<ul>
+  <li><strong>无状态层横向扩</strong>：接入层、编排层、网关多实例 + 负载均衡（天然可扩）。</li>
+  <li><strong>推理层副本扩</strong>：vLLM 多副本 + 网关路由（受 GPU 数约束，呼应 D1/D2）。</li>
+  <li><strong>数据层分片</strong>：向量库分片、Kafka 分区。</li>
+  <li><strong>异步削峰</strong>：Kafka 解耦请求与耗时任务，保护推理层。</li>
+</ul>
+<h3>4.2 容量闭环</h3>
+<div class="formula">峰值QPS → 单实例容量(实测, Day1) → 副本数(留缓冲, Day2) → 自动伸缩触发条件</div>
+<div class="eng">扩展不是"加机器"一句话。架构师要能把 Day1 的压测数字和 Day2 的副本公式直接用到设计里，并对面试官说清"为什么这套能扛住峰值"。</div>
+<div class="iv">扩展性：无状态层（网关/编排）天然横向扩；推理层靠 vLLM 多副本+路由（受 GPU 限）；数据层分片；耗时任务用 Kafka 异步削峰。容量用 Day1 实测+Day2 副本公式闭环，配自动伸缩。</div>
+<div class="warn">① 推理层"横向扩"受 GPU 预算硬约束，不能像无状态服务无限扩。② 忘加"异步削峰"会导致高峰请求直接压垮推理层。③ 自动伸缩要设冷启动缓冲，否则突发仍崩。</div>
+
+<!-- ============ 5. 可靠性 ============ -->
+<h2 id="s5">五、可靠性：降级 / 限流 / 熔断 / 重试</h2>
+<h3>5.1 四件套</h3>
+<table>
+<tr><th>机制</th><th>解决</th><th>在 LLM 系统的体现</th></tr>
+<tr><td>限流</td><td>保护后端不被打爆</td><td>网关按租户/API Key 限 QPS</td></tr>
+<tr><td>降级</td><td>依赖故障时保核心</td><td>模型超时→切小模型/返回缓存/转人工</td></tr>
+<tr><td>熔断</td><td>防故障扩散</td><td>某模型副本持续失败→熔断该副本</td></tr>
+<tr><td>重试</td><td>偶发失败恢复</td><td>带退避重试，避免雪崩（配合限流）</td></tr>
+</table>
+<h3>5.2 与四类边界联动</h3>
+<p>可靠性最终落到"该人工时就人工"——当 AI 链路多次降级失败，必须走人工兜底，绝不静默出错（呼应 D3 人工边界）。</p>
+<div class="eng">可靠性是"系统敢上线"的底气。面试官常追问"模型挂了怎么办"，标准答是"限流+降级+熔断+重试四件套，且最终失败转人工"，这正是负责人岗的兜底思维。</div>
+<div class="iv">可靠性四件套：限流（按租户/QPS 保护后端）、降级（模型超时切小模型/缓存/人工）、熔断（副本持续失败则断）、重试（带退避防雪崩）。LLM 系统里降级终点常是人工兜底，绝不静默出错。</div>
+<div class="warn">① 只重试不限位流会雪崩（重试风暴）。② 降级若最终不转人工，AI 出错直接危害业务（医疗尤甚）。③ 熔断阈值设错（太敏感/太迟钝）都会误伤，要结合监控调。</div>
+
+<!-- ============ 6. 四类边界 ============ -->
+<h2 id="s6">六、在系统设计中体现四类边界（规则/RAG/Agent/人工）</h2>
+<h3>6.1 边界即"决策路由"</h3>
+<p>系统设计不能把所有智能都丢给大模型。要在架构里显式画出<strong>决策路由</strong>：</p>
+<div class="formula">输入请求 → 规则引擎(硬约束/确定逻辑) → RAG(知识检索) → Agent(多步编排) → 人工(高风险终判)</div>
+<h3>6.2 每层在架构里的落点</h3>
+<table>
+<tr><th>边界</th><th>落在哪层</th><th>设计体现</th></tr>
+<tr><td>规则</td><td>能力层（规则引擎）</td><td>免赔额/黑名单等确定逻辑独立模块，先于 LLM 执行</td></tr>
+<tr><td>RAG</td><td>能力层 + 数据层</td><td>检索服务 + 向量/图存储，给 Agent 供知识</td></tr>
+<tr><td>Agent</td><td>编排层</td><td>状态机编排工具调用，不替代规则/人工</td></tr>
+<tr><td>人工</td><td>编排层出口</td><td>触发条件（金额/拒赔/低置信）→ 转人工队列</td></tr>
+</table>
+<div class="eng">四类边界是"可控 AI 系统"的灵魂，也是 Day3 Pack 里那页的"工程落地版"。面试时主动画决策路由图，比纯架构图更显深度——说明你想过风险在哪。</div>
+<div class="iv">四类边界要在架构里画成"决策路由"：请求先过规则引擎（硬约束）→ RAG 供知识 → Agent 编排 → 高风险转人工。落点：规则/知识在能力层、Agent 在编排层、人工在编排出口。主动画路由图显深度。</div>
+<div class="warn">① 把"人工兜底"画成架构之外的备注=没真正设计，它应是有触发条件的显式出口。② 规则引擎若和 LLM 混在一起，硬约束可能被模型"说服"出错。③ Agent 编排不能越过人工边界自动做高风险决策（如拒赔）。</div>
+
+<!-- ============ 7. 设计一 ============ -->
+<h2 id="s7">七、设计一：企业 RAG 平台</h2>
+<h3>7.1 需求澄清（先问）</h3>
+<p>文档量级（万/亿级）？实时性（批灌还是准实时）？多租户？合规要求？问答准确率目标？</p>
+<h3>7.2 架构（四层）</h3>
+<ul>
+  <li><strong>接入层</strong>：网关鉴权+限流，OpenAI 兼容接口。</li>
+  <li><strong>编排层</strong>：查询改写→检索→重排→生成→引用校验 流水线。</li>
+  <li><strong>能力层</strong>：嵌入模型 + 向量库（Milvus）+ 重排模型 + 生成模型（vLLM）。</li>
+  <li><strong>数据层</strong>：源文档→清洗脱敏→切分→向量化→向量库；元数据/权限表。</li>
+</ul>
+<h3>7.3 关键设计点</h3>
+<table>
+<tr><th>点</th><th>做法</th></tr>
+<tr><td>切分</td><td>语义切分 + 父子文档，保上下文</td></tr>
+<tr><td>检索</td><td>向量 + 关键词混合（hybrid），重排提精</td></tr>
+<tr><td>引用</td><td>生成强制附 chunk_id，可溯源（呼应 D3 审计）</td></tr>
+<tr><td>拒答</td><td>检索得分低/无知识→返回"未知"并转人工</td></tr>
+</table>
+<div class="iv">企业 RAG 平台设计：先澄清量级/实时性/多租户/合规；四层里关键是编排层的"改写→检索→重排→生成→引用校验"流水线，能力层用混合检索+重排，数据层做语义切分与溯源。无知识时拒答转人工。</div>
+
+<!-- ============ 8. 设计二 ============ -->
+<h2 id="s8">八、设计二：特药理赔 Agent</h2>
+<h3>8.1 流程</h3>
+<div class="formula">收单 → 规则校验(材料齐全/免赔额) → RAG检索条款 → Agent编排(计算+生成初审) → 置信度判定 → 高则自动、低则人工</div>
+<h3>8.2 架构要点</h3>
+<ul>
+  <li><strong>编排层</strong>：状态机管理"待审→检索→计算→结论→复核"。</li>
+  <li><strong>能力层</strong>：规则引擎（硬计算）+ 知识库（条款 RAG）+ vLLM（生成初审意见）+ 工具（查保单系统）。</li>
+  <li><strong>可靠性</strong>：模型超时降级到规则模板；低置信转人工。</li>
+  <li><strong>合规</strong>：每次决策留痕（用了哪条条款、模型版本）。</li>
+</ul>
+<div class="iv">理赔 Agent 设计：规则先校验硬逻辑→RAG 取条款→Agent 编排计算与生成初审→置信度低转人工。核心是"规则/知识/模型/人工"四件套协同，且每步留痕满足医疗合规。</div>
+
+<!-- ============ 9. 设计三 ============ -->
+<h2 id="s9">九、设计三：企业 AI 中台</h2>
+<h3>9.1 定位</h3>
+<p>把上面 RAG/Agent 能力<strong>多租户化、可编排、可治理</strong>，让 10 个部门复用，而非各自烟囱。</p>
+<h3>9.2 架构增量</h3>
+<table>
+<tr><th>能力</th><th>体现</th></tr>
+<tr><td>多租户</td><td>租户隔离（向量 namespace / 独立副本）、配额限流</td></tr>
+<tr><td>编排市场</td><td>可复用 Agent/工作流模板，业务自助搭建</td></tr>
+<tr><td>治理</td><td>模型注册、版本、评测、成本看板（呼应 D2/D3）</td></tr>
+<tr><td>网关</td><td>统一模型网关（见 s10），屏蔽底层差异</td></tr>
+</table>
+<div class="eng">AI 中台的设计难点不在"再加一层"，而在"复用与隔离的平衡"。架构师要讲清：共享什么（底座/网关）、隔离什么（数据/配额），以及如何让业务方低门槛接入。</div>
+<div class="iv">企业 AI 中台 = 把 RAG/Agent 多租户化+可编排+可治理。关键是平衡复用与隔离：共享底座与模型网关，隔离数据与配额；提供 Agent 模板市场让业务自助，配治理（版本/评测/成本看板）。</div>
+
+<!-- ============ 10. 设计四 ============ -->
+<h2 id="s10">十、设计四：模型网关（Model Gateway）</h2>
+<h3>10.1 为什么需要网关</h3>
+<ul>
+  <li><strong>统一接口</strong>：上层不用关心背后是 vLLM 还是 API。</li>
+  <li><strong>路由与降级</strong>：按模型/成本/可用性路由，故障切备用。</li>
+  <li><strong>成本与配额</strong>：按租户计量、限流、缓存。</li>
+  <li><strong>安全</strong>：统一鉴权、审计、敏感词/脱敏。</li>
+</ul>
+<h3>10.2 核心组件</h3>
+<div class="formula">网关 = 路由策略 + 负载均衡 + 限流配额 + 缓存层 + fallback(降级) + 计量账单</div>
+<div class="iv">模型网关是"屏蔽底层差异的中枢"：统一接口、按成本/可用性路由、限流配额、结果缓存、故障 fallback、计量账单。它把 Day2 的成本控制和 Day1 的多模型部署串成统一面，是 AI 中台的总闸口。</div>
+
+<!-- ============ 11. 评测 LLMOps ============ -->
+<h2 id="s11">十一、评测与 LLMOps 在设计中的体现</h2>
+<h3>11.1 设计里要预留的"运维面"</h3>
+<table>
+<tr><th>能力</th><th>设计落点</th></tr>
+<tr><td>评测集</td><td>数据层存标注集；CI 跑回归</td></tr>
+<tr><td>监控</td><td>接入层/能力层埋点：延迟、准确率漂移、成本</td></tr>
+<tr><td>回归</td><td>模型/知识更新触发自动评测流水线</td></tr>
+<tr><td>闭环</td><td>bad case → 知识/prompt 更新 → 再评测</td></tr>
+</table>
+<div class="eng">很多候选人的设计"只有运行面没有运维面"。架构师要在图里就画出评测与监控的位置，证明你想过"上线后怎么保质量"——这直接区分高级与初级。</div>
+<div class="iv">设计中必须预留"运维面"：数据层存评测集、接入/能力层埋监控（延迟/漂移/成本）、更新触发回归流水线、bad case 闭环到知识与 prompt。只画运行面不算完整设计。</div>
+
+<!-- ============ 12. 安全 ============ -->
+<h2 id="s12">十二、安全与合规贯穿设计</h2>
+<ul>
+  <li><strong>接入层</strong>：统一鉴权、传输加密、限流防滥用。</li>
+  <li><strong>数据层</strong>：入库前脱敏、字段级权限、加密存储。</li>
+  <li><strong>能力层</strong>：推理前脱敏、输出敏感词过滤、引用留痕。</li>
+  <li><strong>审计</strong>：谁、何时、调用了哪个模型、用了哪条知识、得到什么结论。</li>
+</ul>
+<div class="info">医疗/保险是强合规场景：安全不是某一层的事，而是横切四层。面试时主动说"安全我作为横切关注点贯穿四层"，比只在某一页提更显体系化。</div>
+<div class="iv">安全是横切四层的关注点：接入层鉴权限流、数据层脱敏+字段权限、能力层推理前脱敏+输出过滤、全链路审计留痕。医疗场景要作为横切项贯穿，而非某一层附属。</div>
+<div class="warn">① 只在"数据层"提安全=遗漏了推理中泄露风险（模型可能吐出训练记忆）。② 审计缺"用了哪条知识"会导致合规无法举证。③ 多租户下字段级权限若只在应用层做、存储层没隔离，仍有越权风险。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：现场设计企业 RAG 平台</h2>
+<table>
+<tr><th>环节</th><th>要能讲清</th></tr>
+<tr><td>澄清</td><td>量级/实时性/多租户/合规/准确率目标</td></tr>
+<tr><td>分层</td><td>接入/编排/能力/数据 四层及职责</td></tr>
+<tr><td>组件</td><td>每层选型 + 理由 + 演进路径</td></tr>
+<tr><td>关键点</td><td>语义切分、混合检索、重排、引用溯源、拒答转人工</td></tr>
+<tr><td>扩展可靠</td><td>副本扩容 + Kafka 削峰 + 限流降级熔断重试</td></tr>
+</table>
+<div class="iv">一句话达标：先澄清需求，再画四层架构，填组件并讲权衡，说清"改写→检索→重排→生成→引用校验"流水线与混合检索/溯源/拒答，最后给扩展（副本+削峰）与可靠（四件套）方案。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：在系统设计中体现四类边界</h2>
+<div class="formula">
+决策路由：规则(硬约束,能力层) → RAG(知识,能力层+数据层) → Agent(编排,编排层) → 人工(高风险,编排出口)
+设计落点：规则/知识在能力层、Agent在编排层、人工为显式触发条件出口
+贯穿：可靠性降级终点=人工；合规审计贯穿四层
+</div>
+<ol>
+  <li><strong>画决策路由</strong>：请求先过规则引擎，再 RAG，再 Agent，高风险转人工。</li>
+  <li><strong>落点清晰</strong>：规则/知识在能力层、Agent 在编排层、人工是带触发条件的出口（非备注）。</li>
+  <li><strong>联动可靠与合规</strong>：降级终点转人工，审计贯穿四层。</li>
+</ol>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W8D4 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说出系统设计题考察的四大维度（结构化/权衡/边界/落地）。</li>
+<li>能默写标准解题节奏：澄清→四层→组件+理由→扩展可靠→四类边界→评测安全成本。</li>
+<li>能讲清四层架构（接入/编排/能力/数据）各自职责与典型组件。</li>
+<li>能对任意层给出"选 X 因为 Y、不选 Z 因为缺点、到阈值切 Z"的选型表达。</li>
+<li>能讲清扩展杠杆（无状态横扩/推理副本/Kafka削峰）并联系 Day1/Day2 容量闭环。</li>
+<li>能说出可靠四件套（限流/降级/熔断/重试）及在 LLM 系统的体现。</li>
+<li>能画出"规则→RAG→Agent→人工"的决策路由，并说明每层架构落点。</li>
+<li>能现场设计企业 RAG 平台（澄清+四层+混合检索+溯源+拒答）。</li>
+<li>能现场设计特药理赔 Agent（规则校验→RAG→Agent编排→置信转人工）。</li>
+<li>能讲清企业 AI 中台（多租户/编排市场/治理）与模型网关（路由/配额/缓存/fallback/计量）。</li>
+<li>能在设计里预留评测与 LLMOps 运维面（评测集/监控/回归/闭环）。</li>
+<li>能把安全作为横切关注点贯穿四层，并讲清医疗合规审计要求。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：系统设计题第一步该做什么？</div><div class="a">先澄清需求（量级/实时性/多租户/合规/SLA），再分层画架构。一上来堆技术栈=没想清需求，直接扣分。</div></div>
+<div class="qcard"><div class="q">Q：LLM 系统为什么要分层？</div><div class="a">四层（接入/编排/能力/数据）做关注点分离：门、脑、手、粮各管各的，可独立扩缩与替换，也便于多租户隔离与权限。</div></div>
+<div class="qcard"><div class="q">Q：选型怎么答最加分？</div><div class="a">用"选 X 因场景 Y；考虑过 Z 但因缺点放弃；规模到阈值切 Z"。体现当下适合+未来演进，而非盲目追新。</div></div>
+<div class="qcard"><div class="q">Q：推理层怎么扩展？</div><div class="a">vLLM 多副本+网关路由，但受 GPU 预算硬约束；耗时任务用 Kafka 异步削峰保护推理层；容量用 Day1 实测+Day2 副本公式。</div></div>
+<div class="qcard"><div class="q">Q：可靠性四件套？</div><div class="a">限流（防打爆）、降级（超时切小模型/缓存/人工）、熔断（副本故障断流）、重试（带退避防雪崩）。终点常是人工兜底。</div></div>
+<div class="qcard"><div class="q">Q：四类边界在架构里怎么落？</div><div class="a">规则/知识在能力层、Agent 在编排层、人工是编排出口的显式触发条件。画成"规则→RAG→Agent→人工"决策路由图。</div></div>
+<div class="qcard"><div class="q">Q：企业 RAG 平台的关键设计点？</div><div class="a">语义切分、向量+关键词混合检索、重排提精、生成强制附引用可溯源、检索无结果则拒答转人工。</div></div>
+<div class="qcard"><div class="q">Q：模型网关解决什么？</div><div class="a">统一接口（屏蔽 vLLM/API 差异）、路由与降级、限流配额、结果缓存、计量账单——是 AI 中台的总闸口。</div></div>
+<div class="qcard"><div class="q">Q：设计里为什么要有 LLMOps 运维面？</div><div class="a">只画运行面不算完整。要预留评测集/监控埋点/更新回归/bad case 闭环，证明想过"上线后怎么保质量"。</div></div>
+<div class="qcard"><div class="q">Q：医疗场景安全怎么设计？</div><div class="a">作为横切关注点贯穿四层：接入鉴权限流、数据脱敏+字段权限、能力层推理前脱敏+输出过滤、全链路审计（谁/何时/用哪条知识/得什么结论）。</div></div>
+
+<div class="ft">FDE W8D4 学习手册 · 系统设计题（面试级）· 配合《FDE-W8D4-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w8d4_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W8D4 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W8D4-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W3D2 学习手册 · 混合检索与 Rerank（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W3D2 学习手册</span>
+  <a href="#s1">1.全景</a><a href="#s2">2.BM25</a><a href="#s3">3.向量</a><a href="#s4">4.RRF</a><a href="#s5">5.MetaFilter</a>
+  <span class="sep"></span>
+  <a href="#s6">6.Rerank</a><a href="#s7">7.keyword</a><a href="#s8">8.ES向量</a><a href="#s9">9.链路</a><a href="#s10">10.评测</a>
+  <span class="sep"></span>
+  <a href="#s11">11.实战</a><a href="#s12">达标①</a><a href="#s13">达标②</a><a href="#s14">自测</a><a href="#s15">速记</a>
+</div>
+
+<h1>FDE W3D2 学习手册 · 混合检索与 Rerank（BM25 + 向量 + RRF + BGE Reranker）</h1>
+<p class="sub">W3 Day2 · A 级（必须掌握，面试核心）· 5h · 学完能讲透"为什么单路检索不够，BM25+向量+RRF 怎么融合、为什么还要 Rerank"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W2 讲了 Embedding 与"问题-知识对齐"，W3D2 落到"检索执行层"——企业 RAG 几乎不用单一向量检索，而是 BM25（关键词）+ 向量（语义）+ RRF（融合）+ Reranker（精排）的组合拳。这是你 Java+大数据背景最能讲清"工程链路"的一环。<br>
+  <strong>学完能回答：</strong>① BM25+向量+RRF 怎么融合、为什么需要 Rerank；② 药品名称/ICD 编码/保单号这种精确匹配为什么用 keyword 字段而不是向量；③ 完整检索链路与评测指标。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「🔧工程含义」「🎤面试话术」「⚠易错点」→ 做自测清单 → 配合《FDE-W3D2-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 全景 ============ -->
+<h2 id="s1">一、混合检索全景：为什么单路检索不够</h2>
+<p>纯向量检索靠语义相似，但有三处天生短板：① <strong>精确匹配弱</strong>——"保单号 PICC2025-0098"这种字符串，向量检索找不到精确等价；② <strong>稀有词/专有名词</strong>语义漂移（"奥希替尼"和"泰瑞沙"是同药不同名，向量未必拉近）；③ <strong>高频词主导</strong>时语义被稀释。BM25 恰好补足这些：基于词频与逆文档频率的精确/准精确匹配。</p>
+<div class="info"><strong>结论：</strong>企业知识库（尤其医疗理赔）要"既要语义召回，又要精确命中"，所以采用「BM25 关键词召回 ∪ 向量语义召回 → RRF 融合 → Reranker 精排」的混合架构。</div>
+<div class="eng">工程含义：混合检索是"召回率"与"精确率"的折中。单向量召回率高但精确率差（易召不相关的近义 chunk）；BM25 精确率高但召回率差（同义表述召不回）。两者融合取长补短，再用 Reranker 在 Top-K 上精排提精确率。</div>
+<div class="iv">单路向量检索有两个坑：精确匹配弱（保单号、药名查不准）、专有名词语义漂移。所以我用混合检索——BM25 做关键词精确召回，向量做语义召回，RRF 把两路分数融在一起，最后用 BGE Reranker 在 Top 候选上精排。这样既召回得全，又排得准。</div>
+<div class="warn">① "向量检索比 BM25 先进所以该只用向量"是常见误区——向量在精确匹配和稀有实体上反而更弱。② 混合检索不是简单 concat 两路结果，要用 RRF 等融合算法归一化（见 s4）。③ 别忘了 Metadata Filter 要先于或并行于检索做权限/范围过滤（s5、W3D3）。</div>
+
+<!-- ============ 2. BM25 ============ -->
+<h2 id="s2">二、BM25 关键词检索原理与医疗精确匹配</h2>
+<h3>2.1 原理</h3>
+<p>BM25 是 Elasticsearch 默认的相关性打分，基于：词频（TF）、逆文档频率（IDF）、字段长度归一化。</p>
+<div class="formula">
+score(q,d) = Σ_{t∈q} IDF(t) · ( f(t,d)·(k1+1) ) / ( f(t,d) + k1·(1−b+b·|d|/avgdl) )
+IDF(t) = ln( (N − n_t + 0.5) / (n_t + 0.5) + 1 )
+</div>
+<ul>
+  <li><strong>k1</strong>：控制词频饱和（默认 1.2），词出现越多分数越高但有上限。</li>
+  <li><strong>b</strong>：控制字段长度惩罚（默认 0.75），长文档被降权。</li>
+  <li><strong>IDF</strong>：越稀有的词权重越高——"奥希替尼"比"保险"权重高。</li>
+</ul>
+<h3>2.2 医疗场景的精确匹配</h3>
+<p>BM25（keyword 字段）适合：药品名称、ICD-10 编码、保单号、条款编号等<strong>确定性字符串</strong>。用户问"ICD 编码 C34 的理赔"时，BM25 能精准命中含 C34 的 chunk，向量检索却可能把它和"C34 相关肺癌"的泛化内容混在一起。</p>
+<div class="eng">工程含义：BM25 是"字面命中"，对编码/编号/专名这类"错一个字符就全错"的查询是刚需。医疗理赔里一个保单号、一个 ICD 码直接关联钱和合规，必须 keyword 精确匹配。</div>
+<div class="iv">BM25 基于词频+逆文档频率打分，擅长字面精确匹配。像药品名称、ICD 编码、保单号这种确定性字符串，用户问"C34"就是要精确命中含 C34 的条款，BM25 在 keyword 字段上最稳。这部分恰恰是向量检索的弱项。</div>
+<div class="warn">① BM25 默认对中文要分词（ik_max_word / ik_smart），否则按字切会丢语义。② BM25 对同义词无能为力——"泰瑞沙"和"奥希替尼"它当两回事，这正是要靠向量补充的。③ 精确字段（保单号）要用 keyword 类型而非 text，否则会被分词破坏精确性（见 s7）。</div>
+
+<!-- ============ 3. 向量 ============ -->
+<h2 id="s3">三、向量检索原理与语义召回</h2>
+<h3>3.1 原理</h3>
+<p>把 query 和 chunk 都用 Embedding 模型编码成向量，用<strong>相似度</strong>（余弦/点积）度量语义接近度，取 Top-K。这是"语义召回"——用户问"肺癌靶向药报销"，即使 chunk 写的是"非小细胞肺癌 NSCLC 用药补偿"，也能召回。</p>
+<div class="formula">
+sim(q, d) = cosine(E_q, E_d) = (E_q · E_d) / (‖E_q‖ · ‖E_d‖)
+召回 = top_k { d | sim(q,d) 最高 }
+</div>
+<h3>3.2 向量检索的边界</h3>
+<table>
+<tr><th>强项</th><th>弱项</th></tr>
+<tr><td>同义/近义表述召回（口语化问题）</td><td>精确字符串/编码匹配弱</td></tr>
+<tr><td>跨表述的语义对齐</td><td>稀有实体、新药名语义漂移</td></tr>
+<tr><td>长尾 query 有兜底</td><td>高频词主导时语义被稀释</td></tr>
+</table>
+<div class="eng">工程含义：向量检索解决"用户不会照着手册原文问"的问题。但 Embedding 质量决定上限，医疗专有名词多，要选领域适配好的中文模型（如 bge 系列），并配合 BM25 补精确。</div>
+<div class="iv">向量检索把 query 和 chunk 编码成向量，用余弦相似度召回语义接近的。强项是同义表述召回——用户口语问"肺癌靶向药"能召回到写"NSCLC 用药补偿"的 chunk。弱项正好相反：精确字符串和稀有药名它反而弱，所以要和 BM25 配合。</div>
+<div class="warn">① 向量相似度是"语义近"不是"事实对"，高分 chunk 可能语义相关但答非所问。② 必须用 <strong>同一 Embedding 模型</strong>编码 query 和 doc，否则空间不对齐（呼应 W3D1 embedding_version）。③ 相似度阈值不能一刀切，要按评测定（太高漏召回、太低噪声多）。</div>
+
+<!-- ============ 4. RRF ============ -->
+<h2 id="s4">四、RRF 倒数排名融合（Reciprocal Rank Fusion）</h2>
+<h3>4.1 为什么需要融合</h3>
+<p>BM25 分数和向量余弦分数<strong>量纲不同</strong>（一个可能 0~20，一个 -1~1），不能直接相加。RRF 用"排名"而非"分数"融合，天然规避量纲问题。</p>
+<h3>4.2 公式</h3>
+<div class="formula">
+RRF_score(d) = Σ_{r ∈ {bm25, vector}}  1 / (k + rank_r(d))
+通常 k = 60；rank_r(d) 是文档 d 在第 r 路结果中的排名（第1名 rank=1）
+</div>
+<p>例：chunk A 在 BM25 排第 2、向量排第 5 → RRF = 1/(60+2) + 1/(60+5) = 0.0161 + 0.0154 = 0.0315。两路都靠前的 chunk 总分最高。</p>
+<h3>4.3 为什么用排名不用分数</h3>
+<ul>
+  <li>不依赖各路分数归一化，工程简单鲁棒。</li>
+  <li>对"某一路特别强"有平滑效果，避免单路分数主导。</li>
+  <li>k 控制排名靠后项的衰减速度，k 越大越看重头部。</li>
+</ul>
+<div class="eng">工程含义：RRF 是混合检索的"胶水"。它让 BM25 和向量两路结果能公平合并，且不需调权重——很多企业图省事直接用 RRF 而非手动调 α（α·bm25 + (1-α)·vec），因为 RRF 对两路质量波动更鲁棒。</div>
+<div class="iv">BM25 分数和向量分数量纲不同，不能直接加。RRF 用"排名"融合：每个文档的得分是各路 1/(k+排名) 之和，k 一般取 60。两路都靠前的 chunk 总分最高。它不依赖分数归一化，比手动调 α 权重更鲁棒，是混合检索最常用的融合方式。</div>
+<div class="warn">① RRF 只看排名不看原始分数，所以某路"极度自信的高分"和"微弱高分"在 RRF 里被拉平——若某路质量极差（如全错），它会拖累但不至于淹没另一路。② 不要先各自截断 Top-K 再 RRF 但 K 太小会丢另一路的宝贵召回，K 取 50~100 较稳。③ RRF 是"无监督融合"，若要针对业务优化可上学习排序（LTR），但成本高。</div>
+
+<!-- ============ 5. MetaFilter ============ -->
+<h2 id="s5">五、Metadata Filter：先过滤再检索</h2>
+<p>Metadata Filter 在检索前/中用 chunk 的元数据（部门、版本、状态、文档类型）缩小候选集，等价于"在子集里检索"。</p>
+<pre><code># Elasticsearch：先按 metadata 过滤，再 kNN 向量检索
+{
+  "knn": {
+    "field": "embedding",
+    "query_vector": [...],
+    "k": 50,
+    "filter": {
+      "bool": {
+        "must": [ {"term": {"status": "active"}},
+                  {"term": {"doc_version": "v2025Q2"}} ]
+      }
+    }
+  }
+}</code></pre>
+<h3>5.1 两种过滤时机</h3>
+<table>
+<tr><th>方式</th><th>做法</th><th>适用</th></tr>
+<tr><td>预过滤（pre-filter）</td><td>先按 metadata 筛候选，再算相似度</td><td>权限/范围强约束（W3D3 ACL）</td></tr>
+<tr><td>后过滤（post-filter）</td><td>先召回再过滤</td><td>软性偏好（如优先新版本）</td></tr>
+</table>
+<div class="eng">工程含义：Metadata Filter 是"检索的 WHERE 条件"。医疗场景里它和权限强绑定——用户只能检索自己部门/自己保单范围内的 chunk，这既是性能优化也是合规刚需（W3D3 详述）。务必用 W3D1 设计的元数据字段承接。</div>
+<div class="iv">Metadata Filter 就是检索的 WHERE 条件，用 chunk 上的元数据（状态/版本/部门）缩小候选。两种时机：预过滤先筛再检索（权限强约束用这个），后过滤先召回再筛（软偏好用这个）。它既提速又承接权限，字段来自 W3D1 设计的元数据。</div>
+<div class="warn">① 后过滤可能把召回集过滤到不足 K 个，导致答案缺失——权限过滤务必用预过滤或保证候选充足。② 过滤字段要建索引（keyword/term），否则全表扫慢。③ 过滤条件写错（如版本写死旧版）会导致"搜不到新内容"，和 W3D1 的版本问题联动。</div>
+
+<!-- ============ 6. Rerank ============ -->
+<h2 id="s6">六、BGE Reranker：精排原理与实践</h2>
+<h3>6.1 为什么融合之后还要 Rerank</h3>
+<p>RRF 融合解决了"召回融合"，但融合后的 Top 结果仍是"两路粗略叠加"，精确率有限。Reranker 用<strong>交叉编码器（cross-encoder）</strong>对 (query, chunk) 逐对深度打分，捕捉更细的相关性，把真正该排第一的顶上去。</p>
+<h3>6.2 BGE Reranker 原理</h3>
+<p>BGE Reranker（如 <code>BAAI/bge-reranker-large</code>）是 cross-encoder：把 query 和 document 拼接输入同一个 Transformer，输出一个相关性分数（0~1）。它比 bi-encoder（向量检索）更准，因为能看到 query 与 doc 的<strong>双向交互</strong>，但慢——所以只作用在召回的 Top-N（如 50→重排→取 5~10）。</p>
+<div class="formula">
+向量检索/BM25 召回 Top-50  →  BGE Reranker 对 (q, d_i) 逐对打分  →  取重排后 Top-5~10 送 LLM
+</div>
+<pre><code>from transformers import AutoModelForSequenceClassification, AutoTokenizer
+import torch
+tok = AutoTokenizer.from_pretrained("BAAI/bge-reranker-large")
+model = AutoModelForSequenceClassification.from_pretrained("BAAI/bge-reranker-large")
+pairs = [[query, d] for d in top50_chunks]
+inputs = tok(pairs, padding=True, truncation=True, return_tensors="pt", max_length=512)
+scores = model(**inputs).logits.view(-1).float()   # 越大越相关
+ranked = [d for _, d in sorted(zip(scores, top50_chunks), reverse=True)][:8]</code></pre>
+<div class="info">官方资源：<a href="https://huggingface.co/BAAI/bge-reranker-large">BAAI/bge-reranker-large (HuggingFace)</a>；中文 RAG 教程：<a href="https://www.bilibili.com/video/BV1D37GzLEe5">B站 2025 最全 RAG 教程（含 Rerank）</a>。</div>
+<div class="eng">工程含义：Reranker 是"精确率放大器"。召回阶段要"宁错勿漏"（高召回），精排阶段把噪声压下去（高精确）。工程上 Reranker 是瓶颈（逐对推理），要限制作用条数、批处理、或用更小模型（bge-reranker-v2-m3）降本。</div>
+<div class="iv">RRF 融合并非终点，融合结果精确率还有限。所以我再接一层 BGE Reranker：它是 cross-encoder，把 query 和每个候选 chunk 拼一起过模型打出相关性分，能捕捉细粒度交互，比向量检索准得多。但慢，所以只作用在召回的 Top-50 上重排，取前 5~10 给 LLM。召回要"宁错勿漏"，精排压噪声。</div>
+<div class="warn">① Reranker 慢在"逐对推理"，作用条数必须限制（50 量级），否则延迟爆炸。② 别把 Reranker 当召回用——它不检索，只排序已有候选，前面必须有 BM25+向量召回。③ 中英文/领域适配：选 bge-reranker-v2-m3 等多语言版，纯 large 中文未必最优。④ Reranker 分数和生产阈值要按评测定，别拍脑袋。</div>
+
+<!-- ============ 7. keyword ============ -->
+<h2 id="s7">七、关键词字段 vs 向量字段：药品名 / ICD / 保单号为什么用 keyword</h2>
+<h3>7.1 核心区别</h3>
+<table>
+<tr><th>维度</th><th>keyword 字段（精确）</th><th>text 字段（分词后 BM25）</th><th>向量字段（语义）</th></tr>
+<tr><td>匹配方式</td><td>整体精确相等</td><td>分词后词项匹配</td><td>语义相似度</td></tr>
+<tr><td>适用</td><td>保单号、ICD 码、药名编码</td><td>章节标题、正文</td><td>口语化语义查询</td></tr>
+<tr><td>对"错一字"</td><td>直接不匹配（正确行为）</td><td>可能部分匹配</td><td>可能近似召回（危险）</td></tr>
+</table>
+<h3>7.2 为什么保单号/ICD 不能用向量</h3>
+<p>保单号 <code>PICC-2025-0098</code> 是<strong>任意字符串</strong>，语义上无"近义"概念——它的 neighbors 不该是别的保单号。向量检索会把"PICC-2025-0098"和"PICC-2025-0099"当成"相似"（共享前缀 token），但业务上它们是<strong>两个完全不同的保单</strong>，召回隔壁保单内容是严重错误。ICD 编码同理：C34 和 C34.1 是不同细分，向量相似度会模糊这种区分。</p>
+<div class="formula">
+精确标识符 → keyword 字段 + term 查询（精确命中）
+语义查询 → text + BM25 / 向量（相似召回）
+</div>
+<div class="eng">工程含义：把"标识符"当"语义"检索是医疗 RAG 的高危错误。正确做法是在 chunk metadata 里冗余存 keyword 类型的药名/ICD/保单号字段，查询时先抽取实体→用 term 精确过滤，语义检索只负责"描述性"部分。这才是"精确 + 语义"双轨。</div>
+<div class="iv">保单号、ICD 编码、药品名编码是"标识符"，不是"语义词"。用向量检索会把它和相似字符串（如相邻保单号）当近义召回，但业务上那是两个完全不同的东西——召回隔壁保单是严重事故。所以这些字段要用 keyword 类型做 term 精确匹配，向量只负责描述性语义查询。工程上在 chunk metadata 里冗余存 keyword 字段，查询先抽实体再精确过滤。</div>
+<div class="warn">① 别把保单号既当 text 又当向量——text 会被分词破坏精确性，向量会近义串味。应用独立 keyword 字段。② 实体抽取（从 query 里提出 ICD/保单号）本身要准，抽错实体过滤器就失效——可用规则/NER。③ keyword 字段大小写、连字符敏感，入库和查询要保持一致归一化。</div>
+
+<!-- ============ 8. ES向量 ============ -->
+<h2 id="s8">八、Elasticsearch 向量检索与 kNN 配置</h2>
+<p>Elasticsearch 8.x 原生支持 <code>dense_vector</code> 字段与近似 kNN（HNSW 图）。一套 ES 同时存 keyword/text/dense_vector，天然支持混合检索。</p>
+<pre><code>PUT claim_kb
+{
+  "mappings": {
+    "properties": {
+      "content":        { "type": "text",  "analyzer": "ik_max_word" },
+      "drug_name":      { "type": "keyword" },          // 药品名精确
+      "icd_code":       { "type": "keyword" },          // ICD 精确
+      "policy_no":      { "type": "keyword" },          // 保单号精确
+      "embedding":      { "type": "dense_vector",
+                          "dims": 1024,
+                          "index": true,
+                          "similarity": "cosine" },
+      "doc_version":    { "type": "keyword" },
+      "status":         { "type": "keyword" }
+    }
+  }
+}</code></pre>
+<h3>8.1 混合检索的两种 ES 写法</h3>
+<ul>
+  <li><strong>bool + knn</strong>：BM25（must/should）与 knn 同在一个 bool 查询，ES 内部线性融合（可设 <code>boost</code>）。</li>
+  <li><strong>RRF via rankfusion（ES 8.9+）</strong>：用 <code>rank</code> 块的 <code>rrf</code> 显式融合多路（推荐，可控）。</li>
+</ul>
+<div class="info">官方文档：<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html">Elasticsearch kNN 向量检索</a>；<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html">Terms Query（精确过滤，ACL 用）</a>。</div>
+<div class="eng">工程含义：选 ES 做混合检索的好处是"一个引擎管全部"——keyword 精确、text BM25、dense_vector 语义、bool 过滤权限，都在一次查询里完成，运维简单。HNSW 的 <code>ef_construction/m</code> 参数影响召回率与内存，要按数据量调。</div>
+<div class="iv">Elasticsearch 8.x 支持 dense_vector + HNSW 近似 kNN，而且一个索引能同时存 keyword（精确）、text（BM25）、dense_vector（语义）、还有 bool 过滤权限。混合检索用 bool+knn 或 ES 8.9+ 的 rank.rrf 显式融合。好处是一个引擎管全部，运维简单。HNSW 的 ef/m 参数要按数据量调平衡召回和内存。</div>
+<div class="warn">① HNSW 是近似检索，召回率 < 100%，参数没调好会漏关键 chunk——医疗场景要验证召回率达标。② dense_vector 的 dims 必须和 Embedding 模型输出一致，否则写入报错。③ 不要对超大数据集用暴力 kNN（<code>exact</code>），延迟高；近似 kNN 要建图。④ keyword 字段若误设为 text，精确匹配失效。</div>
+
+<!-- ============ 9. 链路 ============ -->
+<h2 id="s9">九、融合 + 精排的完整检索链路</h2>
+<div class="formula">
+用户 Query
+  → 实体抽取（ICD/保单号/药名）
+  → 并行：BM25(keyword+text) 召回 Top-50 ｜ 向量 kNN 召回 Top-50
+  → Metadata Filter（active/版本/权限）预过滤
+  → RRF 融合 两路 → Top-50 候选
+  → BGE Reranker 逐对精排 → Top-8
+  → 送 LLM 生成（附引用 chunk_id）
+</div>
+<h3>9.1 各环节的"职责边界"</h3>
+<table>
+<tr><th>环节</th><th>目标</th><th>失败后果</th></tr>
+<tr><td>BM25+向量召回</td><td>高召回（宁错勿漏）</td><td>漏召→答案无依据</td></tr>
+<tr><td>Metadata Filter</td><td>范围/权限正确</td><td>越权/旧版</td></tr>
+<tr><td>RRF</td><td>两路公平融合</td><td>某路淹没</td></tr>
+<tr><td>Reranker</td><td>高精确（压噪声）</td><td>噪声进 LLM→幻觉</td></tr>
+</table>
+<div class="eng">工程含义：链路是"漏斗"。召回宽、精排窄。每一层都可独立评测（召回率看前两层，精确率看 Reranker）。任何一层出问题都能用 W3D1 的评测集定位——这正是数据工程与检索工程联动的价值。</div>
+<div class="iv">完整链路：先抽实体（ICD/保单号），并行跑 BM25 和向量各召回 Top-50，用 metadata 预过滤（active/版本/权限），RRF 融合成 Top-50 候选，再 BGE Reranker 精排取 Top-8 给 LLM。召回要宽（宁错勿漏），精排要窄（压噪声），每层都能用评测集独立验证。</div>
+<div class="warn">① 实体抽取失败会导致精确过滤失效，要兜底（抽不到就纯语义检索并提示）。② Reranker 输出 Top-8 但若前层召回就漏了正确答案，精排再强也救不回——召回是地基。③ 整条链路延迟要评估：向量+BM25 并行 ~50ms，Reranker Top-50 可能 100~300ms，要算进 SLA。</div>
+
+<!-- ============ 10. 评测 ============ -->
+<h2 id="s10">十、评测：召回率 / 精确率 / NDCG 与 RAGAS</h2>
+<h3>10.1 检索层指标</h3>
+<table>
+<tr><th>指标</th><th>含义</th><th>在混合检索的意义</th></tr>
+<tr><td>Recall@K</td><td>Top-K 中含多少应召回 chunk</td><td>衡量"召回宽不宽"，漏召是致命伤</td></tr>
+<tr><td>Precision@K</td><td>Top-K 中相关比例</td><td>衡量精排效果</td></tr>
+<tr><td>MRR / NDCG@K</td><td>相关结果排名质量</td><td>衡量 Reranker 是否把对的顶上去</td></tr>
+</table>
+<h3>10.2 RAGAS（生成+检索联合评测）</h3>
+<ul>
+  <li><strong>context_precision / context_recall</strong>：检索质量（对应上面的指标）。</li>
+  <li><strong>faithfulness</strong>：答案是否忠于检索到的上下文（防幻觉）。</li>
+  <li><strong>answer_relevancy</strong>：答案是否切题。</li>
+</ul>
+<div class="eng">工程含义：没有评测的检索调参是盲人摸象。混合检索的每个旋钮（BM25 boost、RRF 的 k、Reranker 候选数、阈值）都要在评测集上量化对比。用 W3D1 的 Golden Case 的 expected_chunks 算 Recall@K，用 RAGAS 看端到端。</div>
+<div class="iv">检索层看 Recall@K（漏召致命）、Precision@K、NDCG@K（排名质量）；端到端可用 RAGAS 的 context_precision/recall + faithfulness + answer_relevancy。每个旋钮（BM25 权重、RRF 的 k、Reranker 候选数）都要在评测集上量化对比，不能凭感觉调。Golden Case 里的 expected_chunks 正好用来算 Recall@K。</div>
+<div class="warn">① 只看 Precision 不看 Recall 会"排得准但漏了关键 chunk"，答非所问。② RAGAS 的 faithfulness 依赖 LLM 评判，有自身偏差，重要结论要人工抽查。③ 指标要在固定评测集版本上比（呼应 W3D1），否则前后不可比。④ NDCG 对"正确答案排在很后面"敏感，是检验 Reranker 的好指标。</div>
+
+<!-- ============ 11. 实战 ============ -->
+<h2 id="s11">十一、实战：保险知识库混合检索（特药理赔）</h2>
+<h3>11.1 场景</h3>
+<p>用户问："我母亲肺腺癌 EGFR 突变，医生开奥希替尼，保单 PICC-2025-0098 能报多少？"</p>
+<h4>处理流程</h4>
+<ol>
+  <li><strong>实体抽取</strong>：药名=奥希替尼（=泰瑞沙），ICD≈C34，保单号=PICC-2025-0098。</li>
+  <li><strong>BM25（keyword）</strong>：用 <code>term: {policy_no: PICC-2025-0098}</code> + <code>icd_code: C34</code> 精确命中该保单适用条款；text 部分匹配"奥希替尼/靶向药报销"。</li>
+  <li><strong>向量</strong>：语义召回"EGFR 突变 NSCLC 用药补偿"等描述性 chunk。</li>
+  <li><strong>Metadata Filter</strong>：<code>status=active, doc_version=v2025Q2</code>，并叠加 ACL（仅该用户可见，W3D3）。</li>
+  <li><strong>RRF + Rerank</strong>：融合后精排，取 Top-8 送 LLM，附 chunk_id 引用。</li>
+</ol>
+<pre><code>bool_query = {
+  "bool": {
+    "must": [ {"term": {"policy_no": "PICC-2025-0098"}},
+              {"term": {"status": "active"}} ],
+    "should": [ {"match": {"content": "奥希替尼 靶向药 报销"}},
+                {"knn": {"field":"embedding","query_vector":q_vec,"k":50}} ]
+  }
+}
+# 再用 rank.rrf 融合 should 里的两路，最后 BGE Reranker 精排</code></pre>
+<div class="eng">工程含义：真实查询往往是"精确标识符 + 描述性语义"混合。正确架构是"标识符走 keyword 精确过滤，描述走 BM25+向量语义"，二者在 bool/rrf 里汇合。单一向量检索处理这种 query 必然顾此失彼。</div>
+<div class="iv">真实理赔 query 是"精确+语义"混合：保单号 PICC-2025-0098 走 keyword term 精确过滤，奥希替尼/EGFR 走 BM25+向量语义召回，再 metadata 过滤版本和权限，RRF 融合后 BGE Reranker 精排取 Top-8。标识符和语义各走各的道，最后汇合——这才是医疗 RAG 的正确打法。</div>
+<div class="warn">① query 里同时有保单号和口语描述时，若只用向量会把别的不相关保单的相似描述也召回。② 实体抽取把"泰瑞沙"归一成"奥希替尼"很关键，否则 BM25 漏命中。③ 返回答案必须带 chunk_id 引用，医疗合规要可溯源（呼应 W3D1）。</div>
+
+<!-- ============ 12. 达标线① ============ -->
+<h2 id="s12">十二、面试达标线①：BM25+向量+RRF 融合与 Rerank 必要性</h2>
+<table>
+<tr><th>环节</th><th>作用</th><th>为什么必要</th></tr>
+<tr><td>BM25</td><td>关键词/精确召回</td><td>向量在精确匹配、稀有实体上弱</td></tr>
+<tr><td>向量 kNN</td><td>语义召回</td><td>BM25 在同义/口语上弱</td></tr>
+<tr><td>RRF</td><td>按排名融合两路</td><td>两路分数量纲不同，不能直加；RRF 鲁棒</td></tr>
+<tr><td>BGE Reranker</td><td>Top-N 精排</td><td>融合结果精确率有限，需 cross-encoder 压噪声</td></tr>
+</table>
+<div class="iv">核心一句话：单路各有短板——BM25 精确但不懂同义，向量懂语义但精确匹配弱。所以 BM25+向量并行召回，用 RRF（按排名而非分数融合，规避量纲）合并，再用 BGE Reranker（cross-encoder）在 Top 候选上精排提精确率。召回要宽、精排要窄，Rerank 是精确率放大器，不能省。</div>
+
+<!-- ============ 13. 达标线② ============ -->
+<h2 id="s13">十三、面试达标线②：精确匹配为什么用 keyword 字段而不是向量</h2>
+<div class="formula">
+标识符（保单号/ICD/药名编码） → 无"近义"概念 → 必须 keyword + term 精确匹配
+向量检索会把 PICC-...098 与 PICC-...099 当"相似"召回 → 但业务上是两个不同保单 → 严重错误
+</div>
+<ol>
+  <li><strong>标识符无语义近义</strong>：保单号、ICD 码、药品编码是确定性字符串，邻居不该是"相似串"。</li>
+  <li><strong>向量会近义串味</strong>：共享前缀/字符的标识符被向量当成相近，召回隔壁保单/相邻 ICD 是合规事故。</li>
+  <li><strong>正确做法</strong>：chunk metadata 冗余存 keyword 字段，查询先抽实体→term 精确过滤；语义部分才走 BM25+向量。</li>
+  <li><strong>工程联动</strong>：keyword 字段大小写/连字符归一化，实体抽取要准，否则过滤失效。</li>
+</ol>
+
+<!-- ============ 14. 自测清单 ============ -->
+<h2 id="s14">十四、W3D2 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清单路向量检索的三处短板，解释为什么企业用混合检索。</li>
+<li>能写出 BM25 打分公式要素（TF/IDF/长度归一化 k1/b），说清医疗精确匹配场景。</li>
+<li>能解释向量检索原理（余弦相似度）及其强项/弱项边界。</li>
+<li>能写出 RRF 公式，说清为什么用"排名"而非"分数"融合（量纲问题）。</li>
+<li>能区分 Metadata Filter 的预过滤与后过滤时机及适用。</li>
+<li>能讲清 BGE Reranker 是 cross-encoder、为什么慢但要接在召回之后精排。</li>
+<li>能解释 keyword / text / 向量三字段区别，以及为什么保单号/ICD/药名用 keyword。</li>
+<li>能画出 ES dense_vector + HNSW 的混合检索映射，说清 bool+knn 与 rank.rrf。</li>
+<li>能画出"实体抽取→并行召回→过滤→RRF→Rerank→LLM"完整链路及每层职责。</li>
+<li>能说清 Recall@K / NDCG / RAGAS 在检索评测中的意义与陷阱。</li>
+<li>能用特药理赔场景讲清"标识符走 keyword、语义走 BM25+向量"的混合实战。</li>
+<li>能讲清达标线①（融合与 Rerank 必要性）与达标线②（精确匹配用 keyword）。</li>
+</ul>
+</div>
+
+<!-- ============ 15. 速记卡 ============ -->
+<h2 id="s15">十五、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：为什么不用纯向量检索？</div><div class="a">向量在精确匹配、稀有实体、标识符上弱；BM25 补精确，两者混合取长补短，再用 Rerank 精排。</div></div>
+<div class="qcard"><div class="q">Q：RRF 为什么用排名不用分数？</div><div class="a">BM25 与向量分数量纲不同无法直接相加；RRF 用 1/(k+排名) 融合，规避归一化，比手动调 α 权重鲁棒。</div></div>
+<div class="qcard"><div class="q">Q：Reranker 和向量检索有什么区别？</div><div class="a">向量是 bi-encoder（各自编码再算相似，快但不细）；Reranker 是 cross-encoder（query+doc 拼接打分，准但慢），所以只作用在召回 Top-N 精排。</div></div>
+<div class="qcard"><div class="q">Q：保单号为什么不能用向量检索？</div><div class="a">保单号是标识符无近义概念，向量会把相邻保单号当相似召回，但业务上是两个不同保单——严重错误，必须 keyword+term 精确匹配。</div></div>
+<div class="qcard"><div class="q">Q：ICD 编码该用什么字段？</div><div class="a">keyword 字段做 term 精确匹配。C34 与 C34.1 是不同细分，向量相似度会模糊区分，医疗上不允许。</div></div>
+<div class="qcard"><div class="q">Q：Metadata Filter 预过滤和后过滤怎么选？</div><div class="a">权限/范围强约束用预过滤（先筛再检索）；软偏好用后过滤。权限必须用预过滤，否则可能召回不足或越权。</div></div>
+<div class="qcard"><div class="q">Q：Reranker 作用条数为什么要限制？</div><div class="a">cross-encoder 逐对推理慢，作用 50 条量级可控延迟；它只排序不检索，前面必须有召回。</div></div>
+<div class="qcard"><div class="q">Q：ES 怎么做混合检索？</div><div class="a">一个索引存 keyword/text/dense_vector，用 bool+knn 或 ES 8.9+ 的 rank.rrf 显式融合，HNSW 近似 kNN。</div></div>
+<div class="qcard"><div class="q">Q：怎么评测检索质量？</div><div class="a">Recall@K（漏召致命）、Precision@K、NDCG@K（排名质量）；端到端用 RAGAS。每个旋钮在评测集量化对比。</div></div>
+<div class="qcard"><div class="q">Q：真实理赔 query 怎么处理？</div><div class="a">先抽实体（药名/ICD/保单号），标识符走 keyword 精确过滤，描述走 BM25+向量语义，RRF 融合后 Rerank 精排，带 chunk_id 引用。</div></div>
+
+<div class="ft">FDE W3D2 学习手册 · 混合检索与 Rerank（面试级）· 配合《FDE-W3D2-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w3d2_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W3D2 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W3D2-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

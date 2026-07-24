@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE 面试备战手册 · A+B 双线（Text2SQL / RAG）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #faf9f6;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --text-mute: #666;
+    --text-light: #888;
+    --border: #e5e3dd;
+    --accent-a: #185FA5;
+    --accent-b: #BA7517;
+    --accent-c: #0F6E56;
+    --accent-d: #993556;
+    --bg-a: #E6F1FB;
+    --bg-b: #FAEEDA;
+    --bg-c: #E1F5EE;
+    --bg-d: #FBEAF0;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+    padding: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 26px; margin-bottom: 6px; font-weight: 600; }
+  h2 {
+    font-size: 19px; margin-top: 36px; margin-bottom: 14px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--border);
+    font-weight: 600;
+  }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; font-weight: 600; }
+  p { margin-bottom: 10px; }
+  .subtitle { color: var(--text-mute); font-size: 14px; margin-bottom: 24px; }
+  .tag {
+    display: inline-block; padding: 2px 10px; border-radius: 12px;
+    font-size: 12px; font-weight: 500; margin-right: 6px; margin-bottom: 4px;
+  }
+  .tag-a { background: var(--bg-a); color: var(--accent-a); }
+  .tag-b { background: var(--bg-b); color: var(--accent-b); }
+  .tag-c { background: var(--bg-c); color: var(--accent-c); }
+  .tag-d { background: var(--bg-d); color: var(--accent-d); }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 20px; margin-bottom: 14px;
+  }
+  .card.a { border-left: 4px solid var(--accent-a); }
+  .card.b { border-left: 4px solid var(--accent-b); }
+  .card.c { border-left: 4px solid var(--accent-c); }
+  .card.d { border-left: 4px solid var(--accent-d); }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 14px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--card); font-weight: 600; color: var(--text); }
+  tr:nth-child(even) td { background: #faf9f6; }
+  .pill {
+    display: inline-block; padding: 1px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 500;
+  }
+  .pill-red { background: #FCEBEB; color: #A32D2D; }
+  .pill-yel { background: #FAEEDA; color: #854F0B; }
+  .pill-grn { background: #E1F5EE; color: #085041; }
+  .story {
+    background: var(--bg-c); border-left: 4px solid var(--accent-c);
+    padding: 14px 18px; border-radius: 6px; margin-bottom: 14px;
+  }
+  .story .quote { font-style: italic; color: var(--accent-c); margin: 6px 0; padding-left: 12px; border-left: 3px solid var(--accent-c); }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; }
+  .qa { margin-bottom: 18px; }
+  .qa .q { font-weight: 600; color: var(--accent-a); margin-bottom: 6px; }
+  .qa .a { color: var(--text); padding-left: 16px; border-left: 3px solid var(--border); margin-left: 4px; }
+  .week-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .week {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; font-size: 13px;
+  }
+  .week .num { font-size: 18px; font-weight: 600; color: var(--accent-a); margin-bottom: 4px; }
+  .week .focus { font-size: 12px; color: var(--text-mute); margin-bottom: 8px; }
+  .week ul { list-style: none; padding-left: 0; }
+  .week li { padding-left: 14px; position: relative; margin-bottom: 4px; }
+  .week li::before { content: "▸"; position: absolute; left: 0; color: var(--accent-b); }
+  .footer { text-align: center; color: var(--text-light); font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .highlight { background: #fff3cd; padding: 1px 4px; border-radius: 3px; }
+  .key { background: var(--bg-a); padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; font-size: 14px; }
+  @media (max-width: 720px) {
+    .week-grid { grid-template-columns: 1fr 1fr; }
+    body { padding: 16px; font-size: 14px; }
+    h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>FDE 面试备战手册</h1>
+<p class="subtitle">路线 A（Text2SQL）+ 路线 B（RAG/知识库）双线并进 · 4 周突击方案</p>
+
+<div class="key">
+  <strong>核心策略：</strong>双线共享 70% 底层技能（RAG/向量库/Prompt/数据处理），上层分化为 Text2SQL（SQL 党）和 知识库问答（文档党）。一次突击投两类岗位，命中率翻倍。
+</div>
+
+<h2>一、双线定位与目标岗位</h2>
+
+<div class="card a">
+  <span class="tag tag-a">路线 A</span><strong>Text2SQL / 自然语言查数 / 数据问答 Agent</strong>
+  <p style="margin-top:8px;"><strong>你的天然优势：</strong>数仓建模 + SQL + ETL 经验直接命中。</p>
+  <p><strong>目标岗位关键词：</strong>Text2SQL、NL2SQL、数据问答、BI AI 化、自然语言查数、智能数据分析 Agent、AI 数据产品</p>
+  <p><strong>典型公司：</strong>数据中台厂商、BI 厂商（帆软/永洪 AI 化方向）、AI 创业公司（做数据助手）、大厂数据团队</p>
+</div>
+
+<div class="card b">
+  <span class="tag tag-b">路线 B</span><strong>RAG / 企业知识库 / 文档问答</strong>
+  <p style="margin-top:8px;"><strong>你的天然优势：</strong>ETL + 数据治理思维迁移到"文档摄取 + 知识治理"。</p>
+  <p><strong>目标岗位关键词：</strong>RAG 工程师、知识库、文档问答、智能客服、企业知识助手、AI 内容工程师</p>
+  <p><strong>典型公司：</strong>企业服务 SaaS、法律/医疗/金融行业 AI、知识管理厂商、AI 中台公司</p>
+</div>
+
+<h2>二、技能矩阵（双线对比，一目了然）</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:22%;">技能模块</th>
+      <th style="width:8%;">双线共享</th>
+      <th style="width:35%;">路线 A（Text2SQL）重点</th>
+      <th style="width:35%;">路线 B（RAG）重点</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>RAG 基础流程</strong></td><td><span class="pill pill-red">必</span></td><td>schema 检索 + few-shot SQL 示例库</td><td>文档摄取 + chunk + 向量检索 + rerank</td></tr>
+    <tr><td><strong>向量数据库</strong></td><td><span class="pill pill-red">必</span></td><td>存 SQL 模板/示例的 embedding</td><td>存文档 chunk 的 embedding</td></tr>
+    <tr><td><strong>Prompt 工程</strong></td><td><span class="pill pill-red">必</span></td><td>SQL 生成 prompt + few-shot + CoT</td><td>问答 prompt + 引用溯源 + 拒答策略</td></tr>
+    <tr><td><strong>Embedding 模型</strong></td><td><span class="pill pill-red">必</span></td><td>BGE / GTE / OpenAI ada</td><td>BGE / GTE / bge-reranker</td></tr>
+    <tr><td><strong>检索优化</strong></td><td><span class="pill pill-yel">进阶</span></td><td>schema linking、表结构压缩、列裁剪</td><td>混合检索（BM25+向量）、rerank、chunk 策略</td></tr>
+    <tr><td><strong>数据层</strong></td><td><span class="pill pill-red">必</span></td><td>★ schema 治理、指标口径、SQL 写法规范化</td><td>★ 文档治理、去重、版本、权限、合规</td></tr>
+    <tr><td><strong>评测</strong></td><td><span class="pill pill-yel">进阶</span></td><td>Spider/BIRD 数据集、执行准确率</td><td>RAGAS、Faithfulness、Answer Relevancy</td></tr>
+    <tr><td><strong>工程化</strong></td><td><span class="pill pill-red">必</span></td><td>Java/Python 后端、流式、超时重试、限流</td><td>同左 + 多源摄取 pipeline</td></tr>
+    <tr><td><strong>大模型基础</strong></td><td><span class="pill pill-red">必</span></td><td>Transformer 宏观、token、上下文窗口、幻觉</td><td>同左 + 长上下文处理</td></tr>
+    <tr><td><strong>function calling / Agent</strong></td><td><span class="pill pill-yel">进阶</span></td><td>多表 join 决策 Agent、查数→可视化 Agent</td><td>多文档检索 Agent、工具调用</td></tr>
+    <tr><td><strong>MCP 协议</strong></td><td><span class="pill pill-grn">加分</span></td><td>知道是什么、跟 function calling 区别</td><td>同左</td></tr>
+  </tbody>
+</table>
+
+<h2>三、4 周突击学习计划</h2>
+
+<div class="week-grid">
+  <div class="week">
+    <div class="num">Week 1</div>
+    <div class="focus">打地基 · 共享技能</div>
+    <ul>
+      <li>大模型基础原理（李宏毅 B 站精选）</li>
+      <li>Transformer 宏观 / token / 上下文窗口</li>
+      <li>跑通 OpenAI/通义 API + function calling</li>
+      <li>学 Prompt 工程（few-shot/CoT/结构化输出）</li>
+      <li>本地 Ollama 跑 Qwen3，懂量化/显存</li>
+    </ul>
+  </div>
+  <div class="week">
+    <div class="num">Week 2</div>
+    <div class="focus">RAG 主线</div>
+    <ul>
+      <li>LangChain 跑通 RAG quickstart</li>
+      <li>向量库 Milvus / Chroma 上手</li>
+      <li>BGE embedding + bge-reranker</li>
+      <li>做一个 PDF 问答 demo（路线 B 落地）</li>
+      <li>学 chunk 策略、混合检索、query 改写</li>
+    </ul>
+  </div>
+  <div class="week">
+    <div class="num">Week 3</div>
+    <div class="focus">Text2SQL 主线</div>
+    <ul>
+      <li>读 DIN-SQL / DAIL-SQL 论文</li>
+      <li>跑通 Spider / BIRD baseline</li>
+      <li>做一个自然语言查数 demo（路线 A 落地）</li>
+      <li>schema linking + few-shot 示例库</li>
+      <li>学 SQL 生成准确率评测</li>
+    </ul>
+  </div>
+  <div class="week">
+    <div class="num">Week 4</div>
+    <div class="focus">面试冲刺</div>
+    <ul>
+      <li>打磨简历 + 三个故事</li>
+      <li>刷模拟题（见下文）</li>
+      <li>读 2-3 个开源 RAG 项目源码</li>
+      <li>复习 + 项目复盘 + 反问准备</li>
+      <li>关注最新动态（MCP/Agent）</li>
+    </ul>
+  </div>
+</div>
+
+<h2>四、面试故事模板（三个，背熟）</h2>
+
+<div class="story">
+  <h3>故事 1：数据治理 → RAG 不会做成垃圾</h3>
+  <p class="quote">"我之前做数仓的时候，处理过企业几十个系统的数据集成，知道数据质量问题是 AI 落地最大的坑。很多人做 RAG 只管把文档扔进向量库，但我知道企业文档是脏的、重复的、版本混乱的。所以我会先做数据治理——去重、版本化、权限分层——再建索引。这是我跟纯应用工程师的差别。"</p>
+</div>
+
+<div class="story">
+  <h3>故事 2：Java 架构 → AI 能力工程化</h3>
+  <p class="quote">"我做过 Java 后端架构，知道怎么把一个新能力稳定地接进现有系统。大模型 demo 好做，但上生产要处理流式输出、超时重试、token 限流、多模型路由、灰度发布——这些都是工程问题，不是算法问题，正好是我擅长的。"</p>
+</div>
+
+<div class="story">
+  <h3>故事 3：SQL 建模 → Text2SQL 天然优势</h3>
+  <p class="quote">"Text2SQL 的难点不是调模型，是企业表结构乱、指标口径不一致、SQL 写法不规范。我做了多年数仓建模，知道企业真实的 schema 长什么样、join 路径怎么走、聚合口径怎么定义。所以我能把 Text2SQL 从 demo 准确率做到生产可用。"</p>
+</div>
+
+<h2>五、模拟面试题（双线各 10 题，带答题要点）</h2>
+
+<h3><span class="tag tag-a">路线 A</span>Text2SQL 方向</h3>
+
+<div class="qa">
+  <div class="q">Q1. Text2SQL 的核心难点是什么？为什么直接调 GPT-4 准确率上不去？</div>
+  <div class="a">
+    ① Schema 复杂：企业几十上百张表，模型看不全 → 需要 schema linking<br>
+    ② 口径不一致：同名指标在不同部门定义不同 → 需要 schema 治理 + 上下文约束<br>
+    ③ SQL 写法不唯一：模型生成的 SQL 语法对但语义错 → 需要 few-shot 示范<br>
+    ④ 多表 join 路径：模型不知道业务 join 逻辑 → 需要外键关系图 + 路径压缩
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q2. 如果企业的 schema 有 200 张表，怎么让模型生成准确 SQL？</div>
+  <div class="a">
+    ① <strong>Schema linking</strong>：先用 embedding 检索跟问题相关的表/列，只把相关 schema 喂给模型<br>
+    ② <strong>表结构压缩</strong>：去掉无关列，加列注释和示例值<br>
+    ③ <strong>few-shot 示例库</strong>：维护历史 SQL 示例，按相似度检索 top-k 注入 prompt<br>
+    ④ <strong>CoT 推理</strong>：让模型先输出"要用哪些表、怎么 join"，再写 SQL<br>
+    ⑤ <strong>执行验证 + 自我修正</strong>：执行 SQL，报错则让模型重写
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q3. 怎么评测 Text2SQL 系统的好坏？</div>
+  <div class="a">
+    ① <strong>Execution Accuracy（EX）</strong>：执行生成的 SQL，结果跟 ground truth 一致即对（比字符串比对更准）<br>
+    ② <strong>Valid Efficiency Score（VES）</strong>：执行正确 + 执行效率<br>
+    ③ 公开数据集：<code>Spider</code>（跨域）、<code>BIRD</code>（真实脏数据）、<code>WikiSQL</code>（简单）<br>
+    ④ 自建评测集：从企业真实查询日志抽样 + 人工标注
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q4. 用户问"上个月销售额"，模型把"销售额"理解错了，怎么排查？</div>
+  <div class="a">
+    ① 查 schema 注释：列注释是否清楚定义"销售额"口径<br>
+    ② 查 few-shot：是否有类似指标的 SQL 示例<br>
+    ③ 查指标字典：是否维护了指标→列的映射表<br>
+    ④ 改造：加指标元数据层，prompt 里注入"销售额 = SUM(订单金额) WHERE 状态=已支付"
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q5. 用户问题很模糊（"看看数据怎么样"），怎么处理？</div>
+  <div class="a">
+    ① <strong>意图澄清</strong>：让 Agent 反问用户"您想看哪个指标？时间范围？维度？"<br>
+    ② <strong>推荐可视化</strong>：根据高频查询推荐几个候选分析<br>
+    ③ <strong>多轮对话</strong>：维护对话状态，逐步收敛到具体 SQL
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q6. 多表 join 时模型选错 join 路径，怎么解？</div>
+  <div class="a">
+    ① 维护<strong>外键关系图</strong>，prompt 里只给合法 join 路径<br>
+    ② <strong>路径压缩</strong>：预计算常用 join 视图，模型直接查视图<br>
+    ③ few-shot 里放典型 join 示例
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q7. 怎么处理 SQL 注入风险？</div>
+  <div class="a">
+    ① 永远用参数化执行，不要字符串拼接<br>
+    ② 限制只读权限（SELECT only）<br>
+    ③ 加行级权限（RLS），按用户身份过滤<br>
+    ④ SQL 执行前做白名单校验（只允许查特定 schema）
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q8. 用户问题涉及实时数据（"现在库存"），怎么办？</div>
+  <div class="a">
+    ① 区分分析型 vs 实时型查询，路由到不同数据源（数仓 vs 业务库）<br>
+    ② 实时查询走 Flink CDC / 业务库直查，带缓存<br>
+    ③ 加超时 + 降级策略
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q9. 模型生成的 SQL 执行报错，怎么自动修复？</div>
+  <div class="a">
+    ① 捕获错误信息 + 原 SQL，喂回模型让它重写<br>
+    ② 限制重试次数（2-3 次），避免死循环<br>
+    ③ 记录失败 case，回流到评测集持续改进
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q10. 你怎么把 Text2SQL 从 demo 做到生产？</div>
+  <div class="a">
+    ① <strong>数据层</strong>：schema 治理、指标字典、few-shot 示例库<br>
+    ② <strong>检索层</strong>：schema linking 向量化、SQL 示例检索<br>
+    ③ <strong>生成层</strong>：CoT prompt、多模型路由（简单走小模型，复杂走大模型）<br>
+    ④ <strong>验证层</strong>：执行验证 + 自我修正 + 人工兜底<br>
+    ⑤ <strong>工程层</strong>：限流、超时、缓存、灰度、监控、评测回流
+  </div>
+</div>
+
+<h3><span class="tag tag-b">路线 B</span>RAG 方向</h3>
+
+<div class="qa">
+  <div class="q">Q11. 讲一下 RAG 的完整流程？</div>
+  <div class="a">
+    <strong>离线：</strong>文档摄取 → 清洗 → chunk 切分 → embedding → 入向量库<br>
+    <strong>在线：</strong>用户 query → query 改写 → embedding → 向量检索（+ BM25 混合）→ rerank → 拼 prompt → LLM 生成 → 引用溯源
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q12. chunk 切分有哪些策略？怎么选？</div>
+  <div class="a">
+    ① <strong>固定长度</strong>：简单但可能切断语义<br>
+    ② <strong>按段落/标题</strong>：保留结构，适合结构化文档<br>
+    ③ <strong>滑动窗口</strong>：相邻 chunk 有重叠，避免边界丢失<br>
+    ④ <strong>语义切分</strong>：用 embedding 相似度判断切点<br>
+    ⑤ 经验：先用按标题+滑动窗口 200-500 token，再用 RAGAS 评测调优
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q13. 检索召回率低，怎么优化？</div>
+  <div class="a">
+    ① <strong>混合检索</strong>：BM25（关键词）+ 向量（语义）+ RRF 融合<br>
+    ② <strong>query 改写</strong>：HyDE（先让模型生成假设答案再检索）、query 扩展、多 query<br>
+    ③ <strong>rerank</strong>：召回 top-50 → cross-encoder rerank 到 top-5<br>
+    ④ <strong>embedding 模型</strong>：换更强的（bge-large、GTE）<br>
+    ⑤ <strong>chunk 优化</strong>：太长太短都不行，需调参
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q14. 怎么防止模型"胡说八道"（幻觉）？</div>
+  <div class="a">
+    ① <strong>拒答策略</strong>：检索相似度低于阈值则拒答<br>
+    ② <strong>引用溯源</strong>：每个回答必须标注来源 chunk<br>
+    ③ <strong>prompt 约束</strong>："只能基于提供的上下文回答，不确定就说不知道"<br>
+    ④ <strong>rerank 提高精度</strong>：喂给模型的上下文要准<br>
+    ⑤ <strong>后置校验</strong>：用另一个模型验证回答是否在上下文中
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q15. 企业知识库文档很乱（PDF/Word/扫描件/图片混合），怎么摄取？</div>
+  <div class="a">
+    ① <strong>多模态解析</strong>：PDF 用 PyMuPDF/unstructured，扫描件走 OCR（PaddleOCR），图片用 VLM<br>
+    ② <strong>表格结构识别</strong>：用 Table Transformer 保留表格语义<br>
+    ③ <strong>ETL 思维</strong>：像我做数仓一样，建摄取→清洗→结构化→入库 pipeline<br>
+    ④ <strong>元数据</strong>：每个 chunk 带来源、版本、权限标签
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q16. 文档有权限（销售看销售文档，HR 看 HR 文档），RAG 怎么做权限控制？</div>
+  <div class="a">
+    ① <strong>chunk 级权限标签</strong>：入向量库时打上部门/角色标签<br>
+    ② <strong>检索时过滤</strong>：用 metadata filter 只检索用户有权限的 chunk<br>
+    ③ Milvus 支持标量过滤，可直接用<br>
+    ④ <strong>不要</strong>在生成时过滤——会泄露
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q17. RAGAS 评测怎么用？</div>
+  <div class="a">
+    四个核心指标：<br>
+    ① <strong>Faithfulness</strong>：回答是否忠于上下文（防幻觉）<br>
+    ② <strong>Answer Relevancy</strong>：回答是否切题<br>
+    ③ <strong>Context Precision</strong>：检索的上下文是否相关<br>
+    ④ <strong>Context Recall</strong>：是否检索全了<br>
+    用法：构造问答对 + 标准答案，跑 RAGAS 自动评测，持续迭代
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q18. 多文档跨文档问答（"对比 A 产品和 B 产品的差异"），怎么实现？</div>
+  <div class="a">
+    ① <strong>多 query 检索</strong>：把一个问题拆成"A 产品特点"和"B 产品特点"两个 query<br>
+    ② <strong>文档聚类</strong>：按产品/主题分库，分别检索<br>
+    ③ <strong>长上下文模型</strong>：把多文档拼一起喂给长上下文模型（Claude 200k）<br>
+    ④ <strong>Map-Reduce</strong>：每文档单独总结，再合并
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q19. 知识库经常更新，怎么保证检索实时性？</div>
+  <div class="a">
+    ① <strong>增量索引</strong>：文档更新触发重新 embedding，只更新变化的 chunk<br>
+    ② <strong>版本管理</strong>：chunk 带版本号，旧版本软删除<br>
+    ③ <strong>缓存失效</strong>：相关 query 的回答缓存失效<br>
+    ④ 像我做 ETL 一样，搭定时/触发式摄取 pipeline
+  </div>
+</div>
+
+<div class="qa">
+  <div class="q">Q20. 你之前做过大数据，对 RAG 有什么帮助？</div>
+  <div class="a">
+    <span style="background:#fff3cd;padding:2px 6px;border-radius:3px;">送分题，背故事 1。</span><br>
+    ① 数据摄取 ETL：文档摄取 = 数据集成，我做过企业级<br>
+    ② 数据治理：去重、版本、权限分层，数仓经验直接用<br>
+    ③ 数据质量：知道脏数据怎么影响下游，会先治理再建索引<br>
+    ④ 工程化：大规模摄取 pipeline、调度、监控，都是我熟悉的
+  </div>
+</div>
+
+<h2>六、必做实战 Demo（简历能写）</h2>
+
+<div class="card a">
+  <span class="tag tag-a">Demo 1</span><strong>Text2SQL 查数助手</strong>（路线 A）
+  <p style="margin-top:8px;">
+    <strong>技术栈：</strong>Python + LangChain + 通义/Qwen + Milvus + FastAPI + Streamlit<br>
+    <strong>数据：</strong>Spider 公开数据集或自己造一个电商/财务 schema<br>
+    <strong>功能：</strong>自然语言→SQL→执行→表格/图表展示<br>
+    <strong>加分：</strong>schema linking、few-shot 示例库、执行准确率评测、自我修正
+  </p>
+</div>
+
+<div class="card b">
+  <span class="tag tag-b">Demo 2</span><strong>企业知识库问答</strong>（路线 B）
+  <p style="margin-top:8px;">
+    <strong>技术栈：</strong>Python + LangChain + BGE + Milvus + bge-reranker + Streamlit<br>
+    <strong>数据：</strong>公司内部文档 / 公开 PDF（财报/产品文档）<br>
+    <strong>功能：</strong>上传 PDF → 摄取 → chunk → 检索 → 问答 + 引用溯源<br>
+    <strong>加分：</strong>混合检索、rerank、RAGAS 评测、权限过滤
+  </p>
+</div>
+
+<p style="font-size:13px;color:var(--text-mute);margin-top:8px;">
+  ⚠️ <strong>这两个 demo 必须本地跑通 + 能讲清原理</strong>。面试官最爱问"你做过什么"，有 demo 比会背概念强 10 倍。放 GitHub，简历贴链接。
+</p>
+
+<h2>七、学习资源清单</h2>
+
+<table>
+  <thead>
+    <tr><th style="width:20%;">类别</th><th style="width:50%;">资源</th><th style="width:30%;">用法</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>RAG 入门</strong></td><td>LangChain 官方文档 RAG 章节</td><td>跟着跑 quickstart</td></tr>
+    <tr><td><strong>RAG 进阶</strong></td><td>论文《Retrieval-Augmented Generation》(2312.10997)</td><td>知道优化方向</td></tr>
+    <tr><td><strong>RAG 实战</strong></td><td>GitHub: langchain-ai/chat-langchain / RAG-Fusion / Verba</td><td>读源码</td></tr>
+    <tr><td><strong>向量库</strong></td><td>Milvus 官方教程 / Chroma Docs</td><td>跑通一个 demo</td></tr>
+    <tr><td><strong>Embedding</strong></td><td>HF 模型：BAAI/bge-large-zh、BAAI/bge-reranker</td><td>本地跑通</td></tr>
+    <tr><td><strong>Prompt</strong></td><td>OpenAI Cookbook / Anthropic Prompt Engineering</td><td>当手册查</td></tr>
+    <tr><td><strong>大模型基础</strong></td><td>李宏毅大模型课程（B 站）</td><td>补原理，选看</td></tr>
+    <tr><td><strong>Text2SQL</strong></td><td>Spider / BIRD 数据集 + DIN-SQL 论文</td><td>跑 baseline</td></tr>
+    <tr><td><strong>Text2SQL 进阶</strong></td><td>论文：DIN-SQL / DAIL-SQL / C3SQL</td><td>看方法</td></tr>
+    <tr><td><strong>评测</strong></td><td>RAGAS 文档 / lm-evaluation-harness</td><td>跑通一次评测</td></tr>
+    <tr><td><strong>大模型部署</strong></td><td>vLLM GitHub README + Ollama</td><td>本地跑一次</td></tr>
+    <tr><td><strong>MCP 协议</strong></td><td>Anthropic MCP 官方文档</td><td>能聊两句</td></tr>
+    <tr><td><strong>行业动态</strong></td><td>Anthropic / OpenAI / 通义 官方博客</td><td>面试聊趋势</td></tr>
+    <tr><td><strong>Java AI</strong></td><td>Spring AI / LangChain4j 文档</td><td>Java 党加分</td></tr>
+  </tbody>
+</table>
+
+<h2>八、投简历关键词（别只搜 FDE）</h2>
+
+<div class="card c">
+  <p><strong>主线（最匹配）：</strong>大模型应用、AI 应用开发、RAG 工程师、Text2SQL、NL2SQL、知识库、文档问答、智能体开发、AI 解决方案、AIGC 工程师、AI 数据产品</p>
+  <p><strong>备选（看具体 JD）：</strong>大模型交付、AI 平台工程师、AI 中台、数据 AI 工程师、AI 产品工程师、智能数据分析</p>
+  <p style="font-size:13px;color:var(--text-mute);margin-top:8px;">
+    💡 很多岗位活儿是 FDE 的子集，但 title 不叫 FDE，竞争者也少。BOSS/猎聘搜上面关键词，看 JD 里有没有"RAG/向量库/Prompt/大模型应用"这些词，有就投。
+  </p>
+</div>
+
+<h2>九、面试当天清单</h2>
+
+<table>
+  <tbody>
+    <tr><td>☐ 简历打印 2 份（突出 Java+大数据+AI demo）</td></tr>
+    <tr><td>☐ GitHub 链接（两个 demo 跑通 + README）</td></tr>
+    <tr><td>☐ 三个故事背熟（数据治理/工程化/Text2SQL）</td></tr>
+    <tr><td>☐ 能现场白板画 RAG 流程图 + Text2SQL 流程图</td></tr>
+    <tr><td>☐ 能解释：embedding/向量检索/混合检索/rerank/function calling/MCP</td></tr>
+    <tr><td>☐ 能讲清你做的 demo 的架构 + 难点 + 优化点</td></tr>
+    <tr><td>☐ 准备 2-3 个反问（团队 AI 落地阶段？数据基础怎么样？技术栈？）</td></tr>
+    <tr><td>☐ 诚实：没做过的直说"没做过，但我知道原理是…，会快速补上"</td></tr>
+  </tbody>
+</table>
+
+<div class="footer">
+  FDE 面试备战手册 · 路线 A（Text2SQL）+ 路线 B（RAG）双线 · 4 周突击方案<br>
+  基于用户画像定制 · 36 岁 / Java+大数据 / 中小厂目标 / 不想出差
+</div>
+
+</body>
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W5D6 学习手册 · 三路数据路由（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W5D6 学习手册</span>
+  <a href="#s1">1.为什么路由</a><a href="#s2">2.三路全景</a><a href="#s3">3.RAG路</a><a href="#s4">4.SQL路</a><a href="#s5">5.API路</a>
+  <span class="sep"></span>
+  <a href="#s6">6.判断方式</a><a href="#s7">7.prompt置信</a><a href="#s8">8.低置信回退</a><a href="#s9">9.与W2W3</a><a href="#s10">10.失败处理</a>
+  <span class="sep"></span>
+  <a href="#s11">11.评测观测</a><a href="#s12">达标①</a><a href="#s13">达标②</a><a href="#s14">自测</a><a href="#s15">速记</a>
+</div>
+
+<h1>FDE W5 Day 6 学习手册 · 三路数据路由</h1>
+<p class="sub">W5 Day6 · A 级（必须掌握，面试核心）· 3h · 学完能讲透"一个问题怎么决定走 RAG / SQL / 业务 API"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W5 是企业 Agent Harness 工程化周。Day5 做了 Text2SQL 这一路，Day6 把视角拉高：一个用户问题进来，Agent 怎么决定"走哪条路"。你是 36 岁、Java+大数据+医疗保险背景的候选人，示例围绕"特药理赔 Agent"——用户问"特药目录怎么规定"（RAG）、"我上月报了多少"（SQL）、"我的理赔现在到哪一步了"（API）。<br>
+  <strong>学完能回答：</strong>① 三路路由各自适用什么；② 怎么判断走哪路（LLM 分类 vs 规则）；③ 路由失败/低置信度时怎么处理（不瞎猜）。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「工程含义」「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W5D6-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 为什么需要路由 ============ -->
+<h2 id="s1">一、为什么需要数据路由（上层编排）</h2>
+<p>企业 Agent 面对的问题类型混杂：有的问"特药目录怎么规定"（知识类），有的问"我上月特药报了多少"（结构化查询），有的问"我的理赔现在到哪一步了"（实时状态/写操作）。<strong>没有路由，所有问题都塞给一个能力，必然又慢又错</strong>：拿聊天问题去查库会查不到，拿知识问题去 SQL 会空跑。</p>
+<div class="info"><strong>核心思想：</strong>路由是 Agent 的"总调度"，它不做具体活，只决定"这个请求交给谁"。下面挂的三类能力（RAG / SQL / 业务 API）才是干活的。这与你们做微服务网关/编排层的经验一脉相承。</div>
+<div class="iv">路由是 Agent 的"总调度"：一个问题进来，先判断走 RAG（知识）、SQL（结构化查询）还是业务 API（实时/写）。它不干活，只决定交给谁。没路由会把所有问题塞给一个能力，又慢又错。</div>
+
+<!-- ============ 2. 三路全景 ============ -->
+<h2 id="s2">二、三路能力全景</h2>
+<table>
+<tr><th>路由</th><th>适合的问题</th><th>底层能力</th><th>特药理赔示例</th></tr>
+<tr><td><strong>RAG</strong></td><td>知识类、文档内容、条款解释</td><td>向量检索 + 生成</td><td>"特药目录怎么规定""哪些病算罕见病"</td></tr>
+<tr><td><strong>SQL</strong></td><td>结构化、可聚合、条件筛选</td><td>Text2SQL（见 Day5）</td><td>"我上月特药报了多少""Top10 药品"</td></tr>
+<tr><td><strong>业务 API</strong></td><td>实时状态、写操作、动作执行</td><td>工具调用（见 W2）</td><td>"理赔到哪步了""帮我提交一笔理赔"</td></tr>
+</table>
+<div class="formula">
+问题 → 路由判断 → { RAG | SQL | 业务 API } → 结果 → 统一解释回用户
+</div>
+<div class="eng">路由的本质是<strong>分而治之</strong>：每类问题用最合适、最便宜、最安全的能力解决。RAG 管"知识"，SQL 管"数据"，API 管"状态与动作"。这比"一个大模型全包"在成本、延迟、可控性上都好得多。</div>
+<div class="info"><strong>📚 延伸资源（中文/官方，非 OpenAI）：</strong>① Awesome-Text2SQL <code>github.com/eosphoros-ai/awesome-text2sql</code>；② B站 LangGraph 多路由编排实战 <code>BV1zKx4zWEZP</code>；③ 通义/DeepSeek 工具调用与 Agent 文档（中文社区）。</div>
+
+<!-- ============ 3. RAG 路由 ============ -->
+<h2 id="s3">三、RAG 路由：知识类问答</h2>
+<p>当问题涉及<strong>文档内容、条款、政策、知识</strong>且需要"引用出处"时走 RAG。它从知识库检索相关片段，再让模型基于片段作答，降低幻觉。</p>
+<ul>
+  <li><strong>触发信号</strong>：问题含"怎么规定""依据什么""目录说""条款"等关键词；或路由模型判定为"知识类"。</li>
+  <li><strong>特药理赔示例</strong>："特药报销比例是多少""罕见病目录包含哪些"——答案在政策文档里，必须检索而非编造。</li>
+  <li><strong>边界</strong>：RAG 不擅长实时数据（"现在额度剩多少"要看库/API）和写操作。</li>
+</ul>
+<div class="eng">RAG 路由把"知识类"问题隔离出来，用检索保证答案有依据。它的价值是<strong>可控、可溯源、低成本</strong>——不必每次都调最贵的大模型硬答。路由判断错了（把知识问题送去 SQL）会查不到，所以路由准确率直接影响体验。</div>
+<div class="iv">RAG 路由适合"知识/条款/文档"类问题，靠检索+生成保证有出处、低幻觉。特药场景如"报销比例怎么规定"。它不擅长实时数据和写操作。</div>
+
+<!-- ============ 4. SQL 路由 ============ -->
+<h2 id="s4">四、SQL 路由：结构化查询</h2>
+<p>当问题涉及<strong>聚合统计、条件筛选、跨表关联</strong>且数据在结构化库里时走 SQL（Text2SQL，详见 Day5）。</p>
+<ul>
+  <li><strong>触发信号</strong>：问题含"多少""统计""Top""哪个保单""上个月"等聚合/筛选词。</li>
+  <li><strong>特药理赔示例</strong>："我上月特药报了多少""哪些保单额度没用完"——答案在理赔库，需聚合。</li>
+  <li><strong>边界</strong>：必须只读+白名单（Day5 已讲）；不适合知识类（查不到）和写操作（越权）。</li>
+</ul>
+<div class="eng">SQL 路由把"数据类"问题隔离出来，用数据库的高效聚合代替模型硬算。关键工程约束：路由进来后仍然要过 Day5 的<strong>安全校验五关</strong>，路由不替代安全。路由只决定"走 SQL"，安全校验决定"SQL 能不能跑"。</div>
+<div class="iv">SQL 路由适合"聚合/筛选/关联"类问题，数据在库里。特药场景如"上月报了多少"。进来后仍要过 Day5 安全校验五关——路由不替代安全。</div>
+
+<!-- ============ 5. 业务 API 路由 ============ -->
+<h2 id="s5">五、业务 API 路由：实时状态 / 动作执行</h2>
+<p>当问题需要<strong>实时状态查询或写操作/动作执行</strong>时走业务 API（工具调用，详见 W2 Tool）。</p>
+<ul>
+  <li><strong>实时状态</strong>：理赔进度、额度余额、审核状态——数据变化快，不能靠 RAG 索引（会过期），要查实时接口。</li>
+  <li><strong>动作执行</strong>："帮我提交一笔理赔""发起申诉"——这是写操作，必须走有鉴权/审计的业务接口，绝不能 SQL 写库（越权+无业务校验）。</li>
+  <li><strong>特药理赔示例</strong>："我的特药理赔现在到哪一步了"（查进度 API）、"帮我上传材料"（调提交 API）。</li>
+</ul>
+<div class="eng">API 路由处理"动"和"实时"：这是最危险的一路（会改状态/产生业务后果），所以必须带<strong>鉴权、参数校验、审计</strong>。它和 SQL 写库的区别：业务 API 走的是带完整业务规则的Service层，不是裸 SQL——这正是企业级和企业级以下的分野。</div>
+<div class="warn">① 路由把"写操作"判到 API 后，<strong>绝不能退化成 SQL UPDATE</strong>——裸 SQL 绕过业务校验（额度、资质、审批流），是事故源。② API 调用也要有超时、重试、幂等（重复提交理赔要防重）。③ 实时状态类问题若误判去 RAG，会给出过时答案，比答错更危险。</div>
+<div class="iv">业务 API 路由处理"实时状态/写操作"，最危险一路，必须鉴权+参数校验+审计。写操作走业务 Service 层，绝不用裸 SQL UPDATE（绕过业务校验=事故）。</div>
+
+<!-- ============ 6. 路由判断方式 ============ -->
+<h2 id="s6">六、路由判断方式：LLM 分类 vs 规则</h2>
+<h3>6.1 规则路由（确定性）</h3>
+<p>用关键词/正则/意图模板硬匹配：含"多少/统计"→SQL；含"规定/条款"→RAG；含"提交/进度"→API。快、可解释、零成本，但覆盖有限、泛化差。</p>
+<h3>6.2 LLM 分类路由（语义）</h3>
+<p>让一个（通常较小的）模型把问题分类到 RAG/SQL/API，可带 few-shot 和置信度输出。语义理解强、泛化好，但有成本、有概率判错。</p>
+<h3>6.3 混合（推荐）</h3>
+<p>先用规则兜底高频明确意图，规则不确定再交 LLM 分类；或 LLM 分类 + 置信度阈值，低于阈值走回退。</p>
+<table>
+<tr><th>方式</th><th>优点</th><th>缺点</th><th>适用</th></tr>
+<tr><td>规则</td><td>快、零成本、可解释</td><td>覆盖有限、泛化差</td><td>意图明确的固定场景</td></tr>
+<tr><td>LLM 分类</td><td>语义强、泛化好</td><td>有成本、会判错</td><td>意图多样、长尾</td></tr>
+<tr><td>混合</td><td>兼顾成本与覆盖</td><td>实现稍复杂</td><td>生产推荐</td></tr>
+</table>
+<div class="eng">路由判断本身也是个"小模型/规则"决策点，要权衡成本与准确率。生产常用<strong>小模型分类 + 规则兜底 + 置信度门控</strong>，而非每次都调最贵的大模型做路由。路由判错的成本很高（查错库/误写），所以置信度管理是关键。</div>
+<div class="iv">路由判断两种方式：规则（快/零成本/可解释但泛化差）和 LLM 分类（语义强但有误判成本）。生产推荐混合：规则兜底 + 小模型分类 + 置信度门控。</div>
+
+<!-- ============ 7. 路由 prompt 与置信度 ============ -->
+<h2 id="s7">七、路由 Prompt 设计与 confidence</h2>
+<p>用 LLM 分类时，prompt 要明确输出<strong>路由类别 + 置信度</strong>，便于下游门控。</p>
+<pre><code>route_prompt = f"""
+把用户问题分类到：RAG(知识条款) / SQL(结构化统计) / API(实时或写操作)。
+只输出 JSON：{{"route": "RAG|SQL|API", "confidence": 0.0~1.0, "reason": "..."}}
+问题：{question}
+"""
+res = llm(route_prompt, temperature=0, response_format="json")
+if res["confidence"] < 0.6:
+    return fallback(res)   # 低置信回退
+</code></pre>
+<div class="eng">让路由模型<strong>同时输出置信度</strong>，是把"不确定"显式化——这是可控 Agent 的关键设计。低置信时不盲目执行，而是走回退（多路/人工），避免"瞎猜一路导致查错或误写"。</div>
+<div class="warn">① 别只信路由模型的"route"字段，<strong>一定要看 confidence</strong>——模型可能"自信地分错"。② 置信度阈值要按场景定：涉及写操作（API）的阈值应更高（误判代价大）。③ 路由模型用小模型即可，别为路由浪费大模型 token。</div>
+<div class="iv">路由 LLM 要同时输出 route + confidence。低置信（如<0.6）走回退，不瞎猜。写操作类阈值应更高。路由用小模型，别浪费大模型 token。</div>
+
+<!-- ============ 8. 低置信度回退 ============ -->
+<h2 id="s8">八、低置信度回退：多路 or 人工</h2>
+<p>当路由 confidence 低于阈值，或两路得分接近（歧义）时，不能硬选一路，要有回退策略：</p>
+<ul>
+  <li><strong>多路并行</strong>：同时走 RAG + SQL（或 Top-2），把多路结果汇总/让模型择优选。代价是多花成本，但更稳。</li>
+  <li><strong>澄清反问</strong>：向用户追问"您是想查报销金额，还是看报销规定？"——把歧义抛回给用户。</li>
+  <li><strong>转人工</strong>：高风险/仍不确定时，转人工坐席，绝不裸奔。</li>
+</ul>
+<div class="eng">回退策略体现"宁可多花成本/多问一句，也不瞎猜"的工程价值观。尤其是<strong>涉及写操作或敏感数据</strong>时，低置信必须转人工或澄清，不能"猜一路就执行"。这是企业 Agent 和玩具 Demo 的分界。</div>
+<div class="warn">① 回退不是"默认走 RAG"——那等于把不确定问题都当知识题，会答非所问。② 多路并行要控制成本（小问题没必要三路全跑）。③ 转人工要有清晰交接（带上已收集信息与置信度），别让用户重复说。</div>
+<div class="iv">低置信/歧义时不硬选：多路并行汇总、或澄清反问、或转人工。尤其写操作/敏感数据必须转人工或澄清，不能猜一路就执行。回退体现"宁可多问/多花成本也不瞎猜"。</div>
+
+<!-- ============ 9. 与 W2/W3 关系 ============ -->
+<h2 id="s9">九、与 W2 Tool、W3 RAG 的关系：路由是上层编排</h2>
+<p>路由不是孤立的新东西，它是<strong>站在 W2 和 W3 之上的编排层</strong>：</p>
+<ul>
+  <li><strong>W2 Tool（工具调用）</strong>：提供"调用业务 API"的原子能力。路由的 API 一路，最终落到的就是 W2 定义的 tool。</li>
+  <li><strong>W3 RAG</strong>：提供"检索知识"的原子能力。路由的 RAG 一路，调用的就是 W3 的检索+生成。</li>
+  <li><strong>Day5 SQL</strong>：提供"查结构化库"的原子能力。路由的 SQL 一路调用它。</li>
+</ul>
+<div class="formula">
+路由(编排/调度) ──┬─→ RAG(W3 检索+生成)
+                  ├─→ SQL(Day5 Text2SQL+安全校验)
+                  └─→ 业务 API(W2 工具调用，鉴权/审计)
+</div>
+<div class="eng">理解层级很重要：W2/W3/Day5 是"肌肉"（具体能力），路由是"大脑"（决策调度）。面试时讲清这个层次，能体现你对企业 Agent 架构的整体观，而不是只会单点能力。</div>
+<div class="iv">路由是上层编排，站在 W2 Tool / W3 RAG / Day5 SQL 之上。W2 给 API 能力，W3 给 RAG 能力，Day5 给 SQL 能力，路由决定调哪个。它是大脑，下面是肌肉。</div>
+
+<!-- ============ 10. 路由失败处理 ============ -->
+<h2 id="s10">十、路由失败处理：不瞎猜</h2>
+<p>路由失败有几种形态，处理原则统一为"<strong>不瞎猜、可观测、能兜底</strong>"：</p>
+<table>
+<tr><th>失败形态</th><th>处理</th></tr>
+<tr><td>置信度低</td><td>多路并行 / 澄清反问 / 转人工</td></tr>
+<tr><td>两路歧义</td><td>澄清反问，或并行后择优</td></tr>
+<tr><td>路由到某路但该路报错</td><td>换路重试（如 SQL 失败转 RAG 给概览）/ 降级 / 转人工</td></tr>
+<tr><td>完全无法归类</td><td>友好拒答 + 记审计日志，不执行任何危险动作</td></tr>
+</table>
+<div class="warn">① 路由失败<strong>绝不默认执行最危险的一路（API 写操作）</strong>。② 下游能力报错不应"静默返回空"——要显式告知用户并留痕。③ 任何路由决策和回退都要记 Trace，便于复盘"为什么走错路"。</div>
+<div class="iv">路由失败统一原则：不瞎猜、可观测、能兜底。低置信→反问/多路/人工；下游报错→换路重试/降级；无法归类→友好拒答+审计。绝不默认执行最危险的写操作一路。</div>
+
+<!-- ============ 11. 评测与可观测 ============ -->
+<h2 id="s11">十一、路由评测与可观测</h2>
+<p>路由是 Agent 质量的"开关"，必须被评测和监控：</p>
+<ul>
+  <li><strong>路由准确率</strong>：用标注集测"问题→正确路由"的命中率（RAG/SQL/API 分别算）。</li>
+  <li><strong>置信度校准</strong>：confidence 低时是否真的更易错？看 ROC/阈值合理性。</li>
+  <li><strong>回退率</strong>：低置信回退占比，过高说明路由模型太弱或意图太杂。</li>
+  <li><strong>Trace</strong>：每次记录"原始问题 / 路由类别 / confidence / 是否回退 / 最终走哪路 / 结果"。</li>
+</ul>
+<div class="eng">把路由当"一等公民"来评测，是工程成熟度的标志。你们做大数据/Java 服务最懂：<strong>不可观测就不能优化</strong>。路由一旦出错，下游全错，所以路由的监控权重应高于单路能力。</div>
+
+<!-- ============ 12. 达标线① ============ -->
+<h2 id="s12">十二、面试达标线①：三路各自适用 + 怎么判断走哪路</h2>
+<div class="formula">
+RAG ↔ 知识/条款/文档（需溯源）｜ SQL ↔ 聚合/筛选/关联（数据在库）｜ API ↔ 实时状态/写操作（带鉴权审计）
+判断：规则(快/明确) + LLM分类(语义/泛化) + 置信度门控；低置信→多路/反问/人工
+</div>
+<ol>
+  <li><strong>RAG</strong>：知识类、条款解释、需引用出处；如"报销比例怎么规定"。</li>
+  <li><strong>SQL</strong>：结构化聚合/筛选/关联；如"上月报了多少"；进来仍过安全校验。</li>
+  <li><strong>API</strong>：实时状态、写操作；如"理赔到哪步""提交理赔"；带鉴权审计，绝不用裸 SQL 写。</li>
+  <li><strong>判断方式</strong>：规则兜底高频意图 + 小模型 LLM 分类 + confidence 门控；写操作阈值更高。</li>
+</ol>
+<div class="iv">达标核心：能清楚说清三路各适用什么（知识/数据/实时写），并讲出判断方式（规则+LLM分类+置信度门控），以及写操作类阈值应更高。</div>
+
+<!-- ============ 13. 达标线② ============ -->
+<h2 id="s13">十三、面试达标线②：路由失败 / 低置信度怎么处理（不瞎猜）</h2>
+<div class="info"><strong>低置信度/歧义的处理：</strong>① 多路并行（RAG+SQL 汇总择优）；② 澄清反问（把歧义抛回用户）；③ 转人工（高风险/仍不确定）。核心原则"宁可多问/多花成本，也不瞎猜一路"。</div>
+<div class="info"><strong>路由失败红线：</strong>① 绝不默认执行最危险的写操作(API)一路；② 下游报错不静默返回空，要显式告知+留痕；③ 无法归类→友好拒答+审计日志；④ 所有路由决策记 Trace 便于复盘。</div>
+<div class="iv">低置信/失败：多路并行、澄清反问、转人工，核心"不瞎猜"。红线：不默认执行写操作一路、报错不静默、无法归类则拒答+审计、全程记 Trace。</div>
+
+<!-- ============ 14. 自测清单 ============ -->
+<h2 id="s14">十四、Day 6 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清为什么需要路由（分而治之，避免把所有问题塞给一个能力）。</li>
+<li>能讲清三路（RAG/SQL/API）各自适用的问题类型和特药理赔示例。</li>
+<li>能区分三路的底层能力（检索生成 / Text2SQL / 工具调用）。</li>
+<li>能说清路由判断的两种方式（规则 vs LLM 分类）及优缺点。</li>
+<li>能讲出混合路由（规则兜底+小模型分类+置信度门控）为何是生产推荐。</li>
+<li>能解释为什么路由 LLM 要同时输出 confidence，以及写操作类阈值应更高。</li>
+<li>能讲清低置信度/歧义的三种回退策略（多路/反问/人工）。</li>
+<li>能说清路由与 W2 Tool、W3 RAG、Day5 SQL 的层级关系（编排 vs 原子能力）。</li>
+<li>能讲清路由失败的处理原则（不瞎猜、可观测、能兜底）。</li>
+<li>能说清为什么写操作绝不能用裸 SQL 而要走业务 API（业务校验/审计）。</li>
+<li>能列出路由要评测的指标（准确率/置信度校准/回退率/Trace）。</li>
+<li>能讲清低置信度时怎么处理（达标线②）。</li>
+</ul>
+</div>
+
+<!-- ============ 15. 速记卡 ============ -->
+<h2 id="s15">十五、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：三路路由各自适用什么？</div><div class="a">RAG=知识/条款/文档（需溯源）；SQL=聚合/筛选/关联（数据在库）；API=实时状态/写操作（带鉴权审计）。</div></div>
+<div class="qcard"><div class="q">Q：路由判断用规则还是 LLM？</div><div class="a">生产用混合：规则兜底高频明确意图 + 小模型 LLM 分类（语义强） + 置信度门控。规则快但泛化差，LLM 泛化好但有误判成本。</div></div>
+<div class="qcard"><div class="q">Q：路由 LLM 为什么要输出 confidence？</div><div class="a">把"不确定"显式化，低置信走回退，避免瞎猜一路导致查错或误写。写操作类阈值应更高（误判代价大）。</div></div>
+<div class="qcard"><div class="q">Q：低置信度/歧义怎么处理？</div><div class="a">三种回退：多路并行汇总、澄清反问、转人工。核心"宁可多问/多花成本也不瞎猜"。</div></div>
+<div class="qcard"><div class="q">Q：路由和 W2/W3/Day5 什么关系？</div><div class="a">路由是上层编排（大脑），W2 Tool 给 API 能力、W3 RAG 给检索能力、Day5 给 SQL 能力——路由决定调哪个。</div></div>
+<div class="qcard"><div class="q">Q：写操作为什么要走 API 而不是裸 SQL？</div><div class="a">裸 SQL 绕过业务校验（额度/资质/审批）和审计，是事故源。业务 API 走带完整规则的 Service 层 + 鉴权 + 审计。</div></div>
+<div class="qcard"><div class="q">Q：路由失败能默认走 RAG 吗？</div><div class="a">不能。那等于把不确定问题都当知识题，会答非所问。应多路/反问/人工，绝不默认最危险的写操作一路。</div></div>
+<div class="qcard"><div class="q">Q：路由要评测哪些指标？</div><div class="a">路由准确率、置信度校准（低conf是否真易错）、回退率、Trace（问题/类别/conf/是否回退/最终路/结果）。</div></div>
+<div class="qcard"><div class="q">Q：下游能力报错怎么办？</div><div class="a">不静默返回空：换路重试（如 SQL 失败转 RAG 给概览）/ 降级 / 转人工，并显式告知用户+留痕。</div></div>
+<div class="qcard"><div class="q">Q：路由进来后的 SQL 还要安全校验吗？</div><div class="a">要。路由只决定"走 SQL"，Day5 的安全校验五关决定"SQL 能不能跑"。路由不替代安全。</div></div>
+
+<div class="ft">FDE W5D6 学习手册 · 三路数据路由（面试级）· 配合《FDE-W5D6-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w5d6_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE Day2 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'Day2-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

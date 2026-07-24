@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE 学习路径 v4 · 8周面试冲刺版</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.7; font-size: 14px; padding: 24px; max-width: 1100px; margin: 0 auto; }
+  [id] { scroll-margin-top: 70px; }
+  h1 { font-size: 26px; margin-bottom: 6px; font-weight: 700; letter-spacing: .3px; }
+  h2 { font-size: 18px; margin-top: 40px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 15px; margin-top: 18px; margin-bottom: 8px; color: #185FA5; font-weight: 600; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 22px; }
+
+  /* 顶部导航 */
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.96); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 18px -24px; padding: 8px 24px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 8px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 9px; border-radius: 12px; background: #E6F1FB; transition: .15s; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 18px; background: #ddd; margin: 0 4px; }
+
+  /* 信息卡片 */
+  .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+  .info-card { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 10px 12px; }
+  .info-card .k { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .info-card .v { font-size: 13px; color: #1a1a1a; font-weight: 600; }
+  @media (max-width: 720px){ .info-grid { grid-template-columns: 1fr 1fr; } }
+
+  .key { background: #FBEAF0; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; border-left: 4px solid #993556; font-size: 13px; }
+  .key.blue { background: #E6F1FB; border-left-color: #185FA5; }
+  .key.blue strong { color: #185FA5; }
+  .key strong { color: #993556; }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 13px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  tr:hover td { background: #fbfaf7; }
+
+  /* 技术栈标签 */
+  .stack { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px 0; }
+  .stack span { background: #E6F1FB; color: #185FA5; font-size: 12px; padding: 3px 9px; border-radius: 12px; font-weight: 500; }
+
+  /* 周标题 */
+  .week-h { display: flex; align-items: center; gap: 12px; margin: 34px 0 12px 0; padding: 12px 16px; background: #E6F1FB; border-radius: 8px; border-left: 5px solid #185FA5; }
+  .week-h.w5-8 { background: #FAEEDA; border-left-color: #BA7517; }
+  .wn { background: #185FA5; color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+  .week-h.w5-8 .wn { background: #BA7517; }
+  .wt { font-size: 16px; font-weight: 600; }
+  .ws { font-size: 12px; color: #666; margin-top: 2px; }
+
+  /* 阶段 banner */
+  .phase-banner { margin: 40px 0 6px 0; padding: 14px 18px; border-radius: 8px; color: #fff; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .phase-banner.p1 { background: linear-gradient(90deg, #185FA5, #2a7bc4); }
+  .phase-banner.p2 { background: linear-gradient(90deg, #BA7517, #d4912f); }
+  .phase-banner .pn { background: rgba(255,255,255,.25); padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+
+  /* 日任务卡 */
+  .day { display: grid; grid-template-columns: 72px 1fr; margin-bottom: 6px; background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; overflow: hidden; }
+  .dl { background: #F1EFE8; padding: 10px 8px; font-weight: 600; color: #185FA5; font-size: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #e5e3dd; }
+  .dl .h { font-size: 10px; font-weight: 400; color: #888; margin-top: 2px; }
+  .dc { padding: 9px 13px; font-size: 13px; }
+  .dc strong { color: #1a1a1a; display: block; margin-bottom: 5px; }
+  .dc ul { list-style: none; padding-left: 0; }
+  .dc li { padding-left: 14px; position: relative; margin-bottom: 3px; }
+  .dc li::before { content: "▸"; position: absolute; left: 0; color: #BA7517; font-size: 10px; }
+  .dc .eval { margin-top: 5px; padding: 5px 10px; background: #f4f0e6; border-radius: 4px; font-size: 12px; color: #6b5a2e; }
+  .dc .eval::before { content: "评测 "; font-weight: 700; color: #BA7517; }
+  .dc .flow { margin-top: 5px; padding: 6px 10px; background: #eef4fb; border-radius: 4px; font-size: 12px; color: #185FA5; line-height: 1.9; }
+  .dc .flow::before { content: "流程  "; font-weight: 700; }
+
+  /* 资源块 */
+  .res { margin-top: 7px; padding: 6px 10px; background: #FAEEDA; border-left: 3px solid #BA7517; border-radius: 4px; font-size: 12px; }
+  .res strong { color: #633806; font-size: 12px; display: inline; margin: 0; }
+  .res a { color: #185FA5; text-decoration: none; margin-right: 8px; display: inline-block; margin-bottom: 3px; }
+  .res a:hover { text-decoration: underline; }
+  .res .tip { color: #8a6d3b; font-size: 11px; }
+
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 500; margin-left: 4px; }
+  .ta { background: #E6F1FB; color: #185FA5; }
+  .tb { background: #FAEEDA; color: #BA7517; }
+  .tc { background: #E1F5EE; color: #0F6E56; }
+
+  .deliv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 9px 14px; border-radius: 6px; margin: 8px 0 14px 0; font-size: 12.5px; }
+  .deliv strong { color: #0F6E56; }
+
+  /* W4 里程碑 */
+  .milestone { margin: 24px 0; padding: 0; border-radius: 10px; overflow: hidden; border: 2px solid #993556; background: #fff; }
+  .milestone .mh { background: linear-gradient(90deg, #993556, #b54a6e); color: #fff; padding: 12px 18px; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .milestone .mb { padding: 14px 18px; }
+  .milestone ol { padding-left: 20px; }
+  .milestone li { margin-bottom: 5px; font-size: 13px; }
+  .milestone li::marker { color: #993556; font-weight: 700; }
+
+  /* W5-W8 概览卡 */
+  .ov-card { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #BA7517; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+  .ov-card .ot { font-weight: 700; color: #BA7517; font-size: 15px; margin-bottom: 4px; }
+  .ov-card .og { font-size: 12.5px; color: #666; margin-bottom: 8px; }
+  .ov-card .osec { margin-top: 8px; }
+  .ov-card .osec-h { font-size: 12px; font-weight: 700; color: #185FA5; margin-bottom: 3px; }
+  .ov-card ul { list-style: none; padding-left: 0; }
+  .ov-card li { padding-left: 14px; position: relative; font-size: 13px; margin-bottom: 2px; }
+  .ov-card li::before { content: "▸"; position: absolute; left: 0; color: #BA7517; font-size: 10px; }
+
+  /* 作品 */
+  .works { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 12px 0; }
+  .work { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 12px 14px; border-top: 4px solid #185FA5; }
+  .work .wnum { font-size: 11px; color: #888; font-weight: 600; }
+  .work .wname { font-size: 14px; font-weight: 700; color: #185FA5; margin: 2px 0 6px 0; }
+  .work ul { list-style: none; padding-left: 0; }
+  .work li { padding-left: 12px; position: relative; font-size: 12px; color: #444; margin-bottom: 2px; }
+  .work li::before { content: "·"; position: absolute; left: 2px; color: #999; font-weight: 700; }
+  @media (max-width: 720px){ .works { grid-template-columns: 1fr; } }
+
+  /* 投递策略 */
+  .strat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 12px 0; }
+  .strat .sc { border-radius: 8px; padding: 12px 14px; font-size: 13px; }
+  .strat .s1 { background: #E1F5EE; border-left: 4px solid #0F6E56; }
+  .strat .s2 { background: #E6F1FB; border-left: 4px solid #185FA5; }
+  .strat .s3 { background: #FBEAF0; border-left: 4px solid #993556; }
+  .strat .sc .sh { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
+  .strat .s1 .sh { color: #0F6E56; }
+  .strat .s2 .sh { color: #185FA5; }
+  .strat .s3 .sh { color: #993556; }
+  .strat ol, .strat ul { padding-left: 20px; }
+  .strat li { margin-bottom: 3px; }
+  @media (max-width: 720px){ .strat { grid-template-columns: 1fr; } }
+
+  /* 面试叙事 */
+  .narrative { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 16px 18px; margin: 10px 0; }
+  .narrative .quote { font-style: italic; color: #185FA5; padding: 10px 14px; background: #E6F1FB; border-radius: 6px; border-left: 4px solid #185FA5; margin-bottom: 14px; font-size: 13.5px; }
+  .narrative .story { margin-top: 12px; }
+  .narrative .story-h { font-weight: 700; color: #1a1a1a; font-size: 14px; margin-bottom: 4px; }
+  .narrative .story-h .num { background: #185FA5; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 6px; }
+  .narrative ul { list-style: none; padding-left: 4px; }
+  .narrative li { padding-left: 30px; position: relative; font-size: 13px; margin-bottom: 2px; }
+  .narrative li::before { content: "▸"; position: absolute; left: 16px; color: #BA7517; font-size: 10px; }
+
+  /* 执行红线 */
+  .redline { background: #FBEAF0; border: 2px solid #993556; border-radius: 10px; padding: 16px 20px; margin: 20px 0; }
+  .redline .rh { color: #993556; font-size: 17px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .redline ol { padding-left: 22px; columns: 2; column-gap: 28px; }
+  .redline li { margin-bottom: 6px; font-size: 13px; break-inside: avoid; }
+  .redline li::marker { color: #993556; font-weight: 700; }
+  @media (max-width: 720px){ .redline ol { columns: 1; } }
+
+  code { background: #f1efe8; padding: 1px 5px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 11.5px; }
+  .ft { text-align: center; color: #888; font-size: 11px; margin-top: 44px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="topnav">
+  <span class="brand">FDE v4 · 8周冲刺</span>
+  <a href="#overview">总览</a>
+  <span class="sep"></span>
+  <a href="#w1">W1</a><a href="#w2">W2</a><a href="#w3">W3</a><a href="#w4">W4</a>
+  <span class="sep"></span>
+  <a href="#milestone">面试就绪</a>
+  <a href="#w5">W5</a><a href="#w6">W6</a><a href="#w7">W7</a><a href="#w8">W8</a>
+  <span class="sep"></span>
+  <a href="#strategy">投递</a><a href="#narrative">叙事</a><a href="#redline">红线</a>
+</div>
+
+<h1>FDE 学习路径 v4 · 8周面试冲刺版</h1>
+<p class="sub">8 周从零到可面试 → 高薪岗位强化 · 第 4 周正式开始面试 · 全程使用非 OpenAI 模型</p>
+
+<!-- 用户画像 -->
+<div class="info-grid">
+  <div class="info-card"><div class="k">用户画像</div><div class="v">36 岁 · Java+大数据<br>医疗保险行业</div></div>
+  <div class="info-card"><div class="k">时间投入</div><div class="v">每天 4h<br>每周约 28h × 8 周</div></div>
+  <div class="info-card"><div class="k">核心要求</div><div class="v">第 4 周可面试<br>第 8 周高级岗强化</div></div>
+  <div class="info-card"><div class="k">技术原则</div><div class="v">删除所有 OpenAI<br>用 Qwen/DeepSeek/Claude</div></div>
+</div>
+
+<div class="key blue">
+  <strong>资源使用原则：</strong>视频按需看对应章节（别从头刷）· 官方文档优先（MCP/Spring AI/vLLM 迭代快，文档最准）· B 站 1.5-2x 倍速 · 看完一节立刻动手写代码
+</div>
+
+<!-- 一、总体调整原则 -->
+<h2>一、总体调整原则</h2>
+
+<h3>1. 第 4 周必须达到可面试状态</h3>
+<div class="key blue">
+  第 4 周结束时，至少完成以下 8 项：<br>
+  ① 一个可运行的企业保险知识库 RAG 原型　② 一个可运行的特药理赔 Agent 核心流程　③ 一份简历终版<br>
+  ④ 两个完整项目故事　⑤ 两张架构图　⑥ 一套 RAG 与 Agent 高频面试题　⑦ 一轮模拟面试　⑧ 第一批正式投递<br>
+  <span style="color:#666">第 4 周之后继续补充平台化、安全、评测、推理服务和 Java 工程化，用于冲刺更高薪岗位。</span>
+</div>
+
+<h3>2. 技术主线收敛</h3>
+<div class="stack">
+  <span>Python</span><span>LangGraph</span><span>LangChain</span><span>Spring AI</span><span>Elasticsearch</span><span>PostgreSQL</span><span>Redis</span><span>MCP</span><span>LiteLLM</span><span>vLLM</span><span>Qwen</span><span>DeepSeek</span><span>Claude</span><span>Docker</span><span>Docker Compose</span><span>Langfuse</span>
+</div>
+
+<h3>3. 深度分级</h3>
+<table>
+<tr><th style="width:80px">级别</th><th>要求</th></tr>
+<tr><td><span class="tag ta">A</span></td><td>面试核心能力，必须掌握；涉及工程实现必须亲自编码</td></tr>
+<tr><td><span class="tag tb">B</span></td><td>跑通最小 Demo，能解释架构、限制和适用场景</td></tr>
+<tr><td><span class="tag tc">C</span></td><td>能解释原理、完成选型并说明取舍，无需完整实现</td></tr>
+</table>
+
+<h3>4. 每周必须保留四类证据</h3>
+<div class="key blue">
+  <strong>每周四件套：</strong>① 可运行代码　② 测试或评测报告　③ ADR 或架构决策记录　④ 一次失败案例及修复过程
+</div>
+
+<!-- 二、8周总览 -->
+<h2 id="overview">二、8 周总览</h2>
+<table>
+<tr><th style="width:46px">周</th><th>核心主题</th><th>关键产出</th><th style="width:120px">面试状态</th></tr>
+<tr><td><strong>W1</strong></td><td>大模型应用基础、模型调用、结构化输出、轻量模型网关</td><td>多模型调用服务、Prompt 模板、模型选型文档</td><td>建立基础</td></tr>
+<tr><td><strong>W2</strong></td><td>Tool Calling、MCP、Document AI、基础 RAG</td><td>OCR Tool、MCP Server/Client、基础知识库</td><td>可讲工具与 MCP</td></tr>
+<tr><td><strong>W3</strong></td><td>企业 RAG、AI 数据工程、混合检索、评测</td><td>企业保险知识库原型</td><td>可面试 RAG 岗</td></tr>
+<tr><td><strong>W4</strong></td><td>LangGraph Agent、HITL、Trace、简历与模拟面试</td><td>特药理赔 Agent 核心版、简历、架构图</td><td style="color:#993556;font-weight:700">★ 正式开始面试</td></tr>
+<tr><td><strong>W5</strong></td><td>Agent Harness、Text2SQL、业务状态与可靠性</td><td>Harness 企业扩展、三路数据路由</td><td>提升 Agent 深度</td></tr>
+<tr><td><strong>W6</strong></td><td>评测、LLMOps、安全、Memory</td><td>Agent 评测、安全加固、版本与回归</td><td>冲刺架构岗</td></tr>
+<tr><td><strong>W7</strong></td><td>模型网关平台化、Spring AI、部署交付</td><td>企业 Agent 平台核心模块</td><td>冲刺负责人岗</td></tr>
+<tr><td><strong>W8</strong></td><td>vLLM、容量成本、系统设计、作品集与高级面试</td><td>三个作品整合、FDE 交付包、终轮模拟面试</td><td style="color:#993556;font-weight:700">★ 集中投递高薪</td></tr>
+</table>
+
+<!-- ============ 阶段一 ============ -->
+<div class="phase-banner p1"><span>阶段一</span> 第 1-4 周：面试就绪 <span class="pn">详细日级任务</span></div>
+
+<!-- W1 -->
+<div class="week-h" id="w1"><div class="wn">1</div><div><div class="wt">Week 1：大模型基础、模型调用、结构化输出、轻量模型网关</div><div class="ws">28h · 建立基础 · A 级为主</div></div></div>
+<div class="key blue"><strong>本周目标：</strong>建立大模型应用开发基础，能够独立调用多个非 OpenAI 模型，理解结构化输出、模型选型、成本、上下文和基础网关设计。</div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>大模型核心基础<span class="tag ta">A</span></strong><ul>
+<li>Transformer 总体架构、Self-Attention 和 Multi-Head Attention</li><li>Token、Tokenizer、Embedding</li><li>上下文窗口、KV Cache、Prefill 与 Decode</li><li>推理模型与普通对话模型的差异</li></ul>
+<div class="eval">能解释一次模型请求从 API 到返回 Token 的完整过程；能说明上下文长度、延迟和成本的关系。</div>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1mXpuz7E9v/" target="_blank">B站 李宏毅生成式AI导论2025（第10-11讲 Transformer）</a><a href="https://www.bilibili.com/video/BV1aiADewEBC/" target="_blank">B站 李宏毅机器学习2025（第1/3/4讲）</a><a href="https://llmbook-zh.github.io/" target="_blank">人大《大语言模型》教材</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>采样参数与结构化输出<span class="tag ta">A</span></strong><ul>
+<li>Temperature、Top P、Top K、Stop Sequences</li><li>JSON Schema、Structured Output、输出校验和失败重试</li><li>模型幻觉与拒答</li></ul>
+<div class="eval">使用 Qwen/DeepSeek/Claude API 返回结构化 JSON；用 Pydantic 或 JSON Schema 校验输出；对格式错误重试或降级。</div>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1mXpuz7E9v/" target="_blank">B站 李宏毅 第2讲：今日生成式AI厉害在哪</a><a href="https://help.aliyun.com/zh/model-studio/developer-reference/use-qwen-by-calling-api" target="_blank">通义千问 API 文档</a><a href="https://api-docs.deepseek.com/" target="_blank">DeepSeek API 文档</a><a href="https://docs.anthropic.com/claude/docs/build-with-claude/structured-output" target="_blank">Claude 结构化输出文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>模型选型与技术边界<span class="tag ta">A</span><span class="tag tc">C</span></strong><ul>
+<li>决策树：何时优化 Prompt / 用 RAG / 用规则引擎 / 微调 / 用小模型 / 本地模型 / 闭源模型</li><li>选型维度：准确率、延迟、Token 成本、上下文长度、数据安全、部署复杂度、并发吞吐、多模态</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1aiADewEBC/" target="_blank">B站 李宏毅 第7讲：DeepSeek-R1 深度思考</a><a href="https://open.bigmodel.cn/dev/api" target="_blank">智谱 API 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>多模型统一接入<span class="tag ta">A</span></strong><ul>
+<li>实现轻量 Model Adapter：统一请求结构、Provider Adapter、模型路由</li><li>超时、重试、Fallback、Token 统计、成本记录、Trace ID、流式输出</li></ul>
+<div class="eval">建议模型：Qwen、DeepSeek、Claude、本地 Ollama 模型。</div>
+<div class="res"><strong>资源：</strong><a href="https://help.aliyun.com/zh/model-studio/developer-reference/use-qwen-by-calling-api" target="_blank">通义千问 API</a><a href="https://api-docs.deepseek.com/" target="_blank">DeepSeek API</a><a href="https://docs.anthropic.com/en/api/getting-started" target="_blank">Claude API</a><a href="https://docs.litellm.ai/" target="_blank">LiteLLM 文档（统一接口参考）</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>Prompt 工程<span class="tag ta">A</span></strong><ul>
+<li>System Prompt、Zero-shot、Few-shot、Prompt 模板、Prompt 版本、输出约束</li><li>Prompt Injection 基础、Prompt 测试集</li></ul>
+<div class="eval">结合 YOYO 项目：场景识别 Prompt、Few-shot 样本选择方法、JSON 输出约束、错误场景分类、98% 正确率的评测口径说明。</div>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1mXpuz7E9v/" target="_blank">B站 李宏毅 第5-6讲：训练不了AI你可以训练你自己</a><a href="https://docs.anthropic.com/claude/docs/prompt-engineering" target="_blank">Anthropic Prompt Engineering 指南</a></div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>本地模型体验<span class="tag tb">B</span></strong><ul>
+<li>Ollama 启动 Qwen 或 DeepSeek 蒸馏模型</li><li>理解量化、测试不同上下文长度</li><li>比较本地模型和 API 模型的延迟、成本和效果，记录测试环境和结果</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://ollama.com/" target="_blank">Ollama 官网</a><a href="https://ollama.com/library/qwen3" target="_blank">Ollama Qwen3 模型</a><a href="https://ollama.com/library/deepseek-r1" target="_blank">Ollama DeepSeek-R1</a><a href="https://docs.vllm.ai/" target="_blank">vLLM 文档（概念了解）</a></div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>整合与面试准备</strong><ul>
+<li>轻量模型网关 v1</li><li>Prompt 模板管理代码</li><li>模型选型决策树</li><li>YOYO 项目技术复盘初稿</li><li>Java 恢复 2h：Spring Boot 项目骨架、REST API、依赖注入</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot 官网</a><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 全套（第1-17集 入门）</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>轻量模型网关 v1 · Prompt 模板管理 · 模型选型决策树 · YOYO 复盘初稿 · Java 骨架恢复</div>
+
+<!-- W2 -->
+<div class="week-h" id="w2"><div class="wn">2</div><div><div class="wt">Week 2：Tool Calling、MCP、Document AI、基础 RAG</div><div class="ws">28h · 可讲工具与 MCP · A+B</div></div></div>
+<div class="key blue"><strong>本周目标：</strong>掌握工具调用、MCP 和文档处理，跑通一个医疗保险知识库基础版。</div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>Tool Calling<span class="tag ta">A</span></strong><ul>
+<li>Tool Schema、参数校验、工具注册</li><li>多轮工具调用、多工具路由、工具超时、工具失败重试</li><li>工具返回结果标准化</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://help.aliyun.com/zh/model-studio/qwen-function-calling" target="_blank">阿里云百炼 Qwen Function Calling 文档（含Python/Node示例）</a><a href="https://api-docs.deepseek.com/zh-cn/guides/function_calling" target="_blank">DeepSeek Function Calling 指南</a><a href="https://docs.anthropic.com/en/docs/build-with-claude/tool-use" target="_blank">Claude Tool Use 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>医疗 OCR Tool 与 Document AI<span class="tag ta">A</span><span class="tag tb">B</span></strong><ul>
+<li>只跑通一类医疗材料或发票：OCR 文本识别、坐标返回、字段结构化抽取</li><li>OCR 置信度、字段置信度、低置信度人工复核</li><li>页面原图与字段坐标关联</li></ul>
+<div class="eval">字符准确率、字段 Precision/Recall/F1、人工修改率。跨页字段、复杂表格和手写体只做设计。</div>
+<div class="res"><strong>资源：</strong><a href="https://paddlepaddle.github.io/paddleocr/" target="_blank">PaddleOCR 官方文档</a><a href="https://github.com/PaddlePaddle/PaddleOCR" target="_blank">PaddleOCR GitHub</a><a href="https://python.langchain.com/docs/how_to/multimodal_prompts/" target="_blank">LangChain 多模态文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>数据库 Tool 与规则 Tool<span class="tag ta">A</span></strong><ul>
+<li>数据库 Tool：参数化 SQL、只读账号、表和字段白名单、查询超时、返回数量限制、审计日志</li><li>规则 Tool：简单规则脚本或 Drools、规则版本、命中依据、金额计算、风险等级判断</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://www.drools.org/" target="_blank">Drools 官网（规则引擎）</a><a href="https://www.postgresql.org/docs/current/" target="_blank">PostgreSQL 文档</a><a href="https://python.langchain.com/docs/how_to/tools/" target="_blank">LangChain Tools 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>MCP 核心<span class="tag tb">B</span></strong><ul>
+<li>固定验证版本：Protocol Version <code>2025-11-25</code>、Local=stdio、Remote=Streamable HTTP</li><li>初始化时执行协议版本和能力协商</li><li>掌握 Host/Client/Server、Tools/Resources/Prompts、Session 生命周期、Tool Discovery</li><li>Tool Annotation、OAuth 在 HTTP Transport 中的适用边界、MCP Server 来源信任</li><li>Tool Annotation 不可作为真实鉴权依据</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://modelcontextprotocol.io/specification/2025-11-25/basic/transports" target="_blank">MCP Transport 规范（2025-11-25）</a><a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization" target="_blank">MCP 授权规范</a><a href="https://modelcontextprotocol.io/specification/2025-06-18/schema" target="_blank">MCP Schema（含 Tool Annotation）</a><a href="https://modelcontextprotocol.io/" target="_blank">MCP 官网</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>MCP Server<span class="tag tb">B</span></strong><ul>
+<li>实现一个医疗场景 MCP Server：保单查询 Tool、OCR Tool、规则校验 Tool</li><li>保单文档 Resource、理赔审核 Prompt</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://github.com/modelcontextprotocol/python-sdk" target="_blank">MCP Python SDK GitHub</a><a href="https://modelcontextprotocol.io/examples" target="_blank">MCP 官方示例</a><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 第49-56集 MCP 全套</a></div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>基础 RAG<span class="tag ta">A</span></strong><ul>
+<li>PDF 解析、文本清洗、Chunk、Embedding</li><li>Elasticsearch 向量检索、BM25、引用溯源、无答案拒答</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1zKx4zWEZP/" target="_blank">B站 LangGraph构建智能AI应用（含RAG）</a><a href="https://python.langchain.com/docs/tutorials/rag/" target="_blank">LangChain RAG Quickstart</a><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html" target="_blank">Elasticsearch kNN 向量检索文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>整合与面试准备</strong><ul>
+<li>OCR Tool、Database Tool、Rule Tool</li><li>MCP Server 和 Client</li><li>基础保险知识库</li><li>Function Calling、MCP、普通 API 的差异说明</li><li>Java 恢复 2h：Spring AI ChatClient 和 Tool Calling</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 第36-44集 Tools+权限</a><a href="https://docs.spring.io/spring-ai/reference/api/tools.html" target="_blank">Spring AI Tool Calling 文档</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>OCR/DB/Rule 三个 Tool · MCP Server+Client（固定版本）· 基础保险知识库 · 工具差异说明文档</div>
+
+<!-- W3 -->
+<div class="week-h" id="w3"><div class="wn">3</div><div><div class="wt">Week 3：企业 RAG、AI 数据工程、混合检索、评测</div><div class="ws">28h · 作品①完成 · 可面试 RAG 岗</div></div></div>
+<div class="key blue"><strong>本周目标：</strong>完成第一个正式面试作品 —— 企业保险知识库可运行原型。</div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>AI 数据工程<span class="tag ta">A</span></strong><ul>
+<li>亲自实现：Document ID、Chunk ID、文件 Hash、摄取任务状态、文档版本、Embedding 版本</li><li>开始积累 10 个 Golden Cases</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://python.langchain.com/docs/how_to/document_loader_pdf/" target="_blank">LangChain Document 元数据设计</a><a href="https://pymupdf.readthedocs.io/" target="_blank">PyMuPDF 文档</a><a href="https://unstructured-io.github.io/unstructured/" target="_blank">unstructured 文档</a><span class="tip">· 结合你的 ETL/数据治理经验设计血缘</span></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>混合检索与 Rerank<span class="tag ta">A</span></strong><ul>
+<li>Elasticsearch BM25 + 向量检索 + RRF 融合</li><li>BGE Reranker、Metadata Filter</li><li>药品名、ICD 编码、保单号精确匹配</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html" target="_blank">ES 向量检索文档</a><a href="https://huggingface.co/BAAI/bge-reranker-large" target="_blank">bge-reranker 模型</a><a href="https://www.bilibili.com/video/BV1D37GzLEe5/" target="_blank">B站 2025最全RAG教程（含Rerank）</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>权限和文档治理<span class="tag ta">A</span></strong><ul>
+<li>Chunk 级 ACL、用户/角色/部门过滤</li><li>文档失效、删除和索引失效、增量更新</li><li>失败重试、死信记录、原文件/解析结果/索引一致性检查</li></ul>
+<div class="eval">评测集增加到 30 个 Cases。</div>
+<div class="res"><strong>资源：</strong><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html" target="_blank">ES Metadata Filter（ACL 过滤）</a><a href="https://python.langchain.com/docs/how_to/self_query/" target="_blank">LangChain 自查询检索器</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>Query 优化<span class="tag ta">A</span></strong><ul>
+<li>Query Rewrite、Multi-Query、Query Decomposition、Context Compression</li><li>无答案拒答、引用准确性</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://python.langchain.com/docs/how_to/query_transformer/" target="_blank">LangChain Query 改写</a><a href="https://python.langchain.com/docs/tutorials/rag/" target="_blank">LangChain RAG 进阶教程</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>RAG 评测<span class="tag ta">A</span></strong><ul>
+<li>测试集扩充到 50 个 Cases：20 人工 Golden + 30 模型辅助生成人工抽检</li><li>每个 Case 含：<code>case_id / question / question_type / expected_document_ids / expected_chunk_ids / answer_key_points / should_refuse / allowed_roles / document_version</code></li></ul>
+<div class="eval">指标：Hit Rate@K、Recall@K、Precision@K、MRR、nDCG@K、Faithfulness、Answer Relevancy、引用准确率、拒答准确率。</div>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1aZ421W7DB/" target="_blank">B站 RAG评估资料（LangSmith+RAGAS）</a><a href="https://www.bilibili.com/video/BV1D37GzLEe5/" target="_blank">B站 2025最全RAG教程（含RAGAS）</a><a href="https://docs.ragas.io/" target="_blank">RAGAS 官方文档</a><a href="https://github.com/explodinggradients/ragas" target="_blank">RAGAS GitHub</a></div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>作品一打磨<span class="tag ta">A</span></strong><ul>
+<li>README、架构图、数据流图、选型 ADR、NFR 基线表、评测报告</li><li>一次失败案例及修复、3 分钟演示</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://docs.dify.ai/" target="_blank">Dify 文档（对比低代码知识库）</a><a href="https://github.com/infiniflow/ragflow" target="_blank">RAGFlow GitHub（选型对比）</a></div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>第一轮模拟面试</strong><ul>
+<li>RAG 完整流程、Chunk 策略如何选、为什么用 ES</li><li>BM25 和向量检索差异、为什么需要 Rerank</li><li>如何实现 ACL、如何处理文档更新、如何评估检索</li><li>如何处理无答案、如何防止知识库越权</li></ul>
+<div class="eval">本周完成简历 v1，并开始少量市场验证投递。</div>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 第57-77集 RAG全套（Java视角复习）</a><span class="tip">· 参考《FDE面试备战手册》20 道模拟题</span></div></div></div>
+
+<div class="deliv"><strong>本周产出（作品一）：</strong>企业保险知识库可运行原型 · 架构图+数据流图 · 选型 ADR · NFR 基线 · 50 Cases 评测报告 · 3 分钟演示 · 简历 v1</div>
+
+<!-- W4 -->
+<div class="week-h" id="w4"><div class="wn">4</div><div><div class="wt" style="color:#993556">Week 4：LangGraph Agent、HITL、Trace、正式面试准备</div><div class="ws">28h · 作品②核心版 · ★ 正式开始面试</div></div></div>
+<div class="key"><strong>本周目标：</strong>完成第二个可面试作品的核心版本。第 4 周结束后正式开始面试。</div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>Agent 核心与 Loop<span class="tag ta">A</span></strong><ul>
+<li>Agent、Workflow、Agentic Workflow 概念区分</li><li>ReAct、Tool Calling Loop、停止条件、最大步骤、Token 预算</li><li>错误处理、工具结果回填</li></ul>
+<div class="eval">亲自实现一个简单 Agent Loop。</div>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1aiADewEBC/" target="_blank">B站 李宏毅 第2讲：一堂课搞懂 AI Agent 原理</a><a href="https://www.bilibili.com/video/BV1zKx4zWEZP/" target="_blank">B站 LangGraph构建智能AI应用（ReAct+Tool Calling）</a><a href="https://langgraph.com.cn/" target="_blank">LangGraph 中文官方文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>LangGraph<span class="tag ta">A</span></strong><ul>
+<li>State、Node、Edge、Conditional Edge、Tool Node</li><li>Checkpointer、Interrupt、Command</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1zKx4zWEZP/" target="_blank">B站 LangGraph构建智能AI应用（StateGraph/条件边/Tool Node）</a><a href="https://langgraph.com.cn/tutorials/get-started/1-build-basic-chatbot/index.html" target="_blank">LangGraph 中文官方教程</a><a href="https://github.com/langchain-ai/langgraph" target="_blank">LangGraph GitHub</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>特药理赔 Agent 主流程<span class="tag ta">A</span></strong><div class="flow">
+上传理赔材料 → OCR → 字段抽取 → 材料完整性检查 → 保单和知识库检索 → 规则引擎校验 → 风险等级判断 → 人工审批 → 结论生成 → 结果回写</div>
+<div class="res"><strong>资源：</strong>复用 W2 的 OCR/DB/Rule Tool + W3 的保险知识库 + W4 Day2 的 LangGraph<span class="tip">· 重点是编排，不是重写工具</span></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>HITL 与中断恢复<span class="tag ta">A</span></strong><ul>
+<li>PostgreSQL Checkpointer、人工审批触发</li><li>审批通过和驳回、状态修改、中断恢复、异常重试</li><li>幂等键、最大执行时间</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1zKx4zWEZP/" target="_blank">B站 LangGraph（Checkpoint/Interrupt/HITL 章节）</a><a href="https://docs.langchain.com/oss/python/langgraph/interrupts" target="_blank">LangGraph Interrupts 官方文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>Trace 与成本<span class="tag ta">A</span></strong><ul>
+<li>固定 Trace 字段：<code>trace_id / user_id_hash / tenant_id / model_provider / model_name / prompt_version / knowledge_version / agent_version / tool_name / input_tokens / output_tokens / latency_ms / cost / status / error_type</code></li><li>自定义 Span：<code>llm.call / rag.retrieve / rerank.call / agent.step / tool.call / human.approval / eval.case</code></li></ul>
+<div class="res"><strong>资源：</strong><a href="https://langfuse.com/" target="_blank">Langfuse 官网（Trace 平台）</a><a href="https://opentelemetry.io/blog/2025/ai-agent-observability/" target="_blank">OpenTelemetry AI Agent 可观测性博客</a><a href="https://python.langchain.com/docs/how_to/streaming/" target="_blank">LangChain 流式与回调</a></div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>作品二核心版打磨<span class="tag ta">A</span></strong><ul>
+<li>Agent 流程图、状态归属图、30 个 Agent 测试 Cases</li><li>工具调用成功率、任务完成率、人工审批触发准确率</li><li>高风险漏判样本统计、单任务成本、错误恢复测试</li><li>README、3 分钟演示</li></ul>
+<div class="res"><strong>资源：</strong><a href="https://docs.ragas.io/" target="_blank">RAGAS（Agent 评测）</a><a href="https://langfuse.com/" target="_blank">Langfuse（Trace 可视化）</a></div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>正式面试准备</strong><ul>
+<li>简历终版 v1、三分钟自我介绍</li><li>三个项目故事：YOYO / 保险知识库 / 特药理赔 Agent</li><li>两张架构图</li><li>30 道大模型与 RAG 问题 + 30 道 Agent 问题 + 10 道系统设计题</li><li>一轮完整模拟面试 + 正式开始投递</li></ul>
+<div class="res"><strong>资源：</strong><span class="tip">参考《FDE面试备战手册.html》20 道模拟题 + 投递关键词；用通义/DeepSeek 做模拟面试官</span></div></div></div>
+
+<div class="deliv" style="background:#FBEAF0;border-left-color:#993556"><strong style="color:#993556">本周产出（作品二核心版）：</strong>特药理赔 Agent · Agent 流程图+状态归属图 · 30 Cases 测试 · 量化评测 · 简历终版 · 项目故事+架构图 · 面试题集 · 模拟面试 · 正式投递</div>
+
+<!-- 第4周面试就绪标准 -->
+<div class="milestone" id="milestone">
+  <div class="mh">★ 第 4 周面试就绪标准</div>
+  <div class="mb">
+    <p style="margin-bottom:10px;color:#666;font-size:13px">达到以下全部标准才算完成第 4 周：</p>
+    <ol>
+      <li>能独立演示 RAG</li>
+      <li>能独立演示 LangGraph Agent</li>
+      <li>能解释 Agent 和 Workflow 边界</li>
+      <li>能解释规则、RAG、Agent、人工的职责划分</li>
+      <li>能解释 MCP 和 Tool Calling</li>
+      <li>能解释 Agent 状态、HITL、Checkpoint 和恢复</li>
+      <li>能展示量化评测</li>
+      <li>能说明哪些是亲自实现，哪些只做了设计</li>
+      <li>能讲清项目失败案例和修复过程</li>
+      <li>能回答至少 60% 的目标岗位高频技术问题</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============ 阶段二 ============ -->
+<div class="phase-banner p2"><span>阶段二</span> 第 5-8 周：高薪岗位强化 <span class="pn">冲刺架构岗 / 负责人岗</span></div>
+
+<!-- W5 -->
+<div class="week-h w5-8" id="w5"><div class="wn">5</div><div><div class="wt">Week 5：Agent Harness、可靠性、Text2SQL、三路数据路由</div><div class="ws">提升 Agent 深度</div></div></div>
+<div class="key blue"><strong>本周目标：</strong>把 Agent 原型升级为具备企业扩展能力的架构作品。</div>
+<div class="ov-card">
+  <div class="osec"><div class="osec-h">必须完成 <span class="tag ta">A</span></div><ul>
+    <li>Agent Loop 企业扩展、Context 裁剪与摘要、Tool Runtime</li>
+    <li>工具鉴权、执行预算、幂等、超时、重试与退避、补偿</li>
+    <li>业务状态归属、审计</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">Text2SQL 最小 Demo <span class="tag tb">B</span></div><ul>
+    <li>用户问题 → 数据路由判断 → Schema Linking → 生成只读 SQL → SQL 安全校验 → 执行计划和超时 → 执行 → 结果解释</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">三路数据路由 <span class="tag ta">A</span></div><ul>
+    <li>根据问题动态选择：RAG / SQL / 业务 API</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h" style="color:#666">默认不实现</div><ul>
+    <li>Temporal、多 Agent、A2A 默认不实现，只理解边界</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">资源</div><div class="res" style="margin-top:4px"><a href="https://www.bilibili.com/video/BV1aiADewEBC/" target="_blank">B站 李宏毅 Agent 原理</a><a href="https://www.bilibili.com/video/BV1zKx4zWEZP/" target="_blank">B站 LangGraph（多智能体/工具）</a><a href="https://github.com/eosphoros-ai/awesome-text2sql" target="_blank">Awesome-Text2SQL</a><a href="https://docs.temporal.io/develop/java" target="_blank">Temporal Java SDK（仅了解）</a></div></div>
+</div>
+
+<!-- W6 -->
+<div class="week-h w5-8" id="w6"><div class="wn">6</div><div><div class="wt">Week 6：评测、LLMOps、安全、Agent Memory</div><div class="ws">冲刺架构岗</div></div></div>
+<div class="key blue"><strong>本周目标：</strong>补齐高级岗位最看重的评测、治理和安全能力。</div>
+<div class="ov-card">
+  <div class="osec"><div class="osec-h">Agent 评测 <span class="tag ta">A</span></div><ul>
+    <li>RAG Eval 50 Cases · Agent Eval 30 Cases</li>
+    <li>OCR Tool / Rule Tool / Database Tool 各 10-20 Cases</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">LLMOps 必须实现 <span class="tag ta">A</span></div><ul>
+    <li>Prompt 版本、模型配置版本、Embedding 版本、评测集版本</li>
+    <li>一键离线回归、Trace、Token 成本、错误 Case 保存</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">只做设计 <span class="tag tc">C</span></div><ul>
+    <li>灰度发布、A/B 测试、自动回滚、漂移监控、发布审批</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">安全 <span class="tag ta">A</span><span class="tag tb">B</span><span class="tag tc">C</span></div><ul>
+    <li>Prompt Injection / Indirect Prompt Injection / MCP Server 信任 / Tool Poisoning</li>
+    <li>RAG 数据投毒 / SQL 和代码执行风险 / 最小权限 / Tool 白名单</li>
+    <li>数据脱敏 / 租户隔离 / Human Approval / 安全审计</li>
+    <li>OWASP LLM Top 10 / Agentic Application 风险</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">Agent Memory 生命周期 <span class="tag tb">B</span></div><ul>
+    <li>Working Memory / Conversation Summary / Episodic Memory / 用户级长期记忆</li>
+    <li>保留时间、删除和更正、Memory Poisoning、租户隔离</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">资源</div><div class="res" style="margin-top:4px"><a href="https://docs.ragas.io/" target="_blank">RAGAS（Agent/Tool 评测）</a><a href="https://genai.owasp.org/llm-top-10/" target="_blank">OWASP LLM Top 10</a><a href="https://genai.owasp.org/initiatives/agentic-security-initiative/" target="_blank">OWASP Agentic Security</a><a href="https://python.langchain.com/docs/how_to/chatbots_memory/" target="_blank">LangChain Memory 文档</a><a href="https://langfuse.com/" target="_blank">Langfuse（版本与回归）</a></div></div>
+</div>
+
+<!-- W7 -->
+<div class="week-h w5-8" id="w7"><div class="wn">7</div><div><div class="wt">Week 7：Spring AI、模型网关、企业平台与部署交付</div><div class="ws">冲刺负责人岗</div></div></div>
+<div class="key blue"><strong>本周目标：</strong>形成 Java 与企业 AI 平台能力，冲刺高级架构师和技术负责人岗位。</div>
+<div class="ov-card">
+  <div class="osec"><div class="osec-h">Spring AI <span class="tag ta">A</span></div><ul>
+    <li>ChatClient、Advisor、Structured Output、Tool Calling、Chat Memory</li>
+    <li>Elasticsearch VectorStore、MCP Client、MCP Server、Observability</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">AI Gateway <span class="tag ta">A</span><span class="tag tb">B</span><span class="tag tc">C</span></div><ul>
+    <li>自研核心：Model Adapter / Provider 路由 / 超时重试 / Fallback / Token 成本 / Trace Hook / 简单限流</li>
+    <li>LiteLLM 集成体验：虚拟 Key / 预算 / 配额 / 多租户 / 项目级成本 / 管理界面</li>
+    <li>完成 Build vs Buy ADR</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">单一调用链</div><ul>
+    <li>企业模式：业务应用 → Spring AI → LiteLLM → 模型服务</li>
+    <li>学习模式：业务应用 → 自研 Model Adapter → 模型服务</li>
+    <li>避免两层路由、两层重试和成本重复统计</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">部署交付 <span class="tag tb">B</span></div><ul>
+    <li>Docker / Docker Compose / 环境隔离 / Secret 管理 / Health Check / Readiness Check</li>
+    <li>CI/CD / 数据库迁移 / 日志指标 Trace / API 限流 / 容器资源限制</li>
+    <li>Kubernetes 基础拓扑 / 灰度和回滚方案</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">资源</div><div class="res" style="margin-top:4px"><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 全套84集（ChatClient/Tools/MCP/RAG/Agent）</a><a href="https://www.bilibili.com/video/BV1X27GznEsf/" target="_blank">B站 Spring AI 零基础19集</a><a href="https://docs.spring.io/spring-ai/reference/api/tools.html" target="_blank">Spring AI Tool Calling 文档</a><a href="https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html" target="_blank">Spring AI MCP 文档</a><a href="https://docs.litellm.ai/" target="_blank">LiteLLM 文档</a></div></div>
+</div>
+
+<!-- W8 -->
+<div class="week-h w5-8" id="w8"><div class="wn">8</div><div><div class="wt">Week 8：vLLM、容量成本、系统设计、作品整合与高级面试</div><div class="ws">★ 集中投递高薪岗位</div></div></div>
+<div class="key blue"><strong>本周目标：</strong>完成高级岗位的最后补强，形成完整作品集和交付方案。</div>
+<div class="ov-card">
+  <div class="osec"><div class="osec-h">vLLM 服务化实验 <span class="tag tb">B</span></div><ul>
+    <li>启动兼容 API、使用非 OpenAI 模型、指定量化方式</li>
+    <li>设置输入输出长度、并发和请求速率</li>
+    <li>测试 TTFT、TPOT、ITL、吞吐和端到端延迟，输出测试环境和结论</li>
+    <li>无 GPU 时：小模型实测 + 32B 模型公式估算，明确假设条件，不伪造性能数据</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">容量与成本 <span class="tag tb">B</span></div><ul>
+    <li>API 模型与私有部署成本对比、GPU 显存估算、KV Cache 估算</li>
+    <li>并发和队列、模型副本数、Token 成本、成本优化方案</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">总 FDE Solution Delivery Pack（15-18 页）</div><ul>
+    <li>特药理赔现有流程 → 业务痛点和目标 → AI 适用性 → 数据准备度</li>
+    <li>规则/RAG/Agent/人工边界 → POC 范围 → 保险知识库 → 特药理赔 Agent</li>
+    <li>企业 Agent 平台 → 数据和知识架构 → 安全与权限 → 评测与 LLMOps</li>
+    <li>部署拓扑 → NFR 和实测结果 → POC 到生产差距 → 成本、风险和上线计划</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">高级面试冲刺</div><ul>
+    <li>设计企业 RAG 平台 / 理赔 Agent / 企业 AI 中台 / 模型网关</li>
+    <li>从 POC 到生产如何推进 / 如何评估大模型项目 / 如何控制成本</li>
+    <li>如何处理安全与合规 / 如何划分规则 RAG Agent 人工 / 如何带团队建设企业 AI 能力</li>
+  </ul></div>
+  <div class="osec"><div class="osec-h">资源</div><div class="res" style="margin-top:4px"><a href="https://docs.vllm.ai/" target="_blank">vLLM 官方文档</a><a href="https://docs.vllm.ai/en/stable/benchmarking/cli/" target="_blank">vLLM Benchmark CLI（TTFT/TPOT/ITL）</a><a href="https://docs.vllm.ai/en/stable/models/serving.html" target="_blank">vLLM 兼容 API 部署</a><a href="https://ollama.com/library/qwen3" target="_blank">Ollama Qwen3（无GPU小模型实测）</a><span class="tip">· 系统设计题参考《FDE面试备战手册》</span></div></div>
+</div>
+
+<!-- 三个作品 -->
+<h2>三个作品集</h2>
+<div class="works">
+  <div class="work"><div class="wnum">作品一 · W3 完成</div><div class="wname">企业保险知识库</div><ul>
+    <li>增量摄取、文档和 Chunk 版本</li><li>混合检索、Rerank、ACL</li><li>引用、评测</li><li>数据工程和血缘设计</li>
+  </ul></div>
+  <div class="work"><div class="wnum">作品二 · W4 核心版</div><div class="wname">特药理赔 Agent</div><ul>
+    <li>LangGraph、HITL、Checkpoint</li><li>Workflow 与 Agent 边界</li><li>OCR/RAG/规则/人工职责</li><li>幂等、重试、恢复、Trace、成本、评测</li><li>从 POC 到生产差距</li>
+  </ul></div>
+  <div class="work"><div class="wnum">作品三 · W7 完成</div><div class="wname">企业 Agent 平台最小版</div><ul>
+    <li>Spring AI、模型网关、MCP</li><li>Tool Registry、Trace</li><li>部署拓扑</li><li>Build vs Buy ADR</li>
+  </ul></div>
+</div>
+
+<!-- 投递策略 -->
+<h2 id="strategy">五、第 4 周开始的投递策略</h2>
+<div class="strat">
+  <div class="sc s1"><div class="sh">第一优先</div><ol>
+    <li>企业 GenAI 解决方案架构师</li>
+    <li>高级 AI 应用工程师</li>
+    <li>AI 应用技术负责人</li>
+    <li>医疗保险 AI 负责人</li>
+    <li>AI 解决方案负责人</li>
+  </ol></div>
+  <div class="sc s2"><div class="sh">第二优先</div><ol>
+    <li>本地或远程 AI Deployment Engineer</li>
+    <li>低出差比例的 FDE</li>
+    <li>高级 RAG 工程师</li>
+    <li>高级 Agent 应用工程师</li>
+  </ol></div>
+  <div class="sc s3"><div class="sh">暂缓</div><ul>
+    <li>Agent Runtime 核心开发</li>
+    <li>纯多 Agent 平台开发</li>
+    <li>强现场编码岗位</li>
+    <li>模型训练岗位</li>
+    <li>推理引擎开发</li>
+    <li>长期驻场 FDE</li>
+    <li>强算法岗位</li>
+  </ul></div>
+</div>
+
+<!-- 面试叙事 -->
+<h2 id="narrative">六、最终面试叙事</h2>
+<div class="narrative">
+  <div class="quote"><strong>定位：</strong>我具备 Java、大数据、医疗保险行业和复杂项目管理经验，目前重点转向企业级大模型应用、RAG、Agent 和 AI 平台落地。我能够完成从业务流程分析、数据准备度评估、技术选型、原型开发、效果评测到生产化方案设计的完整工作。</div>
+
+  <div class="story"><div class="story-h"><span class="num">1</span>YOYO 场景识别</div><ul>
+    <li>用户自然语言表达复杂，规则会产生规则爆炸</li>
+    <li>模型负责语义理解，规则负责输出约束和安全控制</li>
+    <li>Prompt 和 Few-shot 如何优化、测试集如何构建</li>
+    <li>98% 的样本规模、测试口径和错误分类</li>
+  </ul></div>
+
+  <div class="story"><div class="story-h"><span class="num">2</span>企业保险知识库</div><ul>
+    <li>增量摄取、文档和 Chunk 版本、混合检索、Rerank</li>
+    <li>ACL、引用、评测、数据工程和血缘设计</li>
+  </ul></div>
+
+  <div class="story"><div class="story-h"><span class="num">3</span>特药理赔 Agent</div><ul>
+    <li>Workflow 与 Agent 的边界、OCR/RAG/规则引擎/人工的职责</li>
+    <li>LangGraph 状态、HITL、Checkpoint、幂等/重试/恢复</li>
+    <li>Trace、成本和评测、从 POC 到生产的差距</li>
+  </ul></div>
+</div>
+
+<!-- 执行红线 -->
+<h2 id="redline">七、执行红线</h2>
+<div class="redline">
+  <div class="rh">⚠ 不可逾越的 10 条红线</div>
+  <ol>
+    <li>第 4 周前不学习复杂多 Agent</li>
+    <li>第 4 周前不学习 A2A</li>
+    <li>Temporal 默认不学习</li>
+    <li>第 4 周前不开发完整 AI 平台</li>
+    <li>第 4 周前不深入 vLLM</li>
+    <li>第 4 周前 Java 只恢复 Spring Boot 和 Spring AI 必需能力</li>
+    <li>每周必须产生可运行代码和测试结果</li>
+    <li>不得只看教程不写代码</li>
+    <li>不得使用无法解释的 AI 生成代码</li>
+    <li>项目中所有指标必须记录测试环境、样本量和实测值</li>
+  </ol>
+</div>
+
+<div class="ft">FDE 学习路径 v4 · 8 周面试冲刺版 · 第 4 周正式面试，第 8 周冲刺高薪岗位 · 全程非 OpenAI 模型</div>
+
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W7D3 学习手册 · Spring AI MCP Client/Server 与 Observability（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W7D3 学习手册</span>
+  <a href="#s1">1.MCP回顾</a><a href="#s2">2.Client</a><a href="#s3">3.配置</a><a href="#s4">4.Server</a><a href="#s5">5.双栈</a>
+  <span class="sep"></span>
+  <a href="#s6">6.Obs概览</a><a href="#s7">7.Trace</a><a href="#s8">8.接W4</a><a href="#s9">9.Metrics</a><a href="#s10">10.平台定位</a>
+  <span class="sep"></span>
+  <a href="#s11">资源</a><a href="#s12">达标①</a><a href="#s13">达标②</a><a href="#s14">自测</a><a href="#s15">速记</a>
+</div>
+
+<h1>FDE W7D3 学习手册 · Spring AI MCP Client / Server 与 Observability</h1>
+<p class="sub">W7 周级拆解 Day3 · A 级（必须掌握，面试核心）· 约 4h · 学完能讲清"用 Spring AI 既能调 MCP Server、又能把 Java Tool 暴露成 MCP，并打通可观测 Trace"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W2 我们手写过"保单 / 规则 Server"（MCP 风格的工具服务）；W7D3 进入 Spring AI 对 MCP 协议的生产级支持：既做 <strong>MCP Client</strong> 调用已有 Server，又做 <strong>MCP Server</strong> 把 Java Tool 暴露成标准 MCP 协议；并叠加 <strong>Observability</strong>（Micrometer / Actuator）把 W4 的 Trace 字段（trace_id / model / tool）真正打通到监控。<br>
+  <strong>学完能回答：</strong>① Spring AI 怎么同时做 MCP Client 和 MCP Server；② Observability 怎么接 W4 的 Trace 字段（trace_id / model / tool 等）。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「🔧 工程含义」「🎤 面试话术」「⚠ 易错点」→ 做末尾自测清单 → 配合《FDE-W7D3-评测题.md》。候选人背景：36 岁，Java + 大数据 + 医疗保险，回答落到"Java 企业 AI 平台"能力，场景用保险知识库 / 特药理赔 Agent。
+</div>
+
+<!-- ============ 1. MCP 回顾 ============ -->
+<h2 id="s1">一、MCP 协议回顾（W2 写过的保单 / 规则 Server）</h2>
+<h3>1.1 什么是 MCP</h3>
+<p><strong>MCP（Model Context Protocol）</strong>是 Anthropic 提出的开放协议，统一了"模型 / Agent 如何连接外部数据源和工具"。它把"工具、资源、提示"标准化成一套协议，Client 和 Server 按协议通信，<strong>不再为每个工具写专属适配</strong>。</p>
+<div class="formula">
+Agent(App) ←—MCP 协议—→ MCP Server（暴露 tools/resources）←—→ 真实系统（保单库/规则引擎）
+</div>
+<h3>1.2 与 W2 的关系</h3>
+<p>W2 我们把"保单查询、理赔规则校验"做成工具服务，当时是自定义协议/HTTP。MCP 就是把这些工具<strong>标准化</strong>——任何兼容 MCP 的 Client 都能发现并调用，不必关心内部是 Java 还是 Python 实现。</p>
+<div class="eng">MCP 的价值是"解耦"：工具提供方（保单系统团队）和模型应用方（AI 平台团队）只需遵守协议，互不需知道对方技术栈。对企业多团队协作极关键。</div>
+<div class="iv">MCP 是模型连接外部工具/数据的开放协议，把工具、资源、提示标准化。W2 我们手写保单/规则 Server，MCP 就是把这类 Server 标准化，任何兼容 Client 都能调，解耦工具方与模型方。</div>
+<div class="warn">① MCP 不是"银弹"——它解决连接标准化，不解决工具本身的<strong>权限/幂等/质量</strong>问题。② MCP Server 一旦暴露，任何 Client 都能调，<strong>鉴权和作用域</strong>必须自己做。③ 别把 MCP 和 Function Calling 混为一谈：Function Calling 是模型厂商的能力，MCP 是跨模型的"工具连接协议"，两者可叠加。</div>
+
+<!-- ============ 2. MCP Client ============ -->
+<h2 id="s2">二、MCP Client：调用已有 MCP Server</h2>
+<h3>2.1 能力</h3>
+<p>Spring AI 的 <code>McpSyncClient</code> / <code>McpAsyncClient</code> 连接远端 MCP Server，自动<strong>发现</strong>对方暴露的 tools，并把这些 tools 转成 Spring AI 的 <code>ToolCallback</code>，从而让 ChatClient 直接调用——和 W7D2 的本地 @Tool 体验一致，只是工具来自远端。</p>
+<div class="formula">
+McpSyncClient(连 Server) → listTools() 发现 → 转 ToolCallback → ChatClient.tools(...) 调用
+</div>
+<h3>2.2 与本地 @Tool 的区别</h3>
+<table>
+<tr><th>维度</th><th>本地 @Tool</th><th>MCP Client 远程工具</th></tr>
+<tr><td>位置</td><td>同进程 Java 方法</td><td>远端 Server 进程</td></tr>
+<tr><td>发现</td><td>编译期注解扫描</td><td>运行时 listTools 动态发现</td></tr>
+<tr><td>网络</td><td>无</td><td>有（延迟/可用性问题）</td></tr>
+<tr><td>团队边界</td><td>同团队</td><td>跨团队/跨语言</td></tr>
+</table>
+<div class="eng">对保险平台：保单系统团队维护 MCP Server（Java 写），AI 平台团队用 McpSyncClient 接进来，ChatClient 像调本地工具一样调"查保单"。团队解耦、独立部署、独立扩缩。</div>
+<div class="iv">MCP Client 连接远端 Server、动态发现 tools 并转成 ToolCallback，ChatClient 调用体验和本地 @Tool 一致，但工具在远端、有网络开销、跨团队。适合"工具由别的团队/语言维护"的场景。</div>
+
+<!-- ============ 3. 配置 ============ -->
+<h2 id="s3">三、MCP Client 配置（Stdio / HTTP transport）</h2>
+<h3>3.1 两种传输</h3>
+<ul>
+  <li><strong>Stdio</strong>：Client 启动 Server 子进程，通过标准输入输出通信。适合"同机、随用随起"的本地工具（如一个 Python 脚本）。</li>
+  <li><strong>HTTP / SSE</strong>：Client 通过 HTTP 连已部署的 Server。适合"独立部署、多 Client 共享"的生产服务（保险保单 Server 应选这个）。</li>
+</ul>
+<pre><code>// HTTP 方式连接已部署的保单 MCP Server
+McpClientTransport transport = HttpClientSseClientTransport.builder("http://mcp-policy-svc:8081").build();
+McpSyncClient client = McpClient.sync(transport).build();
+client.initialize();
+List&lt;ToolCallback&gt; callbacks = client.listTools(null).tools().stream()
+    .map(t -> new McpToolCallback(t, client)).toList();
+chatClient = ChatClient.builder(chatModel).defaultTools(callbacks).build();</code></pre>
+<div class="eng">生产用 HTTP/SSE 而非 Stdio：Server 独立部署、可水平扩展、多 AI 应用共享、便于加鉴权与限流（呼应 W7D4 Gateway）。Stdio 仅适合本地调试/单机工具。</div>
+<div class="iv">MCP Client 支持 Stdio（同机子进程，调试用）和 HTTP/SSE（独立部署、生产用）两种传输。保险场景的保单 Server 用 HTTP/SSE，可独立扩缩、多应用共享、便于治理。</div>
+<div class="warn">① HTTP 方式 Server 不可达时 Client 调用会失败，要配<strong>超时 + 重试 + 降级</strong>（Server 挂了别把对话链路带崩）。② Stdio 方式 Client 负责拉起子进程，进程管理（启停/僵尸）要小心，不适合生产多实例。③ 动态发现的 tools 数量可能变化，要监控"发现到的工具集"是否和预期一致。</div>
+
+<!-- ============ 4. MCP Server ============ -->
+<h2 id="s4">四、MCP Server：用 Spring AI 暴露 Java Tool 为 MCP</h2>
+<h3>4.1 能力</h3>
+<p>反过来，我们也可以把现有 Java 方法通过 Spring AI 的 <code>@Tool</code> + MCP Server starter 暴露成标准 MCP 协议，供任何 MCP Client（不限于 Spring AI）调用。</p>
+<pre><code>@Tool(description = "查询保单当前状态与保障范围")
+public String queryPolicy(@ToolParam(description="保单号") String policyNo) { ... }
+
+// 启动类加 @EnableMcpServer，starter 自动把 @Tool 暴露为 MCP tools
+@SpringBootApplication
+@EnableMcpServer
+public class PolicyMcpServer { public static void main(String[] a){ SpringApplication.run(a); } }</code></pre>
+<h3>4.2 价值</h3>
+<ul>
+  <li>保单系统团队的 Java 资产，零改造暴露成 MCP，被 Python/JS/Spring 各类 Agent 复用。</li>
+  <li>统一治理：Server 侧可独立加鉴权、审计、限流。</li>
+</ul>
+<div class="eng">对多语言企业：Java 保单服务暴露成 MCP 后，数据科学团队的 Python Agent、前端团队的 TS Agent 都能直接调用，无需各自写适配。这是"工具资产化"的关键。</div>
+<div class="iv">用 @Tool + @EnableMcpServer（MCP Server starter）可把 Java 方法暴露成标准 MCP 协议，任何 MCP Client 都能调。保单团队的 Java 资产零改造即可被多语言 Agent 复用。</div>
+<div class="warn">① 暴露成 MCP 后<strong>等于对外开放入口</strong>，必须做鉴权（token/scope）与输入校验，防越权查他人保单。② Server 的工具 description 同样影响调用准确率，即便是"被别人调"也要写清。③ MCP Server 的传输协议（Stdio/HTTP）要和 Client 匹配，否则连不上。</div>
+
+<!-- ============ 5. 双栈 ============ -->
+<h2 id="s5">五、同时做 Client 与 Server 的架构</h2>
+<p>一个 AI 平台应用常同时是：<strong>Client</strong>（调保单/规则 MCP Server）+ <strong>Server</strong>（把自己的特药推理能力暴露给上游）。</p>
+<div class="formula">
+上游 Agent ──MCP──> 我的应用(MCP Server: 特药推理)
+                              │ 同时作为 MCP Client
+                              └──MCP──> 保单 Server / 规则 Server
+</div>
+<div class="info">这正是 W2"保单/规则 Server"思想的放大：W2 是手写单 Server；W7D3 用 Spring AI 同时做 Client（消费别人）+ Server（被别人消费），形成工具网络。保险平台里：底层是保单/药品/规则三个 MCP Server，上层是理赔 Agent 应用（既消费也暴露）。</div>
+<div class="eng">企业工具网络 = 多个 MCP Server（各团队维护）+ 多个 MCP Client（各 AI 应用消费）。Gateway（W7D4）可在 MCP 传输层前面做统一鉴权/限流/成本，形成"MCP 网格"。</div>
+<div class="iv">一个应用可同时是 MCP Client（调别人的保单/规则 Server）和 MCP Server（暴露自己的特药推理）。W2 是手写单 Server，W7D3 用 Spring AI 形成 Client+Server 双栈的工具网络，多个 Server 被多个应用消费。</div>
+
+<!-- ============ 6. Obs 概览 ============ -->
+<h2 id="s6">六、Observability 概览（Micrometer / Actuator）</h2>
+<h3>6.1 三大支柱</h3>
+<table>
+<tr><th>支柱</th><th>作用</th><th>Spring AI 落地</th></tr>
+<tr><td>Logs</td><td>结构化日志</td><td>LoggingAdvisor + MDC(trace_id)</td></tr>
+<tr><td>Metrics</td><td>聚合指标</td><td>Micrometer 计数器/计时器</td></tr>
+<tr><td>Traces</td><td>链路追踪</td><td>Micrometer Tracing / Brave，串联调用</td></tr>
+</table>
+<h3>6.2 为什么 AI 应用更需要可观测</h3>
+<ul>
+  <li>LLM 调用<strong>不可预测</strong>（时延高、可能失败、输出随机），必须有完整 Trace。</li>
+  <li>成本来自 token，必须按 trace/model 统计（呼应 W4 cost 字段）。</li>
+  <li>工具调用链长（模型→工具→回灌），需链路串联定位问题。</li>
+</ul>
+<div class="eng">Observability 是"AI 应用能否上生产"的分水岭。没有 Trace，一次理赔答错你无法定位是"模型问题 / 工具返回错 / 记忆注入错"。Micrometer 是 Spring 生态统一观测门面，Actuator 暴露端点。</div>
+<div class="iv">Observability 三支柱：Logs（结构化日志）、Metrics（聚合指标）、Traces（链路追踪）。AI 应用因调用不可预测、成本按 token、链路长，更需要可观测，Spring 生态用 Micrometer + Actuator 统一落地。</div>
+
+<!-- ============ 7. Trace ============ -->
+<h2 id="s7">七、Trace 埋点（trace_id / model / tool）</h2>
+<h3>7.1 要埋哪些字段</h3>
+<p>呼应 W4 定义的 Trace 字段，AI 调用至少要记：</p>
+<table>
+<tr><th>字段</th><th>含义</th></tr>
+<tr><td><code>trace_id</code></td><td>一次用户请求的全链路 ID</td></tr>
+<tr><td><code>model</code></td><td>实际调用的模型（Qwen/DeepSeek...）</td></tr>
+<tr><td><code>tool</code></td><td>本次调用的工具名（如 queryPolicy）</td></tr>
+<tr><td><code>prompt_tokens</code> / <code>completion_tokens</code></td><td>token 用量</td></tr>
+<tr><td><code>latency_ms</code></td><td>耗时</td></tr>
+<tr><td><code>status</code></td><td>成功/失败/降级</td></tr>
+</table>
+<h3>7.2 在 Advisor 里埋</h3>
+<pre><code>public class TraceAdvisor implements Advisor {
+  public AdvisedResponse adviseCall(AdvisedRequest req, CallAdvisorChain chain){
+     String tid = MDC.get("trace_id"); // 由网关/入口传入
+     long t0 = System.nanoTime();
+     AdvisedResponse resp = chain.nextAroundCall(req);
+     Metrics.timer("ai.call", "model", currentModel, "tool", currentTool)
+             .record(System.nanoTime()-t0, TimeUnit.NANOSECONDS);
+     return resp;
+  }
+}</code></pre>
+<div class="eng">把 trace_id 放进 MDC，日志自动带上；再用 Micrometer 记 timer/counter。这样一次理赔请求的"模型时延、token、工具调用"都能按 trace_id 聚合分析——直接对接 W4 的 Trace 字段设计。</div>
+<div class="iv">AI 调用 Trace 至少埋 trace_id / model / tool / token / latency / status。在 Advisor 里用 MDC 传 trace_id + Micrometer 记指标，和 W4 的 Trace 字段设计对齐。</div>
+
+<!-- ============ 8. 接 W4 ============ -->
+<h2 id="s8">八、与 W4 Trace 字段打通</h2>
+<div class="info">W4 我们设计了 Agent 的 Trace 字段规范（trace_id、model、tool、step、token、cost、latency、status、error）。W7D3 的任务就是把这套规范<strong>落到 Spring AI 的实现</strong>：用 Advisor 在调用前取/生成 trace_id，调用后写 model/tool/token/latency/status，统一上报到现有 APM（如 Prometheus + Grafana + 链路追踪）。</div>
+<div class="formula">
+W4 Trace 规范（字段定义）  ──实现──>  W7D3 Advisor 埋点 + Micrometer 上报  ──>  现有监控(APM)
+</div>
+<div class="eng">面试叙事：W4 是"要记什么"（规范/Why），W7D3 是"怎么记"（Advisor + Micrometer / How）。两者用同一个 trace_id 串联——Gateway 出口的 trace_id（W7D4）和 Advisor 内的 trace_id 必须是同一个，否则链路断。</div>
+<div class="iv">W4 定义 Trace 字段规范（trace_id/model/tool/token/cost...），W7D3 用 Advisor 埋点 + Micrometer 把它实现并上报现有 APM。两者靠同一个 trace_id 串联，且要和 W7D4 Gateway 出口的 trace_id 一致，否则链路断裂。</div>
+<div class="warn">① trace_id 必须在<strong>入口（网关/Controller）生成并贯穿全链路</strong>，Advisor 里只取不新建，否则每段对话各自生成 id 无法串联。② 工具调用的 trace 要能"展开"成子 span（模型→tool→回灌），扁平记一条会丢失因果。③ token/cost 字段要从 <code>ChatResponse.getMetadata().getUsage()</code> 取真实值，别估算。</div>
+
+<!-- ============ 9. Metrics ============ -->
+<h2 id="s9">九、Metrics 指标（token、延迟、调用次数）</h2>
+<h3>9.1 关键指标</h3>
+<table>
+<tr><th>指标</th><th>类型</th><th>用途</th></tr>
+<tr><td>ai.call.count</td><td>Counter</td><td>调用次数、按 model/tool/status 分维</td></tr>
+<tr><td>ai.call.latency</td><td>Timer</td><td>P50/P95/P99 时延，定位慢模型</td></tr>
+<tr><td>ai.token.total</td><td>Counter</td><td>token 消耗，算成本</td></tr>
+<tr><td>ai.tool.error</td><td>Counter</td><td>工具失败率，告警</td></tr>
+</table>
+<h3>9.2 结合大数据背景</h3>
+<p>把 Micrometer 指标导出到 Prometheus，再接 Kafka + 数仓做"按用户/按场景"的成本与质量分析——这正是 36 岁大数据候选人的优势落点。</p>
+<div class="eng">指标要按 model/tool/status 打标签（tag），否则无法下钻。成本指标直接喂 W7D4 Gateway 的成本统计与配额告警。延迟 P99 是 SLA 核心。</div>
+<div class="iv">关键 Metrics：调用次数、时延(P50/P95/P99)、token 总量、工具错误率。按 model/tool/status 打 tag 才能下钻；指标导出 Prometheus，可接数仓做成本/质量分析。</div>
+
+<!-- ============ 10. 平台定位 ============ -->
+<h2 id="s10">十、候选人视角：企业 AI 平台可观测性定位</h2>
+<ul>
+  <li><strong>统一 Trace</strong>：所有 AI 调用经 Advisor 埋点，trace_id 贯穿 Gateway→应用→工具，对接现有 APM。</li>
+  <li><strong>成本可控</strong>：token/cost 指标进数仓，按业务线/场景核算（保险各险种 AI 成本透明）。</li>
+  <li><strong>质量可查</strong>：工具错误率、拒答率、幻觉率进监控大盘，异常告警。</li>
+  <li><strong>合规可审</strong>：日志含 trace_id + 用户标识，理赔决策全程可追溯（监管刚需）。</li>
+</ul>
+<div class="info">大数据背景优势：把 LLM 观测数据接入 Kafka + 数仓/实时计算，做成本分摊、质量趋势、异常检测；医疗保险背景优势：懂"理赔决策必须可追溯、可审计"，Trace 不是可选项而是合规要求。</div>
+<div class="iv">讲可观测性时突出"平台能力"：统一 Trace（贯穿 Gateway→工具）、成本进数仓分摊、质量大盘告警、理赔决策可追溯合规。结合大数据(数仓分析)+医保(审计刚需)背景，比单纯会用 Micrometer 高一层。</div>
+
+<!-- ============ 11. 资源 ============ -->
+<h2 id="s11">十一、学习资源（中文 / 官方）</h2>
+<ul>
+  <li><strong>Spring AI MCP 文档</strong>（docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html）——Client / Server / transport 精读。</li>
+  <li><strong>MCP 官方规范</strong>（modelcontextprotocol.io）——理解协议本身（tools/resources/prompts/transport）。</li>
+  <li><strong>Spring AI Observability 文档</strong>（docs.spring.io/spring-ai/reference/observability.html）——Micrometer 集成。</li>
+  <li><strong>B站：Spring AI 全套 84 集（BV1GfyGBqEm6）</strong>——MCP、可观测相关集。</li>
+</ul>
+
+<!-- ============ 12. 达标线① ============ -->
+<h2 id="s12">十二、面试达标线①：Spring AI 怎么同时做 MCP Client 和 Server</h2>
+<table>
+<tr><th>角色</th><th>做法</th><th>适用</th></tr>
+<tr><td>MCP Client</td><td>McpSyncClient 连 Server → listTools 发现 → 转 ToolCallback → ChatClient 调用</td><td>消费别团队/跨语言的工具</td></tr>
+<tr><td>MCP Server</td><td>@Tool + @EnableMcpServer，把 Java 方法暴露成标准 MCP</td><td>把自己的 Java 资产开放给多语言 Agent</td></tr>
+<tr><td>双栈</td><td>同一应用既消费也暴露，形成工具网络</td><td>企业 MCP 网格</td></tr>
+</table>
+<div class="iv">达标线①核心：MCP Client 用 McpSyncClient 连远端、动态发现 tools 转 ToolCallback；MCP Server 用 @Tool + @EnableMcpServer 把 Java 方法暴露成标准协议。同一应用可双栈，形成工具网络。传输 Stdio(调试)/HTTP(生产)。</div>
+
+<!-- ============ 13. 达标线② ============ -->
+<h2 id="s13">十三、面试达标线②：Observability 怎么接 W4 的 Trace 字段</h2>
+<ol>
+  <li><strong>字段对齐</strong>：W4 定义的 trace_id / model / tool / token / cost / latency / status 字段，在 W7D3 通过 Advisor 埋点 + Micrometer 上报实现——W4 是"规范(Why)"，W7D3 是"实现(How)"。</li>
+  <li><strong>trace_id 贯穿</strong>：入口（Gateway/Controller）生成 trace_id，Advisor 里只取不新建，贯穿 Gateway→应用→工具，且要和 W7D4 Gateway 出口的 trace_id 一致。</li>
+  <li><strong>工具链路</strong>：工具调用要展开成子 span（模型→tool→回灌），不能扁平记一条；token/cost 取 <code>ChatResponse</code> 真实 Usage。</li>
+  <li><strong>对接现有监控</strong>：Micrometer 导出 Prometheus + 链路追踪，接数仓做成本/质量分析（呼应大数据背景）。</li>
+</ol>
+
+<!-- ============ 14. 自测清单 ============ -->
+<h2 id="s14">十四、W7D3 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清 MCP 是什么、解决什么（工具连接标准化、跨团队解耦），以及和 W2 手写 Server 的关系。</li>
+<li>能区分 MCP Client 与本地 @Tool：发现方式、网络、团队边界。</li>
+<li>能说出 Stdio 与 HTTP/SSE 两种传输的适用场景（调试 vs 生产）。</li>
+<li>能用 McpSyncClient 连 Server、listTools 转 ToolCallback 并注册到 ChatClient。</li>
+<li>能写出用 @Tool + @EnableMcpServer 暴露 Java 方法为 MCP Server。</li>
+<li>能画出"同时做 Client 和 Server"的双栈架构（工具网络 / MCP 网格）。</li>
+<li>能说清 Observability 三支柱（Logs/Metrics/Traces）及 AI 为何更需要。</li>
+<li>能列出 AI 调用要埋的 Trace 字段（trace_id/model/tool/token/latency/status）。</li>
+<li>能在 Advisor 里用 MDC + Micrometer 做埋点，并说明 trace_id 来自入口而非新建。</li>
+<li>能讲清 W7D3 怎么把 W4 的 Trace 字段规范落地（规范 vs 实现，靠同一 trace_id 串联）。</li>
+</ul>
+</div>
+
+<!-- ============ 15. 速记卡 ============ -->
+<h2 id="s15">十五、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：MCP 和 Function Calling 什么关系？</div><div class="a">Function Calling 是模型厂商能力；MCP 是跨模型的"工具连接协议"。MCP 把工具标准化，Client/Server 按协议通信，两者可叠加。</div></div>
+<div class="qcard"><div class="q">Q：MCP Client 和本地 @Tool 区别？</div><div class="a">Client 调远端工具、运行时 listTools 动态发现、有网络开销、跨团队；本地 @Tool 是同进程、编译期扫描。</div></div>
+<div class="qcard"><div class="q">Q：Stdio 还是 HTTP 传输？</div><div class="a">Stdio 同机子进程、调试用；HTTP/SSE 独立部署、生产用（可扩缩、多应用共享、便于加鉴权限流）。</div></div>
+<div class="qcard"><div class="q">Q：怎么把 Java 方法暴露成 MCP？</div><div class="a">@Tool 标注方法 + @EnableMcpServer（MCP Server starter），自动暴露成标准 MCP 协议，任何 Client 可调用。</div></div>
+<div class="qcard"><div class="q">Q：一个应用能同时 Client 和 Server 吗？</div><div class="a">能。既调别团队的保单/规则 Server（Client），又暴露自己的特药推理（Server），形成工具网络/MCP 网格。</div></div>
+<div class="qcard"><div class="q">Q：AI 应用为什么更要可观测？</div><div class="a">调用不可预测、成本按 token、工具链路长。没 Trace 一次答错无法定位是模型/工具/记忆哪层问题。</div></div>
+<div class="qcard"><div class="q">Q：AI 调用要埋哪些 Trace 字段？</div><div class="a">trace_id / model / tool / prompt_tokens / completion_tokens / latency_ms / status，对应 W4 的 Trace 字段规范。</div></div>
+<div class="qcard"><div class="q">Q：W7D3 怎么和 W4 Trace 打通？</div><div class="a">W4 定规范(Why)，W7D3 用 Advisor 埋点+Micrometer 实现(How)，靠同一 trace_id 串联，且和 W7D4 Gateway 出口 id 一致。</div></div>
+<div class="qcard"><div class="q">Q：trace_id 在哪里生成？</div><div class="a">在入口（网关/Controller）生成并贯穿全链路，Advisor 里只取不新建，否则每段各自生成 id 无法串联。</div></div>
+<div class="qcard"><div class="q">Q：工具调用 Trace 怎么记才对？</div><div class="a">展开成子 span（模型→tool→回灌）保留因果，token/cost 取 ChatResponse 真实 Usage，别扁平记一条或估算。</div></div>
+
+<div class="ft">FDE W7D3 学习手册 · Spring AI MCP Client/Server 与 Observability（面试级）· 配合《FDE-W7D3-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w7d3_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W7D3 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W7D3-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

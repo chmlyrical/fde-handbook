@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W4D5 学习手册 · Trace 与成本（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W4D5 学习手册</span>
+  <a href="#s1">1.Trace本质</a><a href="#s2">2.固定字段</a><a href="#s3">3.自定义Span</a><a href="#s4">4.层级结构</a>
+  <span class="sep"></span>
+  <a href="#s5">5.埋点</a><a href="#s6">6.排错</a><a href="#s7">7.成本归因</a><a href="#s8">8.评测</a>
+  <span class="sep"></span>
+  <a href="#s9">9.技术选型</a><a href="#s10">10.流式回调</a><a href="#s11">11.理赔实践</a><a href="#s12">达标①</a>
+  <span class="sep"></span>
+  <a href="#s13">达标②</a><a href="#s14">自测</a><a href="#s15">速记</a>
+</div>
+
+<h1>FDE W4D5 学习手册 · Trace 与成本</h1>
+<p class="sub">W4 Day5 · A 级（必须掌握，面试核心）· 4h · 学会给 Agent 装上"黑匣子"：一次调用全程可观测、成本可归因、结果可评测</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>Agent 是个"黑盒"，没有 Trace 你永远不知道它为什么慢、为什么贵、为什么错。本日定义一套贯穿全链路的 Trace 字段与 Span 规范，并讲清它如何服务排错、成本、评测三件事。<br>
+  <strong>学完能回答：</strong>① 一次 Agent 调用的 Trace 结构（固定字段 + 自定义 Span）；② Trace 怎么用于排错、成本归因、评测。<br>
+  <strong>使用方法：</strong>通读原理 → 重点背「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W4D5-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。<br>
+  <strong>候选人视角：</strong>36 岁，Java + 大数据 + 医疗保险。你的大数据背景在这里是加分项——Trace 本质是"结构化日志 + 指标 + 血缘"，正是你熟悉的领域。
+</div>
+
+<!-- ============ 1. Trace 本质 ============ -->
+<h2 id="s1">一、Trace 的本质：Agent 的黑匣子</h2>
+<p>Trace（追踪）是对<strong>一次完整请求从入口到出口的全过程记录</strong>，由一棵有序的 Span（跨度）树组成。对 Agent 而言，一次用户提问可能触发多次 LLM 调用、RAG 检索、工具调用、人工审批——Trace 把它们串成一条可回放的因果链。</p>
+<h3>1.1 为什么 Agent 特别需要 Trace</h3>
+<ul>
+  <li><strong>链路长、分支多</strong>：一个回答背后是 N 次 LLM + 检索 + 工具，出错难定位。</li>
+  <li><strong>成本高且波动大</strong>：token 随检索结果、对话历史变化，必须按维度拆解。</li>
+  <li><strong>评测依赖数据</strong>：离线评测、回归测试都要拿真实 Trace 当语料。</li>
+  <li><strong>合规审计</strong>：医疗理赔要能复盘"当时模型看到了什么、人批了什么"。</li>
+</ul>
+<div class="eng">Trace 不是"多打几行日志"，而是<strong>结构化的、带父子关系的、可聚合的观测数据</strong>。它的价值在于既要能"看一条"（排错），也要能"看一片"（成本/质量趋势）。这正是可观测性三支柱（Logs/Metrics/Traces）里 Trace 的位面。</div>
+<div class="iv">Trace 就是 Agent 的黑匣子：一次请求全程的 Span 树。没有它你不知道 Agent 为什么慢、为什么贵、为什么错。它既能单条回放排错，也能批量聚合做成本和评测分析。</div>
+<div class="warn">① Trace 不等于"打印日志"——日志是扁平文本，Trace 是带 parent/child 关系的树，能还原因果。② 不要等出问题才想接 Trace，应在架构设计期就定好字段和 Span 规范。③ Trace 数据量大，要权衡"全量采样 vs 按比例采样"，医疗高风险场景建议关键链路全量。</div>
+
+<!-- ============ 2. 固定字段 ============ -->
+<h2 id="s2">二、固定 Trace 字段：全链路统一埋点</h2>
+<p>无论底层用什么框架（LangChain/LangGraph/Spring AI），都应有一组<strong>统一、必填</strong>的顶层字段，保证跨系统可聚合、可比对。</p>
+<table>
+<tr><th>字段</th><th>含义</th><th>用途</th></tr>
+<tr><td><code>trace_id</code></td><td>一次请求全局唯一 ID</td><td>串联所有 Span，定位单次会话</td></tr>
+<tr><td><code>user_id_hash</code></td><td>用户的脱敏哈希（非明文）</td><td>用户级成本/质量分析，保护隐私</td></tr>
+<tr><td><code>tenant_id</code></td><td>租户/机构 ID（多租户）</td><td>按机构拆分成本与权限</td></tr>
+<tr><td><code>model_provider</code></td><td>模型厂商（如 qwen/deepseek）</td><td>厂商维度成本/质量对比</td></tr>
+<tr><td><code>model_name</code></td><td>具体模型（如 qwen-max）</td><td>模型维度归因</td></tr>
+<tr><td><code>prompt_version</code></td><td>提示词版本</td><td>提示迭代的 A/B 与回归</td></tr>
+<tr><td><code>knowledge_version</code></td><td>知识库版本</td><td>RAG 效果归因</td></tr>
+<tr><td><code>agent_version</code></td><td>Agent/工作流版本</td><td>整体迭代归因</td></tr>
+<tr><td><code>tool_name</code></td><td>调用的工具名</td><td>工具成功率/耗时分析</td></tr>
+<tr><td><code>input_tokens</code></td><td>输入 token 数</td><td>成本计算</td></tr>
+<tr><td><code>output_tokens</code></td><td>输出 token 数</td><td>成本计算</td></tr>
+<tr><td><code>latency_ms</code></td><td>耗时（毫秒）</td><td>性能/SLA 监控</td></tr>
+<tr><td><code>cost</code></td><td>本次花费（金额）</td><td>成本归因</td></tr>
+<tr><td><code>status</code></td><td>成功/失败</td><td>成功率监控</td></tr>
+<tr><td><code>error_type</code></td><td>错误类型</td><td>故障归类</td></tr>
+</table>
+<div class="info"><strong>版本字段（prompt/knowledge/agent_version）是隐藏重点</strong>：它们让"效果变化"可归因到"哪次改动"。比如某天拒赔率突增，一查是 <code>knowledge_version</code> 从 v3 升 v4 引入脏数据——没有版本字段你只能瞎猜。</div>
+<div class="iv">固定字段是"全链路统一身份证"：trace_id 串联、user_id_hash/tenant_id 做隐私与多租户拆分、model/prompt/knowledge/agent 四个 version 做归因、token/cost/latency/status/error 做成本与质量。版本字段最能体现代码素养。</div>
+<div class="warn">① <code>user_id_hash</code> 一定要脱敏，不能直接存明文身份证/手机号，否则合规事故。② token 字段要在"单次 LLM 调用"粒度记录，而非只在最外层记总数，否则无法定位哪次调用最贵。③ <code>cost</code> 建议服务端按厂商单价计算后落库，别让前端传，避免被篡改且单价易变。</div>
+
+<!-- ============ 3. 自定义 Span ============ -->
+<h2 id="s3">三、自定义 Span：把 Agent 的关键动作都埋进去</h2>
+<p>除了框架自动生成的 LLM Span，必须按业务手动埋点以下 Span 类型，才能覆盖 Agent 特有环节。</p>
+<table>
+<tr><th>Span 类型</th><th>代表动作</th><th>关键属性</th></tr>
+<tr><td><code>llm.call</code></td><td>一次大模型推理</td><td>model, input/output tokens, latency, prompt_version</td></tr>
+<tr><td><code>rag.retrieve</code></td><td>向量检索召回</td><td>query, top_k, 命中数, knowledge_version, 命中得分</td></tr>
+<tr><td><code>rerank.call</code></td><td>重排序</td><td>模型, 重排前后 top 变化, latency</td></tr>
+<tr><td><code>agent.step</code></td><td>Agent 一个推理-决策步</td><td>step_index, 选定工具, 思考摘要</td></tr>
+<tr><td><code>tool.call</code></td><td>工具/外部接口调用</td><td>tool_name, 入参(脱敏), 出参摘要, 状态码</td></tr>
+<tr><td><code>human.approval</code></td><td>人工审批节点</td><td>审批人, 决定, 等待时长, 是否修改</td></tr>
+<tr><td><code>eval.case</code></td><td>评测用例执行</td><td>case_id, 指标, 期望/实际, 评分</td></tr>
+</table>
+<div class="eng">自定义 Span 把"Agent 专有动作"显性化。比如 <code>human.approval</code> Span 记录了"等了多久、人改了什么"，这是纯 LLM 观测工具看不到的——而它恰恰是医疗理赔成本与风险的核心。埋点规范要进代码规范，而非临时打印。</div>
+<div class="iv">除了框架自带的 llm.call，我们还要埋 rag.retrieve、rerank.call、agent.step、tool.call、human.approval、eval.case。尤其 human.approval 记录等待时长和人的决定，是医疗理赔成本和风险的关键观测点。</div>
+<div class="warn">① 别只在最外层记一个总耗时，要细分到每个 Span，否则"慢"无从定位。② tool.call 的入参可能含敏感信息（身份证、病历），必须脱敏后再进 Trace。③ human.approval 的"等待时长"很重要——审批排队会直接拉高端到端延迟，是成本隐性来源。</div>
+
+<!-- ============ 4. 层级结构 ============ -->
+<h2 id="s4">四、一次 Agent 调用的 Trace 层级结构</h2>
+<p>Trace 是一棵树：根 Span 是本次请求，子 Span 按调用嵌套。</p>
+<pre><code>Trace (trace_id=T1, user_id_hash=U*, tenant_id=HospitalA)
+└─ agent.step#1            # 规划：决定先检索
+   └─ rag.retrieve         # 召回 8 条，knowledge_version=v4
+      └─ rerank.call       # 重排后取 top3
+   └─ llm.call             # 生成工具调用参数（qwen-max, p_v2）
+└─ tool.call(查询医保目录)  # 成功，12ms
+└─ agent.step#2            # 规划：需人工审批
+   └─ human.approval       # 等待 8min，人改金额 8w→5w，通过
+└─ tool.call(放款)          # 幂等键保护，成功
+└─ llm.call                # 生成最终答复（deepseek, p_v1）</code></pre>
+<div class="formula">
+Trace = 根Span(请求) → 嵌套 Span(agent.step → rag/rerank/llm/tool/human.approval) 每Span带固定字段 + 自定义属性
+</div>
+<div class="iv">一次 Agent 调用的 Trace 是棵树：根是本次请求，下面是 agent.step（每步决策），再嵌套 rag.retrieve、rerank、llm.call、tool.call、human.approval。每个 Span 都带固定字段（token/cost/latency/status）。</div>
+<div class="warn">① Span 必须有正确的 parent 关系，否则树会被拉平、因果丢失。② 同一 trace_id 下的 Span 要在不同服务间传播（用 W3C traceparent 头），分布式部署时最容易断链。③ 别把"并行分支"强行串成串行，会歪曲 latency 归因。</div>
+
+<!-- ============ 5. 埋点 ============ -->
+<h2 id="s5">五、埋点落地：在哪插、怎么传上下文</h2>
+<h3>5.1 上下文传播</h3>
+<p>Agent 常跨进程/跨服务（编排层、模型网关、工具服务），trace_id 与父 Span 上下文需通过<strong>请求头/上下文对象</strong>传递，保证 Span 能正确挂到同一棵树。</p>
+<h3>5.2 自动 vs 手动</h3>
+<table>
+<tr><th>方式</th><th>覆盖</th><th>说明</th></tr>
+<tr><td>自动埋点</td><td>llm.call（框架集成）</td><td>LangChain/LangGraph 与 Langfuse/OTel 集成自动出 LLM Span</td></tr>
+<tr><td>手动埋点</td><td>rag/rerank/tool/human.approval/eval</td><td>在业务代码里显式 start/end Span 并附属性</td></tr>
+</table>
+<h3>5.3 Java/Spring AI 视角</h3>
+<ul>
+  <li>若用 Spring AI，可借助 Micrometer Tracing + OTel 自动出 Span。</li>
+  <li>工具调用处用 <code>@Observed</code> 或手动 <code>tracer.nextSpan()</code> 包裹。</li>
+  <li>大数据背景可复用你熟悉的"埋点 SDK + 采集 agent + 数仓"管线，Trace 进 OLAP 做聚合分析。</li>
+</ul>
+<div class="eng">埋点的工程难点不在"写一行 start_span"，而在<strong>上下文跨服务传播</strong>和<strong>属性规范化</strong>。建议封装一个内部 SDK，统一把固定字段自动注入每个 Span，业务只需填业务属性，杜绝"有人漏填 trace_id"。</div>
+<div class="iv">埋点靠"上下文传播"把跨服务的 Span 挂到同一棵树：自动埋点覆盖 llm.call（框架集成），rag/rerank/tool/human.approval 要手动埋。建议封装内部 SDK 自动注入固定字段，避免有人漏填。</div>
+
+<!-- ============ 6. 排错 ============ -->
+<h2 id="s6">六、Trace 用于排错：从"慢/错"到"根因"</h2>
+<p>当一次调用异常，Trace 让你"不靠猜"地定位。</p>
+<h3>6.1 排错 checklist</h3>
+<ol>
+  <li>用 trace_id 拉出完整 Span 树，看哪个 Span <code>status=failed</code> 或 <code>latency_ms</code> 异常。</li>
+  <li>若是 <code>rag.retrieve</code> 命中数为 0 → 知识库/检索问题，查 <code>knowledge_version</code>。</li>
+  <li>若是 <code>llm.call</code> 慢 → 看 model_provider、是否排队、是否上下文过长（input_tokens 大）。</li>
+  <li>若是 <code>tool.call</code> 失败 → 看 error_type、入参脱敏副本、下游状态码。</li>
+  <li>若是 <code>human.approval</code> 等待极长 → 审批队列瓶颈，非模型问题。</li>
+</ol>
+<div class="info"><strong>真实案例：</strong>某次理赔答复"答非所问"，查 Trace 发现 rag.retrieve 命中 0 条（knowledge_version 刚升 v4 把目录表误删），模型无知识只能硬编 → 回滚知识版本即恢复。版本字段在此立功。</div>
+<div class="eng">排错的本质是"用结构化 Span 把猜测变验证"。没有 Trace，你只能问"模型是不是抽风了"；有 Trace，你能精确到"第 3 步检索命中 0 条导致幻觉"。这把 MTTR（平均修复时间）从小时级降到分钟级。</div>
+<div class="iv">排错就看 trace_id 拉出的 Span 树：哪个 Span 失败或慢。rag 命中 0→知识库问题；llm 慢→上下文过长或厂商排队；tool 失败→看 error_type；human.approval 久等→审批队列瓶颈。版本字段能秒定位"哪次改动引入的"。</div>
+<div class="warn">① 只看最外层 status 不够，必须下钻到失败的具体 Span。② 排错若发现是 <code>human.approval</code> 慢，别去调模型——那是流程/人力问题。③ 入参脱敏副本要保留足够信息用于复盘，又不能含明文隐私，需平衡。</div>
+
+<!-- ============ 7. 成本归因 ============ -->
+<h2 id="s7">七、Trace 用于成本归因：钱花在哪一步</h2>
+<p>成本是 Agent 上线后的头号运营指标。Trace 的 token/cost 字段让成本可<strong>按维度下钻</strong>。</p>
+<h3>7.1 成本下钻维度</h3>
+<table>
+<tr><th>维度</th><th>分析价值</th></tr>
+<tr><td>tenant_id</td><td>哪个机构最烧钱，是否要调价/限流</td></tr>
+<tr><td>model_provider / model_name</td><td>贵模型是否必要，能否换便宜模型</td></tr>
+<tr><td>prompt_version</td><td>提示改动是否让 token 变多</td></tr>
+<tr><td>tool_name / agent.step</td><td>哪类工具/步骤最贵</td></tr>
+<tr><td>user_id_hash</td><td>是否有异常高频用户（刷接口）</td></tr>
+</table>
+<h3>7.2 成本公式与优化</h3>
+<div class="formula">
+单次成本 = Σ(各 llm.call 的 input_tokens × 输入单价 + output_tokens × 输出单价)
+端到端成本 = 模型成本 + 检索/重排成本 + 工具调用成本 + 人工审批人力成本
+</div>
+<ul>
+  <li><strong>降输入</strong>：压缩历史、精简检索片段、prompt 缓存。</li>
+  <li><strong>降输出</strong>：结构化短输出、关思维链。</li>
+  <li><strong>换模型</strong>：简单步用便宜小模型，仅关键步用大模型。</li>
+  <li><strong>降人工</strong>：human.approval 等待与触发率直接关系人力成本。</li>
+</ul>
+<div class="eng">成本归因常暴露"反直觉"事实：比如你以为贵在模型，Trace 一拉发现 <code>human.approval</code> 等待导致重试、或 rag 召回太多片段把 input_tokens 撑爆。把"端到端成本"拆成"模型+检索+工具+人工"，才能精准优化。这也是面试官爱问的"怎么给老板算 Agent 账单"。</div>
+<div class="iv">成本靠 Trace 的 token/cost 按 tenant/模型/prompt/tool 维度下钻。端到端成本=模型+检索+工具+人工审批。常见反直觉：真凶是 rag 召回太多撑爆 input_tokens，或 human.approval 等待引发重试。降输入、降输出、换便宜模型、降人工触发率。</div>
+<div class="warn">① 别只算模型 API 账单，<strong>人工审批人力</strong>也是成本，human.approval 的等待时长×人力单价要计入。② 重试会放大成本——Trace 里重试次数要记，否则成本对不上。③ 缓存命中（prompt cache）要单独标记，否则把"免费"算成"付费"。</div>
+
+<!-- ============ 8. 评测 ============ -->
+<h2 id="s8">八、Trace 用于评测：从"跑过"到"跑对"</h2>
+<p>离线和在线评测都依赖 Trace 作为数据源。</p>
+<h3>8.1 评测类型与 Trace 的关系</h3>
+<table>
+<tr><th>评测</th><th>Trace 作用</th></tr>
+<tr><td>离线回归</td><td>用历史真实 Trace 当 case，新版本跑后对比指标</td></tr>
+<tr><td>在线监控</td><td>实时聚合 status/error_type/latency 出质量看板</td></tr>
+<tr><td>失败样本挖掘</td><td>筛 status=failed 或低分 eval.case 做归因</td></tr>
+<tr><td>A/B 对比</td><td>按 prompt_version / model_name 分组比对指标</td></tr>
+</table>
+<h3>8.2 eval.case Span 的价值</h3>
+<p>把每个评测用例也写成一个 <code>eval.case</code> Span，记录 case_id、指标、期望/实际、评分。这样"评测"本身也进入可观测体系，能和线上 Trace 用同一套工具分析。</p>
+<div class="eng">评测不是"评完扔掉"，而是把 Trace 变成<strong>可复用的质量资产</strong>。线上真实失败 Trace 沉淀为回归 case，版本升级自动跑；eval.case Span 让"评测"和"生产"用同一观测栈，避免两套体系对不齐。</div>
+<div class="iv">Trace 是评测的燃料：历史真实 Trace 当回归 case，线上实时聚合出质量看板，失败 Trace 沉淀为评测集。eval.case Span 把"评测"也纳入可观测体系，和生产用同一套工具。</div>
+<div class="warn">① 评测不能只用"合成数据"，要混入线上真实 Trace，否则测不出真实分布的问题。② eval.case 评分要可解释，别只存总分，期望/实际都要留，方便定位错在哪步。③ 评测指标（如任务完成率）要能从 Trace 自动算，别靠人工标注每条。</div>
+
+<!-- ============ 9. 技术选型 ============ -->
+<h2 id="s9">九、技术选型：Langfuse / OpenTelemetry / LangChain 回调</h2>
+<table>
+<tr><th>工具</th><th>定位</th><th>适用</th></tr>
+<tr><td>Langfuse</td><td>LLM/Agent 专用观测平台，自带 Trace 可视化、评测、Prompt 管理</td><td>快速给 Agent 接上专业观测，开箱即用</td></tr>
+<tr><td>OpenTelemetry (OTel)</td><td>通用可观测性标准，AI Agent 可观测性有官方指南</td><td>要和标准 APM（Prometheus/Jaeger）打通、不锁定</td></tr>
+<tr><td>LangChain Callbacks</td><td>LangChain 的回调机制，流式与 Span 钩子</td><td>在 LangChain 代码里细粒度埋点/流式</td></tr>
+</table>
+<div class="info"><strong>推荐组合</strong>：用 Langfuse 做 Agent 专属观测与评测（最快出效果）；底层走 OpenTelemetry 标准把 Span 导出到统一 APM，避免厂商锁定；LangChain 侧用 Callbacks 做流式与细粒度钩子。你的大数据背景可把 Trace 旁路进数仓做自定义聚合。</div>
+<div class="eng">选型要平衡"开箱即用"和"不锁定"。Langfuse 专而快，OTel 通用不锁，两者可通过 OTel 导出器打通。关键决策：是否要把 LLM 观测并入公司统一可观测平台（通常要，因为 SRE 团队只认 OTel/Jaeger）。</div>
+<div class="iv">推荐 Langfuse（Agent 专用、开箱即用）+ OpenTelemetry（通用标准、不锁定、打通公司 APM）+ LangChain Callbacks（流式与细粒度钩子）。大数据背景还能把 Trace 旁路进数仓做自定义聚合。</div>
+<div class="warn">① 不要"Langfuse 和 OTel 各接一套"导致数据双写不一致，应 OTel 为底座、Langfuse 做上层。② Langfuse 默认采样/存储策略要看清，医疗数据可能涉及合规存储地域。③ 别把 Trace 当永久存储，要设 TTL 和归档，否则成本爆炸。</div>
+
+<!-- ============ 10. 流式回调 ============ -->
+<h2 id="s10">十、流式输出与回调：Trace 与体验的平衡</h2>
+<p>Agent 常用流式（streaming）提升体验，但流式下 Trace 的 token/latency 统计要特殊处理。</p>
+<h3>10.1 流式下的观测要点</h3>
+<ul>
+  <li><strong>首 token 延迟（TTFT）</strong>：用户感知的"快不快"，单独记一个 Span 指标。</li>
+  <li><strong>完整 latency</strong>：从请求到最后一个 token，流式不改变总耗时，只是分段返回。</li>
+  <li><strong>token 统计</strong>：流式结束才能拿到完整 output_tokens，Span 在 end 时再落地。</li>
+  <li><strong>回调钩子</strong>：LangChain 的 <code>streaming</code> + <code>callbacks</code> 可在 on_llm_new_token 里做增量处理，但别在钩子里做重逻辑（阻塞流）。</li>
+</ul>
+<div class="eng">流式是"体验优化"不是"性能优化"——总 latency 不变，只是用户更早看到内容。Trace 要把 TTFT 单列，因为它才是用户体感指标；同时流式下 token 统计必须等结束，避免"边流边算"导致成本少算。</div>
+<div class="iv">流式提升体感但不降总耗时。Trace 要单列 TTFT（首 token 延迟）作为用户体感指标；output_tokens 必须等流结束才落库，否则成本少算。LangChain 用 callbacks 钩子做增量处理，但钩子里别写重逻辑。</div>
+<div class="warn">① 把"流式"误当"更快"是常见误解，它只改善体感、不改善总延迟。② 流式下若在每个 on_llm_new_token 做重计算会拖慢流、甚至 OOM，钩子要轻。③ output_tokens 在流未结束时报 0 是 bug，必须在 end 事件结算。</div>
+
+<!-- ============ 11. 理赔实践 ============ -->
+<h2 id="s11">十一、特药理赔 Agent 的 Trace 实践</h2>
+<div class="info"><strong>场景：</strong>用户提交特药理赔，Agent 完成抽取→合规校验→规则判断→人工审批→放款→答复。一次请求背后是多次 LLM + 检索 + 工具 + 1 次人工审批。</div>
+<h3>11.1 落地要点</h3>
+<ul>
+  <li><strong>顶层字段</strong>：trace_id 贯穿，tenant_id=医院，user_id_hash 脱敏，四个 version 全记录。</li>
+  <li><strong>Span</strong>：每个 agent.step 一个父 Span，下挂 rag.retrieve / rerank / llm.call / tool.call，human.approval 单独 Span 记等待时长与决定。</li>
+  <li><strong>成本看板</strong>：按 tenant 出账单，按 model 看贵不贵，按 human.approval 看人力。</li>
+  <li><strong>排错</strong>：答复错→查 rag 命中；慢→查 human.approval 等待或 llm 排队；贵→查 input_tokens（检索片段过多）。</li>
+</ul>
+<div class="eng">对医疗理赔，Trace 还是<strong>合规证据链</strong>：监管要能复盘"这次拒赔，模型当时检索到了什么知识、人批了什么、用的哪个知识库版本"。固定字段 + human.approval Span 正好构成这份证据。</div>
+<div class="iv">特药理赔 Agent 的 Trace：顶层四个 version 全记，每步一个 agent.step 父 Span 挂 rag/rerank/llm/tool，human.approval 记等待和决定。它不仅是排错工具，还是给监管的合规证据链。</div>
+
+<!-- ============ 12. 达标线① ============ -->
+<h2 id="s12">十二、面试达标线①：一次 Agent 调用的 Trace 结构（字段 + Span）</h2>
+<table>
+<tr><th>层</th><th>内容</th></tr>
+<tr><td>顶层固定字段</td><td>trace_id / user_id_hash / tenant_id / model_provider / model_name / prompt_version / knowledge_version / agent_version / tool_name / input_tokens / output_tokens / latency_ms / cost / status / error_type</td></tr>
+<tr><td>Span 树</td><td>根=请求；agent.step 为决策步；下挂 llm.call / rag.retrieve / rerank.call / tool.call / human.approval；eval.case 用于评测</td></tr>
+<tr><td>关键属性</td><td>每 Span 带固定字段子集 + 业务属性（如 rag 的命中数、human 的等待时长）</td></tr>
+</table>
+<div class="iv">一次 Agent 调用的 Trace = 一棵 Span 树（根是请求，agent.step 为决策步，下挂 llm/rag/rerank/tool/human.approval）+ 一组统一固定字段（trace_id 串联、四个 version 归因、token/cost/latency/status 算成本质量）。</div>
+
+<!-- ============ 13. 达标线② ============ -->
+<h2 id="s13">十三、面试达标线②：Trace 怎么用于排错 / 成本归因 / 评测</h2>
+<ol>
+  <li><strong>排错</strong>：用 trace_id 拉 Span 树，下钻到失败/异常慢的具体 Span；rag 命中 0→知识库问题，llm 慢→上下文/厂商，tool 失败→error_type，human.approval 久→流程瓶颈；版本字段秒定位"哪次改动引入"。</li>
+  <li><strong>成本归因</strong>：token/cost 按 tenant/模型/prompt/tool 维度下钻；端到端成本=模型+检索+工具+人工；常见反直觉根因（检索片段过多撑爆 input、人工等待引发重试）。</li>
+  <li><strong>评测</strong>：历史真实 Trace 当回归 case，线上聚合出质量看板，失败 Trace 沉淀为评测集，eval.case Span 让评测与生产同栈。</li>
+</ol>
+<div class="iv">Trace 三用：排错（下钻 Span 树定位根因）、成本（按维度下钻+端到端=模型+检索+工具+人工）、评测（真实 Trace 当 case、eval.case 同栈）。一句话：看一条排错，看一片算钱与评测。</div>
+
+<!-- ============ 14. 自测清单 ============ -->
+<h2 id="s14">十四、W4D5 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清 Trace 与"普通日志"的区别（树状、带父子关系、可聚合）。</li>
+<li>能背出 15 个固定字段，并说清每类字段的用途（串联/归因/成本/质量）。</li>
+<li>能解释为什么 prompt_version / knowledge_version / agent_version 是隐藏重点。</li>
+<li>能列出 7 个自定义 Span 及其关键属性。</li>
+<li>能画出一次 Agent 调用的 Trace 层级结构（根→agent.step→子 Span）。</li>
+<li>能讲清埋点的上下文传播与"自动+手动"分工。</li>
+<li>能说清用 Trace 排错的标准流程（下钻到具体失败 Span）。</li>
+<li>能解释成本归因的维度与端到端成本构成，点出"人工审批也是成本"。</li>
+<li>能说清 Trace 如何服务评测（回归 case / 质量看板 / eval.case）。</li>
+<li>能对比 Langfuse / OpenTelemetry / LangChain Callbacks 的选型。</li>
+<li>能讲清流式下 Trace 的处理（TTFT 单列、token 流结束结算）。</li>
+<li>能把特药理赔 Agent 的 Trace 实践讲成一段（达标线①②）。</li>
+</ul>
+</div>
+
+<!-- ============ 15. 速记卡 ============ -->
+<h2 id="s15">十五、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：Trace 和普通日志有什么不同？</div><div class="a">Trace 是带父子关系的 Span 树，能还原因果、可聚合；日志是扁平文本，难定位链路。</div></div>
+<div class="qcard"><div class="q">Q：15 个固定字段里哪几个最体现素养？</div><div class="a">四个 version（prompt/knowledge/agent/model）：让"效果变化"可归因到"哪次改动"。</div></div>
+<div class="qcard"><div class="q">Q：自定义 Span 为什么要有 human.approval？</div><div class="a">记录审批等待时长与决定，是医疗理赔成本与风险的关键观测点，纯 LLM 工具看不到。</div></div>
+<div class="qcard"><div class="q">Q：用 Trace 怎么排错"答非所问"？</div><div class="a">拉 Span 树看 rag.retrieve 命中数；命中 0 即知识库/检索问题，再查 knowledge_version。</div></div>
+<div class="qcard"><div class="q">Q：Agent 成本只算模型 API 吗？</div><div class="a">不是，端到端=模型+检索+工具+人工审批人力；human.approval 等待也计入成本。</div></div>
+<div class="qcard"><div class="q">Q：Trace 怎么服务评测？</div><div class="a">历史真实 Trace 当回归 case，线上聚合质量看板，失败 Trace 沉淀评测集，eval.case 同栈。</div></div>
+<div class="qcard"><div class="q">Q：Langfuse 和 OpenTelemetry 怎么选？</div><div class="a">Langfuse 专而快（Agent 观测/评测），OTel 通用不锁（打通公司 APM）；OTel 为底座、Langfuse 上层。</div></div>
+<div class="qcard"><div class="q">Q：流式输出会让总 latency 变短吗？</div><div class="a">不会，只改善体感；Trace 单列 TTFT，output_tokens 必须等流结束才结算。</div></div>
+<div class="qcard"><div class="q">Q：user_id_hash 为什么必须脱敏？</div><div class="a">避免存明文身份证/病历，符合医疗数据合规；同时仍能做用户级成本/质量分析。</div></div>
+<div class="qcard"><div class="q">Q：一次理赔 Agent 调用的 Trace 一句话？</div><div class="a">根是请求，agent.step 为决策步，下挂 llm/rag/rerank/tool，human.approval 记等待与决定，四 version 全记录。</div></div>
+
+<div class="ft">FDE W4D5 学习手册 · Trace 与成本（面试级）· 配合《FDE-W4D5-评测题.md》自测</div>
+
+<div class="info" style="margin-top:18px;">
+<strong>延伸学习资源（中文 / 非 OpenAI）：</strong><br>
+① Langfuse 官网：<code>langfuse.com</code>——LLM/Agent 专用观测与评测平台，Trace 可视化、Prompt 管理、评测集一体。<br>
+② OpenTelemetry 官方博客《AI Agent 可观测性》：<code>opentelemetry.io/blog/2025/ai-agent-observability</code>——用 OTel 标准做 Agent 全链路追踪的官方指南。<br>
+③ LangChain 流式与回调文档：<code>python.langchain.com/docs/how_to/streaming</code>——streaming + callbacks 的细粒度钩子用法，配合 Trace 统计 Token/延迟。
+</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w4d5_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W4D5 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W4D5-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

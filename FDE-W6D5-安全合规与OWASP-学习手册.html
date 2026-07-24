@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W6D5 学习手册 · 数据脱敏·租户隔离·Human Approval·安全审计与 OWASP（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W6D5 学习手册</span>
+  <a href="#s1">1.脱敏本质</a><a href="#s2">2.脱敏环节</a><a href="#s3">3.掩码哈希令牌</a><a href="#s4">4.脱敏难点</a>
+  <span class="sep"></span>
+  <a href="#s5">5.隔离本质</a><a href="#s6">6.ChunkACL</a><a href="#s7">7.隔离实现</a><a href="#s8">8.HumanAppr</a><a href="#s9">9.HITL</a><a href="#s10">10.安全审计</a>
+  <span class="sep"></span>
+  <a href="#s11">11.OWASP LLM</a><a href="#s12">12.Agentic</a>
+  <span class="sep"></span>
+  <a href="#s13">达标线①</a><a href="#s14">达标线②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W6D5 学习手册 · 数据脱敏 · 租户隔离 · Human Approval · 安全审计与 OWASP</h1>
+<p class="sub">W6 Day5 · [A][B][C] 级（合规与安全的工程落地）· 4h · 学完能讲清"特药理赔 Agent 如何在合规前提下不泄露 PII、不串租户、不误触高风险动作"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W4 讲了 HITL 的人机协同，W6D2 讲了版本/评估，今天聚焦"生产级 Agent 的安全合规底座"。保险/医疗是强监管行业，PII 保护与租户隔离是红线，Human Approval 与全链路审计是上线门槛。<br>
+  <strong>学完能回答：</strong>① PII 脱敏要在哪些环节做、为什么必须在日志/Trace/模型返回里做；② 租户隔离在 RAG/Agent 里怎么实现、和 Chunk 级 ACL 的关系；③ Human Approval 与 HITL 的区别；④ OWASP LLM Top 10 与 Agentic 风险对照。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W6D5-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。候选人背景：36 岁，Java + 大数据 + 医疗保险，示例围绕特药理赔 Agent / 保险知识库。
+</div>
+
+<!-- ============ 1. 脱敏本质 ============ -->
+<h2 id="s1">一、数据脱敏的本质：什么是 PII，为什么要脱敏</h2>
+<p>PII（Personally Identifiable Information，个人可识别信息）指能直接或间接定位到某个自然人的数据。在特药理赔场景里，典型的 PII 包括：</p>
+<ul>
+  <li><strong>直接标识符</strong>：身份证号、手机号、姓名、病历号、保单号、银行卡号、人脸/基因。</li>
+  <li><strong>准标识符（quasi-identifier）</strong>：出生日期 + 性别 + 投保城市 + 病种组合，单独不算、组合可重识别（re-identification）。</li>
+  <li><strong>敏感数据</strong>：诊断结果、用药记录、理赔金额、拒赔原因——即便去掉姓名，结合背景也能识别个人。</li>
+</ul>
+<p>脱敏（Data Masking / De-identification）的目标：在<strong>保留数据可用性的前提下，把"能识别个人"的能力降到合规可接受的水平</strong>。它不是加密（加密可还原、仍属敏感数据），而是让数据本身不再直接指向个人。</p>
+<div class="eng">强监管行业（医疗《个人信息保护法》《数据安全法》、保险行业监管）对 PII 有严格要求：最小化采集、用途限定、可追溯、可删除。Agent 一旦把身份证号原样写进日志、Trace 或返回给前端，就是合规事故。脱敏是"默认必须"，不是"可选优化"。</div>
+<div class="iv">PII 是能识别个人的数据（身份证/病历/保单）。脱敏是在保留可用性的同时去掉可识别性。它不是加密——加密还能还原、仍是敏感数据；脱敏后数据本身不再指向个人。保险医疗场景脱敏是红线。</div>
+<div class="info"><strong>法规对应（中文语境）：</strong>《个人信息保护法》第 51 条要求采取加密、去标识化等措施；第 47 条要求保存期限最小必要。面试提到"去标识化/匿名化"即可对应到脱敏技术。</div>
+
+<!-- ============ 2. 脱敏环节 ============ -->
+<h2 id="s2">二、PII 脱敏必须在哪些环节做（全链路）</h2>
+<p>一个理赔 Agent 的请求链路：<code>用户->网关->API 服务->提示词拼接->LLM->结果解析->业务系统->日志/Trace/前端</code>。PII 可能在<strong>每一个环节</strong>泄漏，所以要在多个点做脱敏：</p>
+<table>
+<tr><th>环节</th><th>泄漏风险</th><th>脱敏/防护做法</th></tr>
+<tr><td>用户输入</td><td>原始身份证、病历随请求进入系统</td><td>入口处识别 PII，替换为 token 再往下传</td></tr>
+<tr><td>提示词拼接</td><td>把整段病历塞进 prompt，模型回显时带出</td><td>只传必要字段；PII 用占位符（如 <code>&lt;ID:tk_123&gt;</code>）</td></tr>
+<tr><td>日志（应用日志）</td><td>DEBUG 日志把整条请求体打印出来</td><td>结构化日志 + 字段级脱敏（身份证掩码）</td></tr>
+<tr><td>LLM Trace（Langfuse 等）</td><td>trace 默认记录完整 prompt/completion</td><td>开启 trace 脱敏配置，PII 字段不入库或掩码入</td></tr>
+<tr><td>模型返回</td><td>模型把患者身份证原样复述给用户以外的人</td><td>输出后处理过滤 + 权限校验（只能看自己的）</td></tr>
+<tr><td>缓存/向量库</td><td>Chunk 里含患者病历原文</td><td>存入前脱敏；需要精确检索时用 token 映射</td></tr>
+<tr><td>前端展示</td><td>页面渲染完整保单号</td><td>展示层掩码（如 110***********1234）</td></tr>
+</table>
+<div class="iv">PII 会在"输入、提示词、日志、Trace、模型返回、缓存、前端"全链路泄漏。脱敏要分层做：入口 token 化、中间占位符、日志/Trace 掩码、输出过滤、展示掩码。重点强调日志和 Trace——这是最容易被忽略又最容易出事的地方。</div>
+<div class="warn">① 很多人以为"模型不输出 PII 就安全了"，错——<strong>日志和 Trace 才是最大泄漏面</strong>，运维查问题、Langfuse 看 trace 时可能把整条身份证暴露给无关人员。② Trace 平台默认记录完整 prompt，必须显式开启脱敏或字段过滤，否则等于把 PII 存进第三方 SaaS。③ 脱敏不能只做"展示层"，数据库里存明文、只在页面掩码，内鬼导出即泄漏。</div>
+
+<!-- ============ 3. 掩码/哈希/令牌化 ============ -->
+<h2 id="s3">三、三种脱敏技术：掩码 / 哈希 / 令牌化</h2>
+<h3>3.1 掩码（Masking）</h3>
+<p>保留字段结构但隐藏部分内容：<code>110101********1234</code>。最简单，可逆性差（通常设计成不可逆），适合<strong>展示层</strong>和<strong>日志</strong>。</p>
+<h3>3.2 哈希（Hashing）</h3>
+<p>用单向哈希（SHA-256 + 盐）把 PII 变成定长字符串。适合<strong>去重/关联</strong>（同一身份证哈希值相同，可跨系统关联而不暴露原文），但注意<strong>黑客彩虹表攻击</strong>——低熵数据（如手机号）直接哈希可被反查，必须加盐（salted hash）或 HMAC。</p>
+<h3>3.3 令牌化（Tokenization）</h3>
+<p>用<strong>令牌库（vault）</strong>把真实 PII 换成一个无意义的 token（如 <code>tk_a91f</code>），真实值存在受控的令牌库里。需要还原时凭 token 换回。这是最安全、最灵活的方案，适合需要<strong>精确检索/回写业务系统</strong>的场景。</p>
+<table>
+<tr><th>技术</th><th>可逆</th><th>典型用途</th><th>注意</th></tr>
+<tr><td>掩码</td><td>通常不可逆</td><td>展示、日志</td><td>掩码规则别太规律被猜</td></tr>
+<tr><td>哈希</td><td>不可逆</td><td>去重、关联、去标识</td><td>低熵数据需加盐防彩虹表</td></tr>
+<tr><td>令牌化</td><td>可还原（经令牌库）</td><td>检索、回写、跨系统</td><td>令牌库本身是高风险资产，需强保护</td></tr>
+</table>
+<div class="formula">
+真实 PII ──(令牌化)──> token 入库/日志/Trace，真实值存令牌库（强管控）<br>
+真实 PII ──(哈希+盐)──> 用于去重关联<br>
+真实 PII ──(掩码)──> 用于展示/调试日志
+</div>
+<div class="iv">三种：掩码（展示/日志，不可逆）、哈希（去重关联，单向，低熵要加盐）、令牌化（token 替身，真实值存令牌库，可还原，最适合精确检索）。令牌库本身是高价值目标，要重点保护。</div>
+<div class="warn">① 哈希不是万能的——手机号/身份证是<strong>低熵数据</strong>，无盐哈希可被彩虹表反查，必须用 salt 或 HMAC。② 令牌化的"可还原"意味着令牌库一旦被攻破，等于全量 PII 泄漏，令牌库要独立隔离、强加密、强审计。③ 别把脱敏当成"用了哈希就万事大吉"，要结合场景选。</div>
+
+<!-- ============ 4. 脱敏难点 ============ -->
+<h2 id="s4">四、工程含义：脱敏落地的真实难点</h2>
+<ul>
+  <li><strong>可用性 vs 隐私的拉扯</strong>：检索"张伟的理赔记录"需要姓名，但脱敏后姓名没了就检索不了。解法：用 token 检索（用 token 索引，原文在令牌库）。</li>
+  <li><strong>准标识符重识别</strong>：去掉姓名仍可能通过"性别+年龄+城市+病种"锁定到唯一人。需做 k-匿名（k-anonymity）评估。</li>
+  <li><strong>脱敏一致性</strong>：同一条身份证在日志、Trace、数据库里要脱成同一个 token，否则无法关联调试。</li>
+  <li><strong>模型仍可能"记"</strong>：即使 prompt 里是 token，模型可能从上下文推理出身份；输出后处理是最后一道闸。</li>
+  <li><strong>合规跨境/留存期</strong>：原始 PII 存多久？过期删除（对应 W6D6 的 Memory 删除）。</li>
+</ul>
+<div class="eng">脱敏不是"写个正则替换"就完事。架构上建议：<strong>入口统一 token 化 → 全程传 token → 只在必要业务节点凭权限还原</strong>。这要求网关/SDK 层有统一脱敏中间件，而不是每个服务各写一遍。Java 侧常用注解 + 切面（如 Jackson 序列化时脱敏）。</div>
+<div class="iv">脱敏难在"既要可用又要隐私"：用 token 检索、做 k-匿名防重识别、全链路 token 一致、输出再拦截、设留存期。架构上统一入口 token 化、全程传 token、只在授权点还原，而不是各服务各写一遍。</div>
+
+<!-- ============ 5. 隔离本质 ============ -->
+<h2 id="s5">五、租户隔离的本质：多客户数据不能串</h2>
+<p>如果 Agent 服务多个保险公司/多个企业客户（多租户），<strong>租户 A 的理赔数据绝不能被租户 B 看到</strong>。这是安全（防越权）也是合规（数据不出域）的双重要求。</p>
+<ul>
+  <li><strong>逻辑隔离</strong>：同一套系统、同一数据库，靠 <code>tenant_id</code> 字段区分，所有查询强制带租户过滤条件。</li>
+  <li><strong>物理隔离</strong>：每个租户独立库/独立向量库/独立部署，最彻底但成本高。</li>
+  <li><strong>混合</strong>：共享计算、隔离存储（最常见）。</li>
+</ul>
+<div class="eng">隔离必须在<strong>每一层</strong>生效：数据库（行级租户过滤）、向量库（namespace/collection 按租户）、缓存（key 带 tenant 前缀）、提示词（注入租户上下文时不能串）、Agent 记忆（用户级记忆按租户隔离，见 W6D6）、审计日志（按租户归属）。漏一层就是越权。</div>
+<div class="iv">租户隔离=多客户数据不串=安全+合规双要求。分逻辑隔离（tenant_id 字段过滤）、物理隔离（独立库/向量库）、混合（共享计算隔离存储）。关键：数据库/向量库/缓存/提示词/记忆/日志每一层都要带租户隔离，漏一层就越权。</div>
+<div class="warn">① 最常见漏洞：写 SQL 时忘了加 <code>WHERE tenant_id = ?</code>，或用 ORM 没配全局租户过滤，结果返回了别的租户数据。② 向量库若无 namespace 隔离，语义检索可能跨租户召回——这是 RAG 特有的越权面（下节展开）。③ 隔离还要防"侧信道"：A 租户问"我的数据量多少"，模型若基于全局统计回答就泄密。</div>
+
+<!-- ============ 6. Chunk ACL ============ -->
+<h2 id="s6">六、RAG 中的 Chunk 级 ACL 与 Agent 层隔离</h2>
+<p>在 W3/W4 的 RAG 里我们讲了分块（Chunk）与向量检索。当知识库是<strong>多租户共享但权限不同</strong>时，需要给每个 Chunk 打 ACL 标签：</p>
+<div class="formula">
+Chunk = { 内容, embedding, tenant_id, acl: [role/user/group], 有效期 }
+检索时：召回 top-k → 按调用者身份过滤 acl → 只把有权限的 Chunk 拼进 prompt
+</div>
+<ul>
+  <li><strong>Chunk 级 ACL 是 RAG 隔离的最小单元</strong>：比"整库隔离"更细，支持"同一租户内、不同角色看不同文档"。</li>
+  <li><strong>检索后过滤（post-filter）最常见</strong>：先向量召回，再按 ACL 裁掉无权限的；注意要"召回数 > 最终数"，避免过滤后不够用。</li>
+  <li><strong>检索前过滤（pre-filter）</strong>：向量库支持 metadata 过滤（如 Milvus/Weaviate 的 filter 表达式），在召回阶段就带上 <code>tenant_id</code> + 角色条件，更安全也更省 token。</li>
+</ul>
+<div class="eng">Chunk ACL 是"知识库层隔离"。但 Agent 比纯 RAG 复杂：Agent 还会调工具、读数据库、写记忆。所以隔离要从"Chunk 级"<strong>延伸到 Agent 层</strong>——即 Agent 的每一次工具调用、每一次记忆读写、每一条传给模型的上下文，都带租户/权限标签并强制校验。</div>
+<div class="iv">RAG 隔离靠 Chunk 级 ACL：每个分块打 tenant_id+acl 标签，检索后（或检索前）按调用者身份过滤。这是"知识库层隔离"。但 Agent 还会调工具/读写记忆，所以隔离要从 Chunk 级延伸到 Agent 层——每次工具调用、记忆读写、上下文拼装都带租户标签并校验。</div>
+<div class="warn">① 只在 prompt 里写"你是 A 租户的助手"是不够的——模型会越权，必须<strong>在数据层强制过滤</strong>（pre-filter 最好），prompt 约束只是软防线。② 召回后过滤要保证"召回量足够"，否则过滤完没内容，模型胡编。③ 别把 ACL 存在可被用户篡改的请求参数里，ACL 必须由后端根据登录态判定。</div>
+
+<!-- ============ 7. 隔离实现 ============ -->
+<h2 id="s7">七、隔离的工程实现：向量库 namespace / RBAC / 行级过滤</h2>
+<table>
+<tr><th>层</th><th>实现手段</th><th>示例</th></tr>
+<tr><td>向量库</td><td>namespace / collection / partition 按租户</td><td>Milvus partition key、Pinecone namespace、Weaviate tenant</td></tr>
+<tr><td>元过滤</td><td>filter 表达式带 tenant_id + role</td><td>Weaviate <code>where: tenant_id==X AND acl contains role</code></td></tr>
+<tr><td>数据库</td><td>行级安全（RLS）/ 全局 tenant 过滤</td><td>PostgreSQL RLS、MyBatis 拦截器统一加 tenant_id</td></tr>
+<tr><td>权限模型</td><td>RBAC / ABAC</td><td>角色决定能读哪些 acl 标签的 Chunk</td></tr>
+<tr><td>运行时</td><td>调用上下文注入 tenant claim</td><td>JWT 里带 tenant_id，全程透传并校验</td></tr>
+</table>
+<div class="eng">Java 大数据背景的候选人可以强调：用<strong>统一拦截器/切面</strong>在 DAO 层强制注入 <code>tenant_id</code> 条件，避免业务代码漏写；向量库选择支持 metadata filter 的，把隔离下推到检索引擎。这正是你 Java 后端功力的用武之地。</div>
+<div class="iv">实现上：向量库用 namespace/partition 按租户隔离；检索用 filter 表达式带 tenant_id+role；数据库用 RLS 或 MyBatis 拦截器全局加 tenant_id；权限用 RBAC/ABAC；运行时用 JWT 透传 tenant claim。建议用统一切面强制注入，避免业务漏写。</div>
+
+<!-- ============ 8. Human Approval ============ -->
+<h2 id="s8">八、Human Approval：高风险动作必须人工确认</h2>
+<p>Agent 能自主决策，但有些动作<strong>一旦执行不可逆或影响重大</strong>，必须"先让人点确认"：</p>
+<ul>
+  <li><strong>资金类</strong>：自动退款、放款、赔付转账。</li>
+  <li><strong>拒赔/拒保决策</strong>：直接影响用户权益，监管要求可追溯。</li>
+  <li><strong>外部调用</strong>：发短信/发邮件给客户、调用第三方 API 产生费用或副作用。</li>
+  <li><strong>删除/覆盖数据</strong>、发布新版本（见 W6D7）。</li>
+</ul>
+<p>Human Approval 的模式：</p>
+<table>
+<tr><th>模式</th><th>含义</th><th>适用</th></tr>
+<tr><td>同步确认</td><td>Agent 停下等人工点"同意"再继续</td><td>拒赔、退款等不可逆动作</td></tr>
+<tr><td>异步审批</td><td>Agent 提交工单，人工后台批，批完回调</td><td>批量动作、需多人会签</td></tr>
+<tr><td>条件自动+事后审</td><td>低风险自动过，高风险才升级人工</td><td>混合策略，降人工成本</td></tr>
+</table>
+<div class="eng">Human Approval 是"安全护栏"的最后一关。工程上要把"动作风险等级"配置化：定义哪些 action 必须 approval，谁有审批权，审批记录进审计日志。这和 W4 HITL 在人机制裁点上高度重叠，但 Human Approval 更强调"权限与责任归属"。</div>
+<div class="iv">高风险动作（退款/拒赔/外部调用/删数据）必须人工确认。三种模式：同步确认（停下等点同意）、异步审批（提交工单后台批）、条件自动+事后审。关键把"动作风险等级"配置化，审批记录进审计。它和 W4 HITL 重叠，但更强调权限与责任。</div>
+<div class="warn">① Human Approval 不是"所有动作都等人"——那样 Agent 没意义。要<strong>按风险分级</strong>，低风险自动、高风险才升级。② 审批人身份和权限要校验，别让 Agent 自己"批准自己"。③ 人工确认界面要把<strong>决策依据</strong>展示清楚（模型为什么建议拒赔），否则人成了盲点确认。</div>
+
+<!-- ============ 9. HITL ============ -->
+<h2 id="s9">九、Human Approval 与 W4 HITL 的关系</h2>
+<table>
+<tr><th>维度</th><th>W4 HITL（人机协同）</th><th>W6D5 Human Approval（人工确认）</th></tr>
+<tr><td>关注点</td><td>协作范式：人在哪些环节参与，提升质量/可控</td><td>安全控制：哪些不可逆/高风险动作必须人批</td></tr>
+<tr><td>触发原因</td><td>质量、复杂判断、成本</td><td>合规、不可逆、重大权益</td></tr>
+<tr><td>落点</td><td>流程设计（人在回路的架构）</td><td>权限门禁（action 级审批）</td></tr>
+<tr><td>合规要求</td><td>弱（可选）</td><td>强（保险拒赔等常是强制）</td></tr>
+</table>
+<p>一句话：<strong>HITL 是"大哲学"，Human Approval 是它里面对"高风险动作"的具体安全实现</strong>。面试时能把两者关系讲清，会显得你对"人机协同"有体系化理解，而不是只背概念。</p>
+<div class="iv">HITL 是"人在回路"的大范式（质量/可控），Human Approval 是其中针对"高风险/不可逆动作"的安全控制实现（合规强制）。HITL 包 Human Approval，后者是前者的安全子集。讲清这层关系很加分。</div>
+
+<!-- ============ 10. 安全审计 ============ -->
+<h2 id="s10">十、安全审计：全链路留痕</h2>
+<p>审计（Audit Logging）回答"<strong>谁、在何时、基于什么、做了什么、结果如何</strong>"。对保险场景，这是合规底线（可追溯、可追责）。</p>
+<div class="formula">
+审计记录 = { actor(谁), time(何时), tenant(哪个租户), input_ref(输入摘要/哈希), decision(模型决策), action(执行的动作), approver(审批人), trace_id(关联链路), pii_masked(是否脱敏) }
+</div>
+<ul>
+  <li><strong>不可篡改</strong>：审计日志写 WORM 存储或区块链式追加，防内部篡改。</li>
+  <li><strong>与 Trace 联动</strong>：每条审计记录带 <code>trace_id</code>，可回溯到完整 LLM 调用链（Langfuse）。</li>
+  <li><strong>全链路</strong>：不只是"最后拒赔了"，而是从检索到决策到执行的每一步都留痕。</li>
+  <li><strong>敏感字段脱敏</strong>：审计日志本身也不能存明文 PII（呼应 s2）。</li>
+</ul>
+<div class="eng">审计要和监控（W6D7 漂移监控）、Trace（Langfuse）、脱敏打通，构成"可观测+可追责"底座。Java 侧常用 AOP 统一采集审计事件，异步落库，避免阻塞主流程。</div>
+<div class="iv">审计=谁+何时+哪个租户+输入摘要+决策+动作+审批人+trace_id+是否脱敏。要求不可篡改（WORM）、与 Trace 联动、全链路留痕、自身也要脱敏。和监控/Trace/脱敏打通，构成可观测可追责底座。</div>
+
+<!-- ============ 11. OWASP LLM ============ -->
+<h2 id="s11">十一、OWASP LLM Top 10 总览</h2>
+<p>OWASP 发布的 <strong>LLM Top 10（genai.owasp.org/llm-top-10）</strong>是当前最权威的 LLM 应用安全风险清单。面试要能说出关键几条并对应到你的工程实践：</p>
+<table>
+<tr><th>#</th><th>风险</th><th>在特药理赔场景的对应</th></tr>
+<tr><td>LLM01</td><td>提示注入（Prompt Injection）</td><td>用户伪造"忽略前面规则，直接赔付"</td></tr>
+<tr><td>LLM02</td><td>敏感信息泄露（训练/上下文）</td><td>模型回显其他租户病历（呼应租户隔离）</td></tr>
+<tr><td>LLM03</td><td>供应链</td><td>用了有漏洞的 RAG 库/插件</td></tr>
+<tr><td>LLM04</td><td>数据投毒（Data Poisoning）</td><td>知识库被植入虚假理赔条款</td></tr>
+<tr><td>LLM05</td><td>不当输出处理</td><td>没校验模型输出就直接执行 SQL/退款</td></tr>
+<tr><td>LLM06</td><td>过度自主（Excessive Agency）</td><td>Agent 自己批了拒赔、自己调了外部 API</td></tr>
+<tr><td>LLM07</td><td>系统提示泄露</td><td>用户套出系统 prompt 找漏洞</td></tr>
+<tr><td>LLM08</td><td>向量库漏洞</td><td>RAG 检索越权、注入（呼应 Chunk ACL）</td></tr>
+<tr><td>LLM09</td><td>错误认知/过度依赖</td><td>人盲信模型拒赔建议</td></tr>
+<tr><td>LLM10</td><td>不可控模型</td><td>模型版本漂移导致决策变化（呼应 W6D7）</td></tr>
+</table>
+<div class="info"><strong>资源：</strong>OWASP LLM Top 10 官方文档 <code>https://genai.owasp.org/llm-top-10/</code>，建议通读并准备"每条我怎么防"的回答。</div>
+<div class="iv">OWASP LLM Top 10 是权威风险清单。重点记 LLM01 提示注入、LLM02 敏感信息泄露、LLM05 不当输出处理、LLM06 过度自主、LLM08 向量库漏洞——这几条正好对应今天讲的脱敏/隔离/Human Approval/Chunk ACL。能逐条说"我怎么防"最加分。</div>
+
+<!-- ============ 12. Agentic ============ -->
+<h2 id="s12">十二、OWASP Agentic 安全风险对照表</h2>
+<p>OWASP 后续又出了 <strong>Agentic Security Initiative</strong>（面向 Agent 的专项风险），相对 LLM Top 10 更聚焦"Agent 自主行动"带来的新风险。对照如下：</p>
+<table>
+<tr><th>Agentic 风险</th><th>含义</th><th>对应今日措施</th></tr>
+<tr><td>Agent 被诱导执行非授权动作</td><td>提示注入让 Agent 越权</td><td>Human Approval + 权限校验</td></tr>
+<tr><td>工具/插件滥用</td><td>Agent 调用危险工具无审批</td><td>动作风险分级 + 审批门禁</td></tr>
+<tr><td>级联错误（Cascading）</td><td>一步错步步错，自动扩散</td><td>关键节点人工确认 + 回滚（W6D7）</td></tr>
+<tr><td>记忆污染</td><td>恶意记忆被注入影响后续决策</td><td>Memory 隔离 + 更正机制（W6D6）</td></tr>
+<tr><td>跨租户泄漏</td><td>Agent 把 A 数据给 B</td><td>租户隔离 + Chunk ACL</td></tr>
+<tr><td>可观测性缺失</td><td>出事查不到谁做的</td><td>全链路审计 + Trace</td></tr>
+</table>
+<div class="eng">把"LLM Top 10"和"Agentic 风险"对照着讲，能体现你理解"纯 LLM 应用"和"自主 Agent"的安全面差异——Agent 多了"自主行动 + 记忆 + 工具"三个放大风险的维度，所以要多出 Human Approval、Memory 防护、工具审批。这正好串起 W6D5/W6D6/W6D7。</div>
+<div class="iv">Agentic 风险比 LLM Top 10 多了"自主行动+记忆+工具"三个放大维度。专项风险如工具滥用、级联错误、记忆污染、跨租户泄漏、可观测缺失，正好对应 Human Approval / W6D6 Memory 防护 / 租户隔离 / 审计。能串起三天内容说明体系化。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：PII 脱敏在哪些环节做、为什么</h2>
+<table>
+<tr><th>环节</th><th>为什么必须脱敏</th><th>用什么技术</th></tr>
+<tr><td>用户输入</td><td>原文进系统即泄露面</td><td>入口 token 化</td></tr>
+<tr><td>提示词</td><td>模型易回显原文</td><td>占位符/token</td></tr>
+<tr><td>日志</td><td>运维可见，最大泄漏面之一</td><td>字段级掩码</td></tr>
+<tr><td>LLM Trace</td><td>trace 默认记全量 prompt</td><td>开启 trace 脱敏/过滤</td></tr>
+<tr><td>模型返回</td><td>跨用户泄露</td><td>输出过滤+权限</td></tr>
+<tr><td>向量库/缓存</td><td>入库即长期存明文</td><td>存前脱敏/token</td></tr>
+<tr><td>前端</td><td>页面展示完整敏感值</td><td>展示掩码</td></tr>
+</table>
+<div class="iv">核心：脱敏要"全链路分层"——入口 token 化、提示词占位、日志/Trace 掩码、输出过滤、向量库脱敏、前端掩码。特别强调日志和 Trace 是最易忽略的泄漏面；脱敏不是加密，是让数据不再指向个人。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：租户隔离怎么实现、和 Chunk ACL 的关系</h2>
+<div class="formula">
+租户隔离 = 数据库(tenant_id/RLS) + 向量库(namespace/filter) + 缓存(key 前缀) + 提示词(上下文不串) + 记忆(按租户隔离) + 审计(按租户归属)
+</div>
+<ol>
+  <li><strong>数据库层</strong>：行级安全或统一拦截器强制 <code>tenant_id</code> 过滤，防漏写。</li>
+  <li><strong>向量库层</strong>：namespace/partition 按租户，检索用 filter 表达式带 <code>tenant_id + role</code>（pre-filter 最安全）。</li>
+  <li><strong>Chunk 级 ACL</strong>：是 RAG 知识库层的最小隔离单元，比整库隔离更细，支持同租户内按角色区分可见文档；可 pre-filter 也可 post-filter，推荐 pre-filter。</li>
+  <li><strong>延伸到 Agent 层</strong>：Agent 的工具调用、记忆读写、拼装上下文都带租户/权限标签并强制校验——这是 Chunk ACL 在 Agent 时代的升级。</li>
+  <li><strong>运行时透传</strong>：JWT 带 tenant claim，全程透传并在每层的服务端校验，不信任客户端传入的租户参数。</li>
+</ol>
+<div class="iv">租户隔离是每一层都要做：DB 的 tenant_id/RLS、向量库 namespace+filter、缓存 key 前缀、提示词不串、记忆按租户、审计按租户。Chunk 级 ACL 是 RAG 知识库层最小隔离单元，pre-filter 最安全；Agent 时代要延伸到工具调用/记忆/上下文都带租户校验。这是 Chunk ACL 的升级。</div>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W6D5 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清 PII/准标识符/敏感数据的区别，以及脱敏与加密的不同。</li>
+<li>能列出 PII 泄漏的 7 个环节，并强调日志和 Trace 是最易被忽略的泄漏面。</li>
+<li>能区分掩码/哈希/令牌化三种技术及其适用场景，指出哈希对低熵数据需加盐。</li>
+<li>能讲清脱敏的工程难点：可用性 vs 隐私、k-匿名、token 一致性、令牌库保护。</li>
+<li>能解释租户隔离的逻辑/物理/混合三种方式，以及为什么每一层都要做。</li>
+<li>能讲清 Chunk 级 ACL 是 RAG 隔离最小单元，pre-filter 与 post-filter 区别。</li>
+<li>能说明为什么隔离要从 Chunk 级延伸到 Agent 层（工具/记忆/上下文）。</li>
+<li>能区分 Human Approval 的同步/异步/条件自动三种模式，及风险分级思路。</li>
+<li>能讲清 Human Approval 与 W4 HITL 的关系（子集/安全实现）。</li>
+<li>能说出审计记录的关键字段，以及不可篡改、与 Trace 联动的要求。</li>
+<li>能说出 OWASP LLM Top 10 中 5 条以上并对应到工程防护。</li>
+<li>能讲清 Agentic 风险相对 LLM Top 10 多出的"自主行动+记忆+工具"三个放大维度。</li>
+<li>能讲清两条达标线（脱敏环节、租户隔离实现）。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：脱敏和加密有什么区别？</div><div class="a">加密可逆、仍属敏感数据；脱敏后数据本身不再指向个人。合规上脱敏是"去标识化"，更安全地处理 PII。</div></div>
+<div class="qcard"><div class="q">Q：PII 脱敏最容易被忽略的环节是哪？</div><div class="a">日志和 LLM Trace。运维查日志、看 trace 时可能暴露整条身份证，必须字段级掩码或开启 trace 脱敏。</div></div>
+<div class="qcard"><div class="q">Q：哈希脱敏身份证安全吗？</div><div class="a">不安全，身份证是低熵数据，无盐哈希可被彩虹表反查，必须加盐（salted hash）或 HMAC。</div></div>
+<div class="qcard"><div class="q">Q：租户隔离和 Chunk 级 ACL 什么关系？</div><div class="a">Chunk ACL 是 RAG 知识库层最小隔离单元（带 tenant_id+acl）；Agent 时代隔离要延伸到工具调用/记忆/上下文，即 Chunk ACL 的升级。</div></div>
+<div class="qcard"><div class="q">Q：向量库隔离用 pre-filter 还是 post-filter？</div><div class="a">pre-filter（检索阶段带 tenant_id+role 过滤）最安全，避免跨租户召回；post-filter 要保证召回量足够。</div></div>
+<div class="qcard"><div class="q">Q：Human Approval 和 W4 HITL 区别？</div><div class="a">HITL 是人在回路的大范式；Human Approval 是其中针对高风险/不可逆动作的安全控制实现，合规强制。</div></div>
+<div class="qcard"><div class="q">Q：为什么 Agent 不能"所有动作都等人批"？</div><div class="a">那样 Agent 失去自主价值。要按动作风险分级：低风险自动、高风险（退款/拒赔/外部调用）才升级人工。</div></div>
+<div class="qcard"><div class="q">Q：审计日志为什么要不可篡改？</div><div class="a">合规要求可追溯可追责，防止内部篡改掩盖违规；常用 WORM 存储或追加式日志，且自身也要脱敏。</div></div>
+<div class="qcard"><div class="q">Q：OWASP LLM06 过度自主指什么？</div><div class="a">Agent 自主执行了超出授权的动作（如自己批拒赔、自调外部 API），对策是 Human Approval + 权限校验。</div></div>
+<div class="qcard"><div class="q">Q：Agentic 风险比 LLM Top 10 多了什么？</div><div class="a">多了"自主行动+记忆+工具"三个放大维度，新增工具滥用、级联错误、记忆污染等专项风险。</div></div>
+
+<div class="ft">FDE W6D5 学习手册 · 数据脱敏·租户隔离·Human Approval·安全审计与 OWASP（面试级）· 配合《FDE-W6D5-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w6d5_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W6D5 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W6D5-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W5D1 学习手册 · Agent Loop 企业扩展（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W5D1 学习手册</span>
+  <a href="#s1">1.原型vs企业</a><a href="#s2">2.原型Loop</a><a href="#s3">3.裁剪必要性</a><a href="#s4">4.摘要策略</a>
+  <span class="sep"></span>
+  <a href="#s5">5.裁剪与KV</a><a href="#s6">6.ToolRuntime</a><a href="#s7">7.注册调度</a><a href="#s8">8.状态管理</a>
+  <span class="sep"></span>
+  <a href="#s9">9.Checkpointer</a><a href="#s10">10.可观测</a><a href="#s11">达标①</a><a href="#s12">达标②</a>
+  <span class="sep"></span>
+  <a href="#s13">自测</a><a href="#s14">速记</a>
+</div>
+
+<h1>FDE W5 Day 1 学习手册 · Agent Loop 企业扩展</h1>
+<p class="sub">W5 Day1 · A 级（必须掌握，面试核心）· 4h · 学完能讲透"从原型 Agent Loop 到生产级企业 Loop 的四项关键演进"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W4 跑通了"感知—决策—行动"的最小 Agent Loop。Day1 把它从 Demo 推向企业级：补上 Context 裁剪、Tool Runtime 抽象、多轮状态持久这三块，否则上生产会爆上下文、串数据、不可恢复。<br>
+  <strong>学完能回答：</strong>① 原型 Loop 为什么不能直接上生产（无裁剪/无隔离/无状态持久）；② Context 怎么裁剪与摘要、和 KV Cache 的关系；③ Tool Runtime 与业务解耦怎么落地；④ 多轮状态存哪、怎么恢复。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「工程含义」「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W5D1-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。候选人背景：36岁，Java+大数据+医疗保险行业，示例围绕特药理赔/保险知识库。
+</div>
+
+<!-- ============ 1. 原型 vs 企业 ============ -->
+<h2 id="s1">一、从原型 Loop 到企业 Loop：为什么不能直接上生产</h2>
+<p>W4 的原型 Agent Loop 通常长这样：把整段对话历史 + 工具结果直接塞进 prompt，循环调 LLM 直到给出最终答案。它能跑通 Demo，但有三道硬伤：</p>
+<table>
+<tr><th>维度</th><th>原型 Loop</th><th>企业级 Loop</th></tr>
+<tr><td>上下文</td><td>全量历史无裁剪，越聊越长直到溢出窗口</td><td>Context 裁剪 + 摘要，按预算控制长度</td></tr>
+<tr><td>工具执行</td><td>直接调业务函数，异常会拖垮整个 Loop</td><td>Tool Runtime 抽象层，隔离/调度/限流</td></tr>
+<tr><td>状态</td><td>状态只在内存变量里，进程一挂全丢</td><td>Checkpointer / 外部存储持久化，可恢复</td></tr>
+<tr><td>可观测</td><td>无 Trace，出问题靠猜</td><td>每步留痕，可回放审计</td></tr>
+</table>
+<div class="eng">企业级 Agent 的本质不是"更聪明的模型"，而是把<strong>工程基础设施</strong>补齐：裁剪控成本、Runtime 控故障、持久化控可用性。模型能力只是其中一环，真正决定能不能上生产的是这三块。</div>
+<div class="iv">原型 Loop 上生产会出三件事：上下文爆窗、工具异常拖垮主流程、进程重启状态全丢。企业级要补 Context 裁剪、Tool Runtime 抽象、状态持久化三块。</div>
+<div class="warn">① 很多人以为"上生产就是调更贵的模型"，错——模型不对，基础设施不对照样崩。② 这三块（裁剪/Runtime/状态）是<strong>正交</strong>的，可以分别演进，不要等"全都做好"才上线，先按最大痛点补。③ 不要为了"企业级"把架构做得过度复杂，LangGraph 这类框架的价值正是把这三块开箱即用，避免重复造轮子。</div>
+
+<!-- ============ 2. 原型 Loop 构成 ============ -->
+<h2 id="s2">二、原型 Agent Loop 的构成（W4 回顾）</h2>
+<p>最小 Agent Loop 是一个"感知—决策—行动—观察"的闭环：</p>
+<div class="formula">
+system + history + tools_desc → LLM → 决定调工具 or 结束 → 执行工具 → observation 回填 → 再喂回 LLM → … → 输出最终答案
+</div>
+<ul>
+  <li><strong>感知</strong>：把用户问题、历史、工具描述拼成 prompt。</li>
+  <li><strong>决策</strong>：LLM 输出"下一步动作"——是调用某个工具，还是给出最终答案。</li>
+  <li><strong>行动</strong>：解析 LLM 输出，执行工具调用（如查知识库、算理赔金额）。</li>
+  <li><strong>观察</strong>：把工具返回结果回填进上下文，进入下一轮。</li>
+</ul>
+<p>特药理赔示例：用户问"我这个肺癌靶向药能报多少？" → 模型决定先调"查询保单"工具 → 拿到保单与特药目录 → 再调"计算报销比例"工具 → 得出金额 → 输出最终理赔结论。</p>
+<div class="iv">原型 Loop = 不断把"工具结果"回填进上下文再问模型"下一步干啥"，直到模型说"我答完了"。核心是循环 + 工具回填。</div>
+<div class="warn">① 原型里"回填"往往直接把原始工具结果（可能几千字）整段塞回去，这是后面上下文爆炸的根源。② 循环没有"最大步数"护栏，模型一旦陷入"调工具 A→发现缺 B→调 B→又缺 A"就会无限循环烧 token。③ 模型输出解析（从文本里抠出工具名和参数）在原型里常是脆弱的字符串匹配，生产要换成结构化 tool_call。</div>
+
+<!-- ============ 3. Context 裁剪必要性 ============ -->
+<h2 id="s3">三、Context 裁剪与摘要：为什么必须做</h2>
+<h3>3.1 问题</h3>
+<p>每一轮推理，模型都要重新读<strong>整个上下文窗口</strong>。当对话多轮、工具结果巨大（如一份几十页的保险条款 PDF 抽取结果）时，上下文会：</p>
+<ul>
+  <li><strong>超窗口</strong>：超出模型 max_tokens，直接报错或截断，丢失关键信息。</li>
+  <li><strong>变贵变慢</strong>：输入 token 越多，每次调用成本越高、延迟越大。</li>
+  <li><strong>注意力稀释</strong>：无关信息太多，模型反而不聚焦关键证据，准确率下降。</li>
+</ul>
+<h3>3.2 裁剪的两条思路</h3>
+<table>
+<tr><th>思路</th><th>做法</th><th>适用</th></tr>
+<tr><td>丢弃（Eviction）</td><td>按策略丢掉最不重要的旧消息/旧工具结果</td><td>历史很长、近期才重要</td></tr>
+<tr><td>压缩（Compression）</td><td>把多轮对话/长工具结果摘要成短文本保留</td><td>旧信息仍有价值但不能全留</td></tr>
+</table>
+<div class="eng">对医疗保险场景尤其关键：一个理赔案件可能涉及历史沟通记录、多份医疗文书、知识库检索结果，原始拼起来轻松几万字。不裁剪，单次调用 token 成本与延迟都不可接受，且容易把"关键拒赔条款"淹没在噪声里。</div>
+<div class="iv">Context 裁剪是"在有限窗口里塞下最有用的信息"。两种手段：直接丢不重要的（eviction），或把长内容压成摘要（compression）。不裁剪会超窗、烧钱、还稀释注意力。</div>
+<div class="warn">① 裁剪不是"越短越好"——把关键拒赔条款摘要没了，模型会给出错误理赔结论，这是<strong>业务事故</strong>。② 摘要本身由 LLM 或规则做，摘要也可能丢失/歪曲信息，需要评估摘要保真度。③ 裁剪策略要"可解释"：为什么丢这条、为什么留那条，企业里要能审计，不能黑盒随机丢。</div>
+
+<!-- ============ 4. 摘要策略 ============ -->
+<h2 id="s4">四、Context 摘要策略：按轮摘要 / 按 token 预算裁剪</h2>
+<h3>4.1 按轮摘要（Summary per turn）</h3>
+<p>当对话超过 N 轮后，把最早的若干轮压缩成一段"到目前为止的进展摘要"，替换掉原始多轮消息。例如：</p>
+<pre><code># 会话摘要（前 8 轮已压缩）
+用户为肺癌患者，持有尊享特药险（保单号 PX-2024-8832），询问奥希替尼报销比例。
+已确认：该药在目录内、适应症匹配。待确认：年度报销上限与自付比例。
+尚未调用：计算报销金额工具。</code></pre>
+<h3>4.2 按 token 预算裁剪（Token-budget trimming）</h3>
+<p>设定一个"上下文预算"（如 8k token）。每轮把消息按重要性打分，超出预算时从最低分开始丢弃或摘要，直到回到预算内。重要性可参考：系统提示最高、最新用户消息高、工具错误结果高、陈旧摘要低。</p>
+<div class="formula">
+if (estimated_tokens(messages) > BUDGET) {
+    sort by importance desc;
+    keep high-importance;
+    summarize / drop low-importance until fits BUDGET;
+}</div>
+<h3>4.3 工具结果裁剪</h3>
+<p>长工具结果（知识库 top-k 文档）单独处理：只保留与当前问题最相关的片段（按相关性重排后取 top-N），或先 RAG 截断再进上下文。</p>
+<div class="eng">工程中常组合用：对话历史用"按轮摘要"，工具结果用"截断/top-k"，再加全局"token 预算"兜底。LangGraph 的 <code>pre_model_hook</code> / <code>trim_messages</code> 就是干这个的。</div>
+<div class="iv">两种主流策略：按轮摘要（把老轮压成一段进展摘要）和按 token 预算裁剪（设上限、按重要性丢/压低优先级的）。工具长结果单独 top-k 截断。可组合用。</div>
+<div class="warn">① 摘要和裁剪都会丢信息，要设"保底白名单"——比如保单号、当前决策阶段这类字段永远不丢。② 每轮都重新摘要很贵，建议"阈值触发"（超轮数或超预算才摘要），不要每轮都做。③ token 估算用粗略计数（1 token≈0.6 中文字）即可，不必精确，但要留安全余量防溢出。</div>
+
+<!-- ============ 5. 裁剪与 KV Cache ============ -->
+<h2 id="s5">五、Context 裁剪与 KV Cache 的关系</h2>
+<h3>5.1 KV Cache 是什么</h3>
+<p>自回归生成时，模型对"已读过的 token"算出的 Key/Value 向量会缓存（KV Cache），下一轮推理直接复用，避免重算前缀，大幅降低延迟和成本。前缀不变 → 缓存命中 → 快且省。</p>
+<h3>5.2 裁剪如何影响 KV Cache</h3>
+<table>
+<tr><th>做法</th><th>对 KV Cache 的影响</th></tr>
+<tr><td>只在尾部追加新消息</td><td>前缀不变，缓存高命中（最优）</td></tr>
+<tr><td>把最早几轮"替换成摘要"</td><td>前缀变了，旧缓存失效，需重算（有代价但可控）</td></tr>
+<tr><td>每轮都重排/截断中间内容</td><td>前缀频繁变动，缓存几乎每次失效（最差，慢且贵）</td></tr>
+</table>
+<p>因此裁剪策略要<strong>尽量保持前缀稳定</strong>：摘要放在最前面（旧端），新消息永远追加在尾部，避免动中间。这样前面"系统提示+摘要"虽偶尔变，但尾部大量轮次仍可命中缓存。</p>
+<div class="eng">KV Cache 命中率直接决定成本和延迟。裁剪时优先"改旧端（摘要化老轮）、保尾端（新消息追加）"，让不变的前缀尽量长，缓存命中高。反之频繁重排中间内容会打散缓存，得不偿失。</div>
+<div class="iv">KV Cache 缓存前缀，前缀不变就快就省。裁剪要尽量"动旧端、保尾端"——把老轮摘要化放前面，新消息追加在后面，避免每轮重排中间内容打散缓存。</div>
+<div class="warn">① 很多人裁剪时"智能重排"把重要消息挪到前面，结果每轮前缀都变，KV Cache 全废，反而更慢更贵。② 摘要操作本身也要成本，要和"缓存失效重算"成本权衡——不是裁剪越勤越好。③ 不同厂商对 KV Cache 计费和命中规则不同（有的跨请求复用、有的同会话复用），要查对应文档。</div>
+
+<!-- ============ 6. Tool Runtime ============ -->
+<h2 id="s6">六、Tool Runtime：工具执行的抽象层</h2>
+<h3>6.1 为什么需要抽象</h3>
+<p>原型里 Agent 直接 import 业务函数调用。企业里这不行：工具要鉴权、要限流、要超时、要隔离、要可观测。把"调工具"这件事抽象成<strong>Tool Runtime</strong>层，Agent 只说"我要调 X"，Runtime 负责安全地把它跑完。</p>
+<div class="formula">
+Agent ──(意图: tool=查保单, args=...)──▶ Tool Runtime ──▶ 实际业务系统
+                          ▲                        │
+                    调度/鉴权/隔离/限流/超时     结果 or 受控错误
+</div>
+<h3>6.2 Tool Runtime 的职责</h3>
+<ul>
+  <li><strong>注册</strong>：工具以统一元数据结构登记（名称、描述、入参 schema、权限标签）。</li>
+  <li><strong>调度</strong>：决定调用顺序、并发、重试、超时。</li>
+  <li><strong>隔离</strong>：工具在沙箱/独立线程/独立服务里跑，异常不污染主流程。</li>
+  <li><strong>可观测</strong>：每次调用的入参、耗时、结果、错误全记 Trace。</li>
+</ul>
+<div class="eng">对 Java 背景很自然：Tool Runtime 类似"工具调用的中间件层 / 防腐层（ACL）"。它把 LLM 的"意图"翻译成对核心业务系统的安全调用，业务代码零改动即可被 Agent 复用，符合"与业务解耦"。</div>
+<div class="iv">Tool Runtime 是"工具调用的中间件层"：Agent 只发意图，Runtime 负责注册/调度/隔离/可观测。它把 LLM 意图转成对业务系统的安全调用，业务代码不用改。</div>
+<div class="warn">① Runtime 不是"又包一层函数"这么简单，它的价值在统一治理（鉴权/限流/超时/审计）一次搞定，否则每个工具自己写一遍。② 隔离要到位：工具里的 NPE、OOM 不能把 Agent 进程拖死。③ 不要为了"可观测"在每个工具里手写日志，应统一在 Runtime 拦截记 Trace，否则日志散落难审计。</div>
+
+<!-- ============ 7. 注册与调度 ============ -->
+<h2 id="s7">七、工具注册与调度（注册 / 调度 / 隔离）</h2>
+<h3>7.1 注册：统一工具描述</h3>
+<pre><code>ToolSpec(
+  name="query_policy",
+  description="按保单号查询保险保单与已购特药目录",
+  input_schema={ "policy_no": "string", "holder_id": "string" },
+  annotations={ "read_only": true, "risk": "low" },
+  permissions=["tool:policy:read"]
+)</code></pre>
+<h3>7.2 调度：并发与依赖</h3>
+<ul>
+  <li><strong>独立工具</strong>：可并行调用（如"查保单"和"查药品目录"无依赖，一起发）。</li>
+  <li><strong>有依赖</strong>：必须等前置结果（如先得保单号才能算报销）。</li>
+  <li><strong>最大并发 / 队列</strong>：防止瞬间打爆下游业务系统。</li>
+</ul>
+<h3>7.3 隔离：故障不扩散</h3>
+<p>工具在独立线程池/协程/微服务执行。单个工具超时或抛错，Runtime 捕获后返回"受控错误"（供 Agent 决定重试或换策略），主 Loop 不崩。</p>
+<div class="iv">注册=统一元数据结构（名/描述/入参/权限标签）；调度=处理并发与依赖、限流；隔离=工具在独立执行单元跑，异常被 Runtime 捕获成受控错误返回，主流程不挂。</div>
+<div class="warn">① 工具"并行"很诱人但要小心下游：查保单和查目录并行没事，但若都打同一个核心库，并发反而把它压垮——限流在 Runtime 层做。② 注册的 <code>annotations</code>（如 read_only/risk）只是"提示"，<strong>不是安全边界</strong>，真正鉴权另做（见 W5D2）。③ 隔离粒度别太粗也别太细：一个工具一个线程池太碎，全共用一个池又互相影响，按业务域分组更合理。</div>
+
+<!-- ============ 8. 状态管理 ============ -->
+<h2 id="s8">八、多轮状态管理：Agent 中间状态存哪</h2>
+<h3>8.1 状态有哪些</h3>
+<ul>
+  <li><strong>对话历史</strong>：用户/助手消息。</li>
+  <li><strong> Agent 内部状态</strong>：当前步骤、已收集到的字段（如已确认保单号）、中间工具结果。</li>
+  <li><strong>业务状态</strong>：理赔单状态、审批状态（注意：这部分属于业务系统，见 W5D4）。</li>
+</ul>
+<h3>8.2 存储位置对比</h3>
+<table>
+<tr><th>位置</th><th>优点</th><th>缺点</th><th>适用</th></tr>
+<tr><td>内存变量</td><td>最快</td><td>进程重启全丢、无法多实例共享</td><td>原型 / 单次会话内</td></tr>
+<tr><td>Checkpointer</td><td>每步快照、可暂停/恢复/回溯</td><td>需配套存储</td><td>企业级多轮 Agent</td></tr>
+<tr><td>外部存储（DB/Redis）</td><td>持久、跨进程、可审计</td><td>需自己管序列化与一致性</td><td>长周期业务（跨天理赔）</td></tr>
+</table>
+<p>特药理赔可能跨多个工作日（等医院发票、等人工审批），状态必须落外部存储，不能靠内存。</p>
+<div class="eng">"状态存哪"决定可用性。企业 Agent 普遍用 Checkpointer（框架级，每一步落快照）做"可恢复"，再对长周期业务把关键状态同步到业务 DB。内存只用于单次请求的临时变量。</div>
+<div class="iv">Agent 状态三处可放：内存（快但一挂就丢）、Checkpointer（每步快照可恢复，框架级）、外部存储（持久跨进程可审计）。长周期业务如理赔必须落外部存储。</div>
+<div class="warn">① "状态"和"业务状态"是两回事：Agent 内部的中间变量可以 Checkpoint，但理赔单状态属于业务系统（W5D4），Agent 不能自己当 owner。② Checkpointer 快照要轻量，别把整个大上下文每步都序列化，会爆存储——只存"恢复所需的最小状态 + 裁剪后的上下文指针"。③ 多实例部署时内存态不共享，必须用外部存储或带共享后端的 Checkpointer，否则用户第二次请求打到另一台机器状态全无。</div>
+
+<!-- ============ 9. Checkpointer ============ -->
+<h2 id="s9">九、Checkpointer 设计与可恢复性</h2>
+<h3>9.1 原理</h3>
+<p>Checkpointer 在 Agent 每执行一步（一次 LLM 调用 / 一次工具调用后）把"当前状态快照"写进存储。崩溃或主动暂停后，可用 session_id + 步号恢复，从断点继续，不必从头重跑（避免重复烧 token、重复调工具副作用）。</p>
+<div class="formula">
+step_n: { messages(裁剪后), agent_state, next_action } ──save──▶ store[session_id][n]
+recover(session_id, n): load snapshot → resume from step_{n+1}
+</div>
+<h3>9.2 设计要点</h3>
+<ul>
+  <li><strong>幂等</strong>：恢复后重跑要安全——工具调用若有副作用（提交审批），需幂等键防重复提交。</li>
+  <li><strong>版本兼容</strong>：Agent 代码升级后，旧快照能否反序列化，要有迁移策略。</li>
+  <li><strong>过期清理</strong>：长周期会话快照保留多久、何时归档。</li>
+</ul>
+<div class="eng">Checkpointer 是企业 Agent "可恢复性"的核心。它让"暂停等人审批""半夜进程重启""主动 human-in-loop 打断"都变成可能——这正是 W4 HITL 能落地的底座。</div>
+<div class="iv">Checkpointer 每步落快照，崩溃/暂停后能从断点恢复，不重跑。关键是工具副作用要幂等，否则恢复重跑会重复提交审批。</div>
+<div class="warn">① 没有幂等保障就去"恢复重跑"，会把"提交理赔审批"执行两遍——这是生产事故。② 快照里若存了敏感信息（患者身份证号）要加密，存储合规要管。③ 不要 Checkpoint 得太碎（每 token 都存）也别太粗（只在开头存），"每步"是平衡点。</div>
+
+<!-- ============ 10. 可观测 ============ -->
+<h2 id="s10">十、资源与监控：Trace / 可观测</h2>
+<p>企业级必须能回答"这次回答是怎么来的"：调了哪些工具、每步耗时、花了多少 token、哪步出错。靠 Trace 系统（如 Langfuse、LangSmith）把每次 Loop 的步骤串成树状记录。</p>
+<table>
+<tr><th>要记录</th><th>用途</th></tr>
+<tr><td>每步 LLM 输入/输出</td><td>复现、评测、调试</td></tr>
+<tr><td>工具调用入参/结果/耗时/错误</td><td>定位慢/错的工具</td></tr>
+<tr><td>token 与成本</td><td>成本核算、预算预警</td></tr>
+<tr><td>裁剪/摘要动作</td><td>审计"为什么丢了某信息"</td></tr>
+</table>
+<div class="iv">企业级要可观测：把每次 Loop 的步骤（LLM 输入输出、工具调用、token、裁剪动作）串成 Trace，出问题能回放、能审计、能算成本。</div>
+<div class="warn">① Trace 别只记成功不管失败——恰恰失败路径（工具异常、超时）最该记全，否则线上事故无法复盘。② 记 Trace 本身有开销，生产要采样或分级（关键业务全记、普通对话抽样）。③ Trace 含患者隐私，存储与访问要脱敏和权限控制。</div>
+
+<!-- ============ 11. 达标线① ============ -->
+<h2 id="s11">十一、面试达标线①：能讲清从原型 Loop 到企业 Loop 的演进</h2>
+<table>
+<tr><th>演进维度</th><th>原型</th><th>企业级</th><th>解决什么</th></tr>
+<tr><td>Context</td><td>全量历史无裁剪</td><td>裁剪 + 摘要 + token 预算</td><td>超窗、成本、注意力稀释</td></tr>
+<tr><td>工具执行</td><td>直接调业务函数</td><td>Tool Runtime 抽象（鉴权/隔离/限流）</td><td>故障扩散、无治理</td></tr>
+<tr><td>状态</td><td>内存变量</td><td>Checkpointer + 外部存储</td><td>重启丢失、不可恢复</td></tr>
+<tr><td>可观测</td><td>无</td><td>Trace 全链路</td><td>不可复盘、不可审计</td></tr>
+</table>
+<div class="iv">核心：企业级 Agent 不是"更聪明模型"，而是补齐 Context 裁剪、Tool Runtime、状态持久化、可观测四块基础设施。三者正交、可分别演进、不必一步到位。</div>
+
+<!-- ============ 12. 达标线② ============ -->
+<h2 id="s12">十二、面试达标线②：Context 裁剪为什么必要、有哪些策略、和 KV Cache 的关系</h2>
+<div class="formula">
+必要性：超窗 + 成本 + 注意力稀释　│　策略：按轮摘要 / 按 token 预算裁剪 / 工具结果 top-k　│　KV Cache：动旧端保尾端，保前缀稳定以高命中缓存
+</div>
+<ol>
+  <li><strong>为什么必要</strong>：不裁剪会超上下文窗口、每次调用更贵更慢、无关信息稀释关键证据（如拒赔条款）。</li>
+  <li><strong>有哪些策略</strong>：丢弃低重要消息（eviction）、按轮摘要老轮、按 token 预算裁剪、工具长结果 top-k 截断，可组合。</li>
+  <li><strong>和 KV Cache 关系</strong>：KV Cache 缓存前缀，前缀不变则命中高、快且省。裁剪要"改旧端（摘要）、保尾端（追加）"以维持前缀稳定；频繁重排中间内容会打散缓存，反而更慢更贵。</li>
+  <li><strong>代价权衡</strong>：摘要本身有成本、且可能丢信息，需保底白名单 + 摘要保真度评估。</li>
+</ol>
+
+<!-- ============ 13. 自测清单 ============ -->
+<h2 id="s13">十三、W5D1 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说出原型 Agent Loop 的"感知—决策—行动—观察"闭环，并指出它上生产的三道硬伤（无裁剪/无隔离/无状态持久）。</li>
+<li>能解释 Context 不裁剪的三类后果（超窗/成本/注意力稀释），举出医疗保险场景的例子。</li>
+<li>能区分"丢弃（eviction）"和"压缩（compression）"两种裁剪思路。</li>
+<li>能讲清两种摘要策略：按轮摘要、按 token 预算裁剪，以及工具结果如何单独 top-k 截断。</li>
+<li>能说清 KV Cache 原理，以及裁剪为什么"动旧端、保尾端"才能维持高缓存命中。</li>
+<li>能画出 Tool Runtime 在 Agent 与业务系统之间的位置，并说出它的四个职责（注册/调度/隔离/可观测）。</li>
+<li>能解释工具"注册"统一元数据结构里哪些字段只是提示、哪些才是真鉴权依据（D2 展开）。</li>
+<li>能对比内存 / Checkpointer / 外部存储三种状态存放位置的优劣与适用。</li>
+<li>能讲清 Checkpointer 的可恢复性原理，以及为什么工具副作用必须幂等。</li>
+<li>能讲清从原型到企业 Loop 的四项演进（裁剪/Runtime/状态/可观测），并区分"Agent 内部状态"与"业务状态"（后者归 W5D4）。</li>
+</ul>
+</div>
+
+<!-- ============ 14. 速记卡 ============ -->
+<h2 id="s14">十四、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：原型 Agent Loop 为什么不能直接上生产？</div><div class="a">三道硬伤：无 Context 裁剪（超窗/烧钱）、无 Tool 隔离（一处异常拖垮全流）、无状态持久（重启全丢、不可恢复）。</div></div>
+<div class="qcard"><div class="q">Q：Context 裁剪有哪两类思路？</div><div class="a">丢弃（eviction，丢低重要消息）和压缩（compression，把长内容/多轮摘要成短文本）。可组合。</div></div>
+<div class="qcard"><div class="q">Q：按轮摘要和按 token 预算裁剪分别怎么用？</div><div class="a">按轮摘要把最早 N 轮压成"进展摘要"；按 token 预算设上限、按重要性丢/压低优先级内容回到预算内。工具长结果单独 top-k。</div></div>
+<div class="qcard"><div class="q">Q：Context 裁剪和 KV Cache 什么关系？</div><div class="a">KV Cache 缓存前缀，前缀不变则命中高、省且快。裁剪应"动旧端（摘要老轮）、保尾端（新消息追加）"，避免频繁重排中间内容打散缓存。</div></div>
+<div class="qcard"><div class="q">Q：Tool Runtime 是干什么的？</div><div class="a">工具调用的中间件/防腐层：Agent 发意图，Runtime 负责注册、调度、隔离、可观测，把 LLM 意图转成对业务系统的安全调用，业务代码零改。</div></div>
+<div class="qcard"><div class="q">Q：Agent 状态存哪？</div><div class="a">内存（快但一挂就丢）、Checkpointer（每步快照可恢复，框架级）、外部存储（持久跨进程可审计）。长周期业务如理赔必须落外部存储。</div></div>
+<div class="qcard"><div class="q">Q：Checkpointer 恢复为什么要幂等？</div><div class="a">恢复会重跑后续步骤，若工具（如提交审批）无幂等键，会重复执行造成生产事故。</div></div>
+<div class="qcard"><div class="q">Q：工具并行调用要注意什么？</div><div class="a">只并行无依赖工具；有依赖的必须等前置结果；在 Runtime 层限流，防止瞬间打爆下游核心系统。</div></div>
+<div class="qcard"><div class="q">Q：企业级可观测要记什么？</div><div class="a">每步 LLM 输入输出、工具入参/结果/耗时/错误、token 成本、裁剪动作——尤其失败路径最该记全。</div></div>
+<div class="qcard"><div class="q">Q：Agent 状态和业务状态是一回事吗？</div><div class="a">不是。Agent 内部中间变量可 Checkpoint；理赔单/审批状态属于业务系统（W5D4），Agent 不拥有，只驱动。</div></div>
+
+<div class="ft">FDE W5D1 学习手册 · Agent Loop 企业扩展（面试级）· 配合《FDE-W5D1-评测题.md》自测 · 资源：李宏毅 Agent 原理 BV1aiADewEBC、LangGraph 多智能体/工具 BV1zKx4zWEZP</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w5d1_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W5D1 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W5D1-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

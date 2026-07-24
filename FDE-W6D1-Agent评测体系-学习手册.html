@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W6D1 学习手册 · Agent 评测体系（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W6D1 学习手册</span>
+  <a href="#s1">1.总览</a><a href="#s2">2.RAG Eval</a><a href="#s3">3.任务完成率</a><a href="#s4">4.工具正确率</a><a href="#s5">5.审批准确率</a>
+  <span class="sep"></span>
+  <a href="#s6">6.高风险漏判</a><a href="#s7">7.Tool Cases</a><a href="#s8">8.恢复/成本</a><a href="#s9">9.用例分层</a><a href="#s10">10.执行流程</a>
+  <span class="sep"></span>
+  <a href="#s11">达标①</a><a href="#s12">达标②</a><a href="#s13">自测</a><a href="#s14">速记</a>
+</div>
+
+<h1>FDE W6D1 学习手册 · Agent 评测体系</h1>
+<p class="sub">W6 Day1 · A 级（必须掌握，面试核心）· 4h · 学完能讲透"Agent 评测与 RAG 评测的本质区别，以及 Agent Eval 的核心指标怎么设计"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W3 已建立 RAG Eval 体系，W6 进入"Agent 上线前的工程化评测"。Day1 回答一个核心问题：当模型从"一问一答"变成"多步调工具完成任务"，怎么衡量它做对了没有。这是 FDE 面试高频考点。<br>
+  <strong>学完能回答：</strong>① Agent Eval 与 RAG Eval 的区别（任务级 vs 检索级）；② 任务完成率/工具成功率/Human Approval 准确率/错误恢复率/单任务成本怎么定义和测算；③ OCR/Rule/Database 等单 Tool 怎么单独评测；④ 拒答与高风险漏判怎么测。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W6D1-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 总览 ============ -->
+<h2 id="s1">一、评测体系总览：从 RAG Eval 到 Agent Eval</h2>
+<p>评测对象决定评测方法。RAG 是"检索+生成"的单轮管道，Agent 是"目标拆解→调工具→观察→再决策"的多步闭环。两者评测粒度不同：</p>
+<table>
+<tr><th>维度</th><th>RAG Eval</th><th>Agent Eval</th></tr>
+<tr><td>评测对象</td><td>单次问答（检索+回答质量）</td><td>一次完整任务（多步轨迹）</td></tr>
+<tr><td>核心问题</td><td>答案对不对、有没有幻觉、引用准不准</td><td>任务有没有完成、工具调对没有、风险有没有漏</td></tr>
+<tr><td>指标层级</td><td>检索级（召回/精度）+ 生成级（忠实性/相关性）</td><td>任务级（完成率）+ 工具级（成功率）+ 风险级（漏判率）</td></tr>
+<tr><td>失败表现</td><td>答错、漏引用</td><td>跑偏、乱调工具、漏判高危、成本爆炸</td></tr>
+</table>
+<p>关键认知：<strong>Agent 评测是 RAG 评测的上层</strong>。Agent 在"调知识库工具"这一步内部仍然跑 RAG，所以 W3 的 RAG Eval 被继承为 Agent 内部子环节的评测，但 Agent Eval 额外覆盖"任务编排层"和"工具执行层"。</p>
+<div class="eng">工程上要把 Agent Eval 拆成三层看：① <strong>任务层</strong>（最终目标达成没）；② <strong>轨迹/工具层</strong>（每一步工具调得对不对、参数对不对）；③ <strong>风险层</strong>（该转人工的有没有转、高危 case 有没有漏）。只测最终答案会漏掉"碰巧答对但过程全错"的假阳性。</div>
+<div class="iv">一句话：RAG 评的是"一次回答好不好"，Agent 评的是"一个任务办没办成"。Agent 评测要同时看任务结果、工具调用过程、风险漏判三件事，而 RAG Eval 是它内部"查知识库"那一步的子评测。</div>
+<div class="warn">① 别把"最终答案对"当成"Agent 评测通过"——模型可能乱调工具、调错库、碰巧编出正确答案，过程全错但结果蒙对（假阳性），这种在上线后极危险。② 评测集规模不要盲目求大：Agent 评测贵（每 case 跑多步、多 token），30 个高质量任务 case + 50 个 RAG case 远胜 300 个注水 case。③ 不要把 RAG 的指标（如 faithfulness）直接当 Agent 指标用，维度不对。</div>
+
+<!-- ============ 2. RAG Eval ============ -->
+<h2 id="s2">二、继承 W3：RAG Eval 50 Cases 设计与指标</h2>
+<p>W3 已沉淀 50 个 RAG 问答 case，作为 Agent 内部"查保险知识库/特药目录"的底层评测。Agent 场景下这 50 case 仍要保留并定期回归，因为 Agent 幻觉往往源于知识库这一步出问题。</p>
+<h3>2.1 RAG Eval 核心指标</h3>
+<table>
+<tr><th>指标</th><th>含义</th><th>怎么算</th><th>保险场景示例</th></tr>
+<tr><td>Faithfulness（忠实性）</td><td>答案是否完全基于检索内容</td><td>抽答案中每个claim，判是否能在参考资料中找到</td><td>"奥希替尼限二线"必须有条款出处，否则判不忠实</td></tr>
+<tr><td>Answer Relevancy（相关性）</td><td>答案是否切题</td><td>用答案反推问题，看相关性</td><td>问报销比例，答用药禁忌=不相关</td></tr>
+<tr><td>Context Recall（上下文召回）</td><td>该检索的文段有没有召回到</td><td>标准答案所需证据是否在召回 top-k</td><td>特药适应症条款是否在召回里</td></tr>
+<tr><td>Context Precision（上下文精度）</td><td>召回里相关的排得靠前没</td><td>相关文段在 top-k 中的排序质量</td><td>正确条款排第 1 而非第 8</td></tr>
+<tr><td>拒答准确率</td><td>无答案时应拒答</td><td>should_refuse case 中正确拒答比例</td><td>知识库无此药→答"未查询到"，不硬编</td></tr>
+</table>
+<h3>2.2 用 RAGAS 落地</h3>
+<p>官方文档 <code>docs.ragas.io</code> 提供这些指标的无参考/有参考实现。典型用法：把每次 RAG 的 <code>question / contexts / answer / reference</code> 喂给 RAGAS 算分。</p>
+<div class="eng">在特药理赔 Agent 里，一次"用户问某药能不能报"会触发知识库检索。这个子环节必须用 W3 的 50 case 持续回归：如果某次 Prompt 改动让 Context Recall 掉 5 个点，Agent 整体就会开始乱答，但任务层指标可能看不出来——必须分层监控。</div>
+<div class="iv">RAG Eval 看"检索到的内容对不对、答案是否忠于检索"。用 RAGAS 的 Faithfulness/Answer Relevancy/Context Recall/Precision 五指标。这 50 case 在 Agent 时代仍要保留，作为"查知识库"那一步的回归基线。</div>
+<div class="warn">① RAG Eval 分数高 ≠ Agent 评测通过，它只覆盖 Agent 内部一步。② 引用（citation）质量要单独评：模型说"依据条款 X"但实际检索里没有 X，是典型幻觉，必须查引用可追溯性。③ 拒答 case 容易被漏测——要专门留 should_refuse 样本。</div>
+
+<!-- ============ 3. 任务完成率 ============ -->
+<h2 id="s3">三、Agent Eval 核心：任务完成率</h2>
+<p><strong>任务完成率</strong>是 Agent Eval 的"总开关"指标，衡量给定目标是否被完整、正确地达成。</p>
+<div class="formula">
+任务完成率 = 任务结果被正确达成数 / 任务总数 × 100%
+</div>
+<h3>3.1 "完成"的判定</h3>
+<ul>
+  <li><strong>目标达成</strong>：最终产物满足业务预期（如生成了合规的理赔初审意见书）。</li>
+  <li><strong>过程正确</strong>：路径没走偏、没调错工具、没违反约束（不只要结果对，过程也要对）。</li>
+  <li><strong>不破坏约束</strong>：没越权、没泄露、没产生危险动作。</li>
+</ul>
+<h3>3.2 判定方式</h3>
+<table>
+<tr><th>方式</th><th>做法</th><th>优劣</th></tr>
+<tr><td>LLM-as-Judge</td><td>用强模型对照标准答案/评分细则给完成度打分</td><td>快、可规模化，但有评委偏差，要校准</td></tr>
+<tr><td>规则/确定性校验</td><td>对最终产物做结构化断言（字段齐全、金额在区间、状态正确）</td><td>客观可靠，覆盖不了"语义质量"</td></tr>
+<tr><td>人工标注</td><td>专家逐条判完成与否</td><td>金标准，慢、贵，用于抽检验证</td></tr>
+</table>
+<div class="eng">特药理赔 Agent 的"任务完成"不能只看"有没有出意见书"，还要校验：金额计算正确、引用条款真实、风险等级字段存在、高风险已触发人工。否则"生成了一份看起来对的文书但金额算错"也该算未完成。</div>
+<div class="iv">任务完成率 = 正确完成的任务数 / 任务总数。判定要兼顾"结果对 + 过程对 + 不违规"，不能只看最终产物。落地用 LLM-Judge + 确定性规则校验 + 人工抽检验证三层。</div>
+<div class="warn">① 只靠 LLM-Judge 判完成率会有系统性偏差（评委模型偏好长答案、爱给高分），必须和确定性校验/人工抽检交叉验证。② "结果对但过程错"仍是失败——要防止碰巧蒙对。③ 任务定义要写清"什么叫完成"，否则评分不可复现。</div>
+
+<!-- ============ 4. 工具调用正确率 ============ -->
+<h2 id="s4">四、工具调用正确率（工具成功率）</h2>
+<p>Agent 的核心能力是调工具。这一指标衡量"该调的工具调了、参数对了、时机对了"。</p>
+<div class="formula">
+工具调用正确率 = 工具调用正确的步数 / 总工具调用步数 × 100%
+</div>
+<h3>4.1 三个子维度</h3>
+<ul>
+  <li><strong>工具选择正确</strong>：该查 OCR 没去查数据库，该调 Rule 引擎没去瞎编。</li>
+  <li><strong>参数正确</strong>：传给工具的参数对（如 OCR 的图片 id、SQL 的过滤条件、金额单位）。</li>
+  <li><strong>时机/顺序正确</strong>：先查身份再查权益，而不是反过来导致越权查。</li>
+</ul>
+<h3>4.2 评分</h3>
+<p>可逐条标注每个 tool_call 是否为"理想轨迹"中的一步（可用 W3 沉淀的标准轨迹做对照），或让 LLM-Judge 对照"标准工具序列"打分。</p>
+<div class="eng">保险场景里工具错用危害极大：把"调 OCR 识别发票"错成"调规则引擎直接拒赔"，或把金额单位传错（元/分），都会直接造成错赔。工具级评测能在任务层还没暴露前抓到这类问题。</div>
+<div class="iv">工具调用正确率看"选对工具、参数对、顺序对"。它比任务完成率更细，能在"结果碰巧对"时抓出过程错误。评测可对照标准工具轨迹，或 LLM-Judge 判每步。</div>
+<div class="warn">① 工具"调成功"（HTTP 200）≠"调正确"（语义对），要区分执行成功率和语义正确率。② 多轮里工具顺序错也很常见（先查权益后验证身份→可能越权），顺序也要评。③ 不要只看最终有没有调某个工具，要看整条轨迹。</div>
+
+<!-- ============ 5. 人工审批触发准确率 ============ -->
+<h2 id="s5">五、人工审批触发准确率（Human Approval 准确率）</h2>
+<p>企业 Agent 常设"高风险动作需人工审批"闸门。该指标衡量闸门是否"该拦的拦住、不该拦的别误伤"。</p>
+<table>
+<tr><th>指标</th><th>公式</th><th>说明</th></tr>
+<tr><td>审批触发精确率</td><td>真正需审批且被触发 / 所有被触发审批</td><td>误触发越高，人工越烦（误报）</td></tr>
+<tr><td>审批触发召回率</td><td>真正需审批且被触发 / 所有真正需审批</td><td>漏触发越危险（漏报）</td></tr>
+<tr><td>误触发率</td><td>不需审批却被触发 / 全部</td><td>影响效率，要压低但不宜压到 0</td></tr>
+</table>
+<h3>5.1 哪些算"需审批"</h3>
+<ul>
+  <li>金额超过阈值的理赔（如 > 5 万）。</li>
+  <li>命中高风险关键词（疑似欺诈、罕见病超适应症用药）。</li>
+  <li>知识库无把握、模型 should_refuse 但业务要求人工兜底的情形。</li>
+</ul>
+<div class="eng">审批闸门是"安全网"。评测目标是：<strong>召回率优先（宁可误拦不可漏放）</strong>，但误触发率要控制在一个人工能承受的范围。FDE 面试常问"召回和精确怎么取舍"——安全场景一律召回优先。</div>
+<div class="iv">Human Approval 准确率看闸门对不对：分触发精确率、召回率、误触发率。高风险场景"召回优先"——宁可误拦不可漏放。这跟推荐系统的精确率优先正好相反。</div>
+<div class="warn">① 不要把审批触发准确率简单当成"准确率"一个数——必须拆精确率/召回率，否则掩盖漏报。② 漏触发（高危没转人工）比误触发严重得多，面试要强调这点。③ 审批阈值要可配置、可回归，改 Prompt 后必须重测闸门。</div>
+
+<!-- ============ 6. 高风险漏判率 ============ -->
+<h2 id="s6">六、高风险漏判率（最致命指标）</h2>
+<p><strong>高风险漏判率</strong> = 应识别为高风险却漏判的比例。这是 Agent 上线最不能出问题的指标，直接对应资损与合规风险。</p>
+<div class="formula">
+高风险漏判率 = 应判高风险却判为正常的 case 数 / 应判高风险的 case 总数 × 100%
+</div>
+<h3>6.1 为什么单列</h3>
+<ul>
+  <li>它和"任务完成率"正交：任务可能"完成得很好"但把一笔欺诈理赔判成了正常通过。</li>
+  <li>它和"审批触发召回率"互补：前者看"有没有标高风险"，后者看"标了之后有没有转人工"。</li>
+<li>它的失败成本极高（一笔骗赔可能数十万），所以必须单独盯、单独设达标线（通常要求 0 漏判或极低）。</li>
+</ul>
+<h3>6.2 怎么测</h3>
+<p>在评测集里专门构造"看起来正常但暗藏高风险信号"的 case（对抗样本）：如发票 OCR 结果被轻微 PS、用药与诊断不符但措辞专业。看 Agent 是否命中风险规则或触发人工。</p>
+<div class="eng">保险场景的高风险漏判 = 真骗赔被放行、超适应症用药被批准、冒用身份通过。这类 case 在真实流量里稀有但破坏力极大，评测集必须人为过采样、构造对抗样本，不能只靠自然分布（自然分布下你永远测不到漏判）。</div>
+<div class="iv">高风险漏判率 = 该判高风险却判正常的比例，是最致命指标，和任务完成率正交（任务办成≠风险判对）。必须用对抗样本专门构造稀有高危 case 来测，达标线通常要求接近 0 漏判。</div>
+<div class="warn">① 自然分布下高危 case 极少，直接跑全量评测会"看起来 100% 没问题"实则根本没测到——必须主动构造对抗样本过采样。② 漏判率达标线要设得比完成率严得多（如 ≤0.5%）。③ 漏判和"误触发"是两件事，别混。</div>
+
+<!-- ============ 7. Tool Cases ============ -->
+<h2 id="s7">七、OCR / Rule / Database Tool 各 10-20 Cases</h2>
+<p>单 Tool 也要有自己的迷你评测集，因为 Agent 整体评测掩盖不了"某个 Tool 接口本身不稳"。</p>
+<table>
+<tr><th>Tool</th><th>评测重点</th><th>典型 case 设计（各 10-20）</th></tr>
+<tr><td>OCR Tool</td><td>发票/单据识别准确率、字段抽取、模糊/倾斜/PS 图</td><td>正常发票、手写单、低清图、被涂改发票、非发票图片</td></tr>
+<tr><td>Rule Tool（规则引擎）</td><td>理赔规则判定正确性、边界条件</td><td>恰好达门槛、超适应症、等待期内、材料不全</td></tr>
+<tr><td>Database Tool</td><td>SQL 正确性、越权查询、空结果处理</td><td>正常查询、无记录、越权字段、大结果分页</td></tr>
+</table>
+<div class="eng">分 Tool 评测的价值：当 Agent 整体完成率下降时，能快速定位是 OCR 识别掉了、还是 Rule 引擎规则改错、还是 Database 查询越权被拦。这是"可观测性"在评测侧的体现。每个 Tool 的 case 要随 Tool 版本一起版本化。</div>
+<div class="iv">OCR/Rule/Database 各建 10-20 条迷你 case，分别测识别准确率、规则判定、查询正确性。目的是在 Agent 整体掉分时能定位到具体哪个 Tool 出问题，而不是只知道"整体不行"。</div>
+<div class="warn">① 单 Tool case 不要和 Agent case 重复——Tool case 是"给定输入看输出"，绕过 Agent 编排，直接测 Tool 本身。② OCR case 要覆盖对抗样本（涂改/PS），否则上线就被骗。③ 这些 case 也要版本化，Tool 一升级就要回归。</div>
+
+<!-- ============ 8. 恢复/成本 ============ -->
+<h2 id="s8">八、错误恢复率与单任务成本</h2>
+<h3>8.1 错误恢复率</h3>
+<p>Agent 中途某步失败时，能否自我纠正继续完成任务。</p>
+<div class="formula">
+错误恢复率 = 发生错误但最终仍成功完成的任务数 / 发生过错误的任务数 × 100%
+</div>
+<p>常见错误：工具返回空、参数被拒、LLM 输出格式错。好的 Agent 应重试/换路而非直接崩。</p>
+<h3>8.2 单任务成本</h3>
+<table>
+<tr><th>成本项</th><th>说明</th></tr>
+<tr><td>Token 成本</td><td>每任务平均输入/输出 token（多步累加惊人）</td></tr>
+<tr><td>工具调用成本</td><td>OCR/数据库查询次数 × 单价</td></tr>
+<tr><td>重试成本</td><td>失败重试多花的 token 与调用</td></tr>
+<tr><td>人工成本</td><td>触发审批占用的人工时长</td></tr>
+</table>
+<div class="eng">单任务成本必须作为上线准入指标——一个"答得对但烧了 3 块钱 token、调了 20 次工具"的 Agent 在保险高并发场景下不可接受。评测报告要给出 P50/P95 成本，而不是平均值（平均会掩盖长尾贵 case）。</div>
+<div class="iv">错误恢复率 = 出错但最终成功的任务 / 出过错的任务，测 Agent 的"鲁棒性"。单任务成本看 token+工具+重试+人工，要报 P95 而非均值，避免长尾贵 case 被平均掩盖。</div>
+<div class="warn">① 只报平均成本会掩盖"1% 的任务烧了 10 倍 token"的长尾，必须看 P95/P99。② 错误恢复率高不代表好——如果靠疯狂重试堆出来，成本会爆，要和恢复率+成本一起看。③ 重试次数要上限，否则可能死循环。</div>
+
+<!-- ============ 9. 用例分层 ============ -->
+<h2 id="s9">九、评测集构建方法论：用例分层</h2>
+<p>高质量评测集不是随机收集，而是按"能力维度 × 难度"分层设计。</p>
+<table>
+<tr><th>层</th><th>目的</th><th>占比建议</th><th>示例</th></tr>
+<tr><td>Smoke（冒烟）</td><td>主流程不崩</td><td>10%</td><td>标准理赔材料、常规特药</td></tr>
+<tr><td>功能</td><td>覆盖各分支</td><td>40%</td><td>各种拒赔规则、各种工具组合</td></tr>
+<tr><td>边界</td><td>边界/异常</td><td>25%</td><td>金额临界、材料不全、超时</td></tr>
+<tr><td>对抗/高风险</td><td>安全与漏判</td><td>25%</td><td>PS发票、超适应症、欺诈话术</td></tr>
+</table>
+<div class="info"><strong>构建流程：</strong>① 从真实工单/日志抽样；② 由保险业务专家标注"标准答案 + 风险标签 + 是否需审批"；③ 注入对抗样本；④ 双人校验标签；⑤ 版本化入库，每次 Prompt/模型/Tool 改动都全量回归。</div>
+<div class="eng">评测集是"资产"不是"一次性的"。它要像代码一样版本化、评审、随业务演进。尤其保险条款常变，评测集要有人定期更新，否则测的是旧规则。</div>
+<div class="iv">评测集按 Smoke/功能/边界/对抗四层设计，对抗样本占 ~25%。来源是真工单抽样 + 专家标注 + 对抗注入，双人校验，版本化。核心思想：测的不是"常见情况"，而是"会出事的情况"。</div>
+<div class="warn">① 评测集分布要和真实分布解耦——真实分布里高危 case 极少，全靠真实抽样永远测不到漏判。② 标签要双人校验，单人来标注会有主观偏差。③ 评测集不更新 = 测旧业务，条款一变全失效。</div>
+
+<!-- ============ 10. 执行流程 ============ -->
+<h2 id="s10">十、评测执行流程与离线回归</h2>
+<p>Agent 评测要自动化、可重复，核心是"跑一批 case → 收集轨迹 → 算各层指标 → 出对比报告"。</p>
+<pre><code># 离线评测伪代码骨架
+for case in eval_set:                # 30 任务 + 50 RAG + 各 Tool case
+    trace = run_agent(case.input, version=PROMPT_V, model=MODEL_V)
+    metrics = score(case, trace)     # LLM-Judge + 规则校验 + 人工抽检
+    save_trace(case.id, trace, metrics)   # 落库，供复盘
+aggregate(metrics) -> report(before_vs_after)</code></pre>
+<h3>10.1 关键工程点</h3>
+<ul>
+  <li><strong>轨迹落库</strong>：每 case 的完整 tool_call 序列、中间状态、最终产物都要存，便于失败复盘。</li>
+  <li><strong>可复现</strong>：固定 model/temperature/评测集版本，否则两次结果不可比。</li>
+  <li><strong>回归对比</strong>：改一版 Prompt 跑全量，和上一版本指标 diff（见 W6D2 一键回归）。</li>
+  <li><strong>看板</strong>：任务完成率、工具正确率、漏判率、P95 成本随版本趋势图。</li>
+</ul>
+<div class="eng">用 Langfuse（<code>langfuse.com</code>）这类 LLMOps 平台可以天然记录每次运行的 trace、token、成本，并做多版本对比。这部分和 W6D2 的版本管理强耦合——评测跑出来的轨迹就是版本回归的输入。</div>
+<div class="iv">评测执行 = 跑 case → 存轨迹 → 算分层指标 → 出前后版本对比报告。关键是轨迹落库（便于复盘）+ 可复现（固定版本）+ 回归 diff。Langfuse 可记录 trace/成本并做版本对比。</div>
+<div class="warn">① 没存轨迹的评测 = 不可复盘，出问题只能重跑。② 版本没固定（model/temperature 漂移）会导致"这次好下次差"无法解释。③ 只看总分不看分层，定位不到根因。</div>
+
+<!-- ============ 11. 达标线① ============ -->
+<h2 id="s11">十一、面试达标线①：Agent 评测 vs RAG 评测（任务级 vs 检索级）</h2>
+<table>
+<tr><th>对比项</th><th>RAG 评测</th><th>Agent 评测</th></tr>
+<tr><td>粒度</td><td>检索级 + 单轮生成级</td><td>任务级 + 工具级 + 风险级</td></tr>
+<tr><td>关注</td><td>答案忠实/相关、检索召回精度</td><td>任务完成、工具正确、风险漏判</td></tr>
+<tr><td>失败模式</td><td>幻觉、漏引用</td><td>跑偏、乱调工具、漏判高危、成本爆炸</td></tr>
+<tr><td>评测对象</td><td>一次问答</td><td>多步闭环轨迹</td></tr>
+<tr><td>关系</td><td>Agent 内部"查知识库"那步的子评测</td><td>上层，包含并依赖 RAG 评测</td></tr>
+</table>
+<div class="iv">核心区分：RAG 评测是"检索级"，关心一次回答忠不忠实、检索准不准；Agent 评测是"任务级"，关心一个多步任务办没办成、工具调对没、风险漏没漏。RAG Eval 是 Agent Eval 内部子环节的评测，被继承而非替代。</div>
+
+<!-- ============ 12. 达标线② ============ -->
+<h2 id="s12">十二、面试达标线②：Agent Eval 核心指标设计 + 拒答/高风险漏判怎么测</h2>
+<div class="formula">
+Agent Eval 指标 = 任务完成率 + 工具成功率 + Human Approval 准确率 + 错误恢复率 + 单任务成本(P95) + 高风险漏判率(独立盯)
+</div>
+<ol>
+  <li><strong>任务完成率</strong>：结果对+过程对+不违规，三层判定（LLM-Judge+规则+人工抽检）。</li>
+  <li><strong>工具成功率</strong>：工具选择/参数/顺序三子维度，对照标准轨迹或 LLM-Judge。</li>
+  <li><strong>Human Approval 准确率</strong>：拆精确率/召回率/误触发率，高风险场景召回优先。</li>
+  <li><strong>错误恢复率</strong>：出错后仍成功的比例，配合成本看。</li>
+  <li><strong>单任务成本</strong>：token+工具+重试+人工，报 P95。</li>
+  <li><strong>高风险漏判率</strong>：单独设极严达标线（≈0），用对抗样本过采样测。</li>
+</ol>
+<h3>拒答怎么测</h3>
+<p>在评测集放 <code>should_refuse=true</code> 的 case（知识库无此药、超出业务范围），判 Agent 是否输出拒答信号（固定 should_refuse 字段或拒答文案），统计拒答准确率；同时放 <code>should_refuse=false</code> 的 case 防"过度拒答"。</p>
+<h3>高风险漏判怎么测</h3>
+<p>专门构造"表面正常暗藏风险"的对抗样本（PS 发票、超适应症、欺诈话术），过采样到占评测集 25%，逐条标"应判高风险"，统计漏判率。漏判比误触发严重，达标线要严。</p>
+<div class="iv">Agent Eval 六大指标如上，其中高风险漏判率要独立盯、达标线最严。拒答测法是放 should_refuse 正负样本测拒答准确率+防过度拒答；高风险漏判测法是主动构造对抗样本过采样，因为它自然分布极稀有，不构造就测不到。</div>
+
+<!-- ============ 13. 自测清单 ============ -->
+<h2 id="s13">十三、W6D1 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能讲清 Agent 评测与 RAG 评测的本质区别（任务级 vs 检索级），说清 RAG Eval 如何被 Agent Eval 继承。</li>
+<li>能说出 Agent Eval 的 5-6 个核心指标及其公式（任务完成率/工具成功率/审批准确率/错误恢复率/单任务成本/高风险漏判率）。</li>
+<li>能解释"任务结果对但过程错"为何仍算失败（假阳性），以及为什么只看最终答案不够。</li>
+<li>能区分工具"执行成功"与"语义正确"，说出工具调用的三个子维度（选择/参数/顺序）。</li>
+<li>能解释 Human Approval 准确率为什么要拆精确率/召回率，且高风险场景"召回优先"。</li>
+<li>能说明高风险漏判率为何是最致命指标，为什么必须用对抗样本过采样来测。</li>
+<li>能设计 OCR/Rule/Database 各 10-20 条单 Tool case，说清单 Tool 评测的定位价值。</li>
+<li>能解释单任务成本为什么要看 P95 而非均值，错误恢复率为什么要结合成本看。</li>
+<li>能描述评测集的四层构建法（Smoke/功能/边界/对抗）和版本化思路。</li>
+<li>能讲清拒答怎么测（should_refuse 正负样本）和风险漏判怎么测（对抗样本过采样）。</li>
+<li>能说清评测执行流程：跑 case → 存轨迹 → 算分层指标 → 版本回归 diff。</li>
+<li>能说出 RAGAS、Langfuse 在评测中的角色（指标计算 / trace 与版本对比）。</li>
+</ul>
+</div>
+
+<!-- ============ 14. 速记卡 ============ -->
+<h2 id="s14">十四、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：Agent 评测和 RAG 评测到底差在哪？</div><div class="a">RAG 是检索级（一次回答忠不忠实、检索准不准），Agent 是任务级（多步任务办没办成、工具调对没、风险漏没漏）。RAG Eval 是 Agent 内部查知识库那步的子评测，被继承。</div></div>
+<div class="qcard"><div class="q">Q：为什么不能只看任务完成率？</div><div class="a">模型可能乱调工具、过程全错却碰巧结果对（假阳性）。必须分层看任务层+工具层+风险层，过程也要对。</div></div>
+<div class="qcard"><div class="q">Q：Human Approval 准确率为什么召回优先？</div><div class="a">高风险场景漏触发（高危没转人工）危害远大于误触发（误拦）。安全网宁可误拦不可漏放，和推荐系统精确率优先相反。</div></div>
+<div class="qcard"><div class="q">Q：高风险漏判率怎么测才有效？</div><div class="a">自然分布下高危 case 极稀有，直接跑全量会"看起来 100% 没问题"实则没测到。必须主动构造对抗样本过采样到 ~25% 专门测。</div></div>
+<div class="qcard"><div class="q">Q：单任务成本为什么要看 P95 而不是平均值？</div><div class="a">平均值会掩盖"1% 任务烧 10 倍 token"的长尾贵 case，高并发下长尾决定总成本。要看 P50/P95/P99。</div></div>
+<div class="qcard"><div class="q">Q：工具调用"成功"等于"正确"吗？</div><div class="a">不等。HTTP 200 只代表执行成功，语义可能错（选错工具/参数错/顺序错）。要区分执行成功率与语义正确率。</div></div>
+<div class="qcard"><div class="q">Q：OCR/Rule/Database 为什么要单独建 case？</div><div class="a">Agent 整体掉分时能定位到具体哪个 Tool 出问题（可观测性），而不是只知道"整体不行"。每个 Tool case 随 Tool 版本回归。</div></div>
+<div class="qcard"><div class="q">Q：拒答准确率怎么测才不被骗？</div><div class="a">放 should_refuse=true 正样本测拒答率，同时放 false 样本防过度拒答；检测别只靠关键词，要结合 should_refuse 字段。</div></div>
+<div class="qcard"><div class="q">Q：错误恢复率高的 Agent 一定好？</div><div class="a">不一定。若靠疯狂重试堆出来，成本会爆。要和恢复率+单任务成本一起看，且重试必须有上限防死循环。</div></div>
+<div class="qcard"><div class="q">Q：评测集为什么要分层、还要版本化？</div><div class="a">分层（Smoke/功能/边界/对抗）保证覆盖"会出事的情况"；版本化因保险条款常变，不更新就测旧业务。</div></div>
+
+<div class="ft">FDE W6D1 学习手册 · Agent 评测体系（面试级）· 配合《FDE-W6D1-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w6d1_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W6D1 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W6D1-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

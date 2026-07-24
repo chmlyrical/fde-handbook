@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE 8周面试冲刺 · 每日学习手册门户</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.7; padding: 28px; max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 24px; color: #0C447C; }
+  .sub { color: #666; font-size: 13px; margin: 4px 0 18px; }
+  .banner { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 12px 16px; border-radius: 6px; font-size: 13.5px; margin-bottom: 22px; }
+  .banner strong { color: #185FA5; }
+  .week { margin-bottom: 26px; }
+  .week h2 { font-size: 18px; color: #0C447C; background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 10px; }
+  .week h2 .goal { font-size: 12px; color: #666; font-weight: 400; margin-left: 8px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 13.5px; border: 1px solid #e5e3dd; border-radius: 6px; overflow: hidden; }
+  th, td { padding: 8px 12px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: middle; }
+  th { background: #f1efe8; font-weight: 600; font-size: 12.5px; }
+  td.day { font-weight: 700; color: #185FA5; white-space: nowrap; width: 64px; }
+  td.topic { font-weight: 500; }
+  td.tag { white-space: nowrap; }
+  .tag-a { background: #FDE8EC; color: #993556; padding: 1px 7px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+  .tag-b { background: #E1F5EE; color: #0F6E56; padding: 1px 7px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+  .tag-c { background: #ECEAF4; color: #5B4B9E; padding: 1px 7px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+  a.manual { color: #185FA5; text-decoration: none; font-weight: 600; margin-right: 12px; }
+  a.manual:hover { text-decoration: underline; }
+  a.quiz { color: #BA7517; text-decoration: none; }
+  a.quiz:hover { text-decoration: underline; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e3dd; }
+  .legend { font-size: 12px; color: #666; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<h1>FDE 8周面试冲刺 · 每日学习手册门户</h1>
+<p class="sub">W1–W8 共 56 天 · 每天一份面试级学习手册 HTML + 一份评测 MD · 标注功能基于 localStorage 持久（关闭页面不丢，固定端口 8000）</p>
+
+<div class="banner">
+  <strong>使用方法：</strong>每学完一天，先通读对应「学习手册 HTML」，再用「评测 MD」自测（先自答、再展开参考答案）。选中正文可标注：<strong style="color:#993556">左下★重要</strong> / <strong style="color:#854F0B">右下📌待查</strong>。<br>
+  <strong>访问方式：</strong>用本地服务 <code>http://localhost:8000/</code> 打开（双击「启动学习手册.sh」启动服务）。文件较多，建议从这里点击进入。
+</div>
+
+<div class="banner" style="background:#EAF7EF;border-left-color:#0F6E56;margin-bottom:22px;">
+  <strong style="color:#0F6E56;">📚 单页总览模式：</strong>想在一个页面里用左侧导航快速翻看全部 56 天手册（点击<strong>内联加载、不跳新标签</strong>）？点这里 →
+  <a class="manual" style="color:#0F6E56;font-size:15px;" href="FDE-WXDX.html">打开 FDE 学习手册总览 (WXDX)</a>
+</div>
+
+<div class="week">
+  <h2>Week 1 · 大模型基础、模型调用、结构化输出、轻量模型网关<span class="goal">建立基础</span></h2>
+  <table>
+    <tr><th>天</th><th>主题</th><th>级别</th><th>手册 / 评测</th></tr>
+    <tr><td class="day">D1</td><td class="topic">大模型核心基础</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W1D1-大模型核心基础-学习手册.html">学习手册</a><a class="quiz" href="FDE-Day1-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D2</td><td class="topic">采样参数与结构化输出</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W1D2-采样参数与结构化输出-学习手册.html">学习手册</a><a class="quiz" href="FDE-Day2-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D3</td><td class="topic">模型选型与技术边界</td><td class="tag"><span class="tag-a">A</span> <span class="tag-b">C</span></td><td><a class="manual" href="FDE-W1D3-模型选型与技术边界-学习手册.html">学习手册</a><a class="quiz" href="FDE-W1D3-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D4</td><td class="topic">多模型统一接入</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W1D4-多模型统一接入-学习手册.html">学习手册</a><a class="quiz" href="FDE-W1D4-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D5</td><td class="topic">Prompt 工程</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W1D5-Prompt工程-学习手册.html">学习手册</a><a class="quiz" href="FDE-W1D5-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D6</td><td class="topic">本地模型体验</td><td class="tag"><span class="tag-b">B</span></td><td><a class="manual" href="FDE-W1D6-本地模型体验-学习手册.html">学习手册</a><a class="quiz" href="FDE-W1D6-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D7</td><td class="topic">整合与面试准备（W1 收尾）</td><td class="tag">—</td><td><a class="manual" href="FDE-W1D7-整合与面试准备-学习手册.html">学习手册</a><a class="quiz" href="FDE-W1D7-评测题.md">评测题</a></td></tr>
+  </table>
+</div>
+
+<div class="week">
+  <h2>Week 2 · Tool Calling、MCP、Document AI、基础 RAG<span class="goal">可讲工具与 MCP</span></h2>
+  <table>
+    <tr><th>天</th><th>主题</th><th>级别</th><th>手册 / 评测</th></tr>
+    <tr><td class="day">D1</td><td class="topic">Tool Calling 工具调用</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W2D1-ToolCalling-学习手册.html">学习手册</a><a class="quiz" href="FDE-W2D1-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D2</td><td class="topic">医疗 OCR Tool 与 Document AI</td><td class="tag"><span class="tag-a">A</span> <span class="tag-b">B</span></td><td><a class="manual" href="FDE-W2D2-医疗OCR与DocumentAI-学习手册.html">学习手册</a><a class="quiz" href="FDE-W2D2-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D3</td><td class="topic">数据库 Tool 与规则 Tool</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W2D3-数据库与规则Tool-学习手册.html">学习手册</a><a class="quiz" href="FDE-W2D3-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D4</td><td class="topic">MCP 核心</td><td class="tag"><span class="tag-b">B</span></td><td><a class="manual" href="FDE-W2D4-MCP核心-学习手册.html">学习手册</a><a class="quiz" href="FDE-W2D4-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D5</td><td class="topic">MCP Server</td><td class="tag"><span class="tag-b">B</span></td><td><a class="manual" href="FDE-W2D5-MCP Server-学习手册.html">学习手册</a><a class="quiz" href="FDE-W2D5-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D6</td><td class="topic">基础 RAG</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W2D6-基础RAG-学习手册.html">学习手册</a><a class="quiz" href="FDE-W2D6-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D7</td><td class="topic">整合与面试准备（W2 收尾）</td><td class="tag">—</td><td><a class="manual" href="FDE-W2D7-整合与面试准备-学习手册.html">学习手册</a><a class="quiz" href="FDE-W2D7-评测题.md">评测题</a></td></tr>
+  </table>
+</div>
+
+<div class="week">
+  <h2>Week 3 · 企业 RAG、AI 数据工程、混合检索、评测<span class="goal">可面试 RAG 岗（作品一）</span></h2>
+  <table>
+    <tr><th>天</th><th>主题</th><th>级别</th><th>手册 / 评测</th></tr>
+    <tr><td class="day">D1</td><td class="topic">AI 数据工程</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W3D1-AI数据工程-学习手册.html">学习手册</a><a class="quiz" href="FDE-W3D1-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D2</td><td class="topic">混合检索与 Rerank</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W3D2-混合检索与Rerank-学习手册.html">学习手册</a><a class="quiz" href="FDE-W3D2-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D3</td><td class="topic">权限和文档治理</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W3D3-权限和文档治理-学习手册.html">学习手册</a><a class="quiz" href="FDE-W3D3-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D4</td><td class="topic">Query 优化</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W3D4-Query优化-学习手册.html">学习手册</a><a class="quiz" href="FDE-W3D4-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D5</td><td class="topic">RAG 评测</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W3D5-RAG评测-学习手册.html">学习手册</a><a class="quiz" href="FDE-W3D5-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D6</td><td class="topic">作品一打磨</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W3D6-作品一打磨-学习手册.html">学习手册</a><a class="quiz" href="FDE-W3D6-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D7</td><td class="topic">第一轮模拟面试</td><td class="tag">—</td><td><a class="manual" href="FDE-W3D7-第一轮模拟面试-学习手册.html">学习手册</a><a class="quiz" href="FDE-W3D7-评测题.md">评测题</a></td></tr>
+  </table>
+</div>
+
+<div class="week">
+  <h2>Week 4 · LangGraph Agent、HITL、Trace、正式面试准备<span class="goal">★ 正式开始面试（作品二）</span></h2>
+  <table>
+    <tr><th>天</th><th>主题</th><th>级别</th><th>手册 / 评测</th></tr>
+    <tr><td class="day">D1</td><td class="topic">Agent 核心与 Loop</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W4D1-Agent核心与Loop-学习手册.html">学习手册</a><a class="quiz" href="FDE-W4D1-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D2</td><td class="topic">LangGraph</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W4D2-LangGraph-学习手册.html">学习手册</a><a class="quiz" href="FDE-W4D2-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D3</td><td class="topic">特药理赔 Agent 主流程</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W4D3-特药理赔Agent主流程-学习手册.html">学习手册</a><a class="quiz" href="FDE-W4D3-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D4</td><td class="topic">HITL 与中断恢复</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W4D4-HITL与中断恢复-学习手册.html">学习手册</a><a class="quiz" href="FDE-W4D4-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D5</td><td class="topic">Trace 与成本</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W4D5-Trace与成本-学习手册.html">学习手册</a><a class="quiz" href="FDE-W4D5-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D6</td><td class="topic">作品二核心版打磨</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W4D6-作品二核心版打磨-学习手册.html">学习手册</a><a class="quiz" href="FDE-W4D6-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D7</td><td class="topic">正式面试准备</td><td class="tag">—</td><td><a class="manual" href="FDE-W4D7-正式面试准备-学习手册.html">学习手册</a><a class="quiz" href="FDE-W4D7-评测题.md">评测题</a></td></tr>
+  </table>
+</div>
+
+<div class="week">
+  <h2>Week 5 · Agent Harness、可靠性、Text2SQL、三路数据路由<span class="goal">提升 Agent 深度（作品二强化）</span></h2>
+  <table>
+    <tr><th>天</th><th>主题</th><th>级别</th><th>手册 / 评测</th></tr>
+    <tr><td class="day">D1</td><td class="topic">Agent Loop 企业扩展</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W5D1-Agent-Loop-企业扩展-学习手册.html">学习手册</a><a class="quiz" href="FDE-W5D1-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D2</td><td class="topic">工具运行时与可靠性</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W5D2-工具运行时与可靠性-学习手册.html">学习手册</a><a class="quiz" href="FDE-W5D2-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D3</td><td class="topic">超时重试退避补偿</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W5D3-超时重试退避补偿-学习手册.html">学习手册</a><a class="quiz" href="FDE-W5D3-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D4</td><td class="topic">业务状态归属与审计</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W5D4-业务状态归属与审计-学习手册.html">学习手册</a><a class="quiz" href="FDE-W5D4-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D5</td><td class="topic">Text2SQL 最小 Demo</td><td class="tag"><span class="tag-b">B</span></td><td><a class="manual" href="FDE-W5D5-Text2SQL最小Demo-学习手册.html">学习手册</a><a class="quiz" href="FDE-W5D5-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D6</td><td class="topic">三路数据路由</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W5D6-三路数据路由-学习手册.html">学习手册</a><a class="quiz" href="FDE-W5D6-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D7</td><td class="topic">整合与边界（Temporal/多Agent/A2A）</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W5D7-整合与边界-学习手册.html">学习手册</a><a class="quiz" href="FDE-W5D7-评测题.md">评测题</a></td></tr>
+  </table>
+</div>
+
+<div class="week">
+  <h2>Week 6 · 评测、LLMOps、安全、Agent Memory<span class="goal">冲刺架构岗</span></h2>
+  <table>
+    <tr><th>天</th><th>主题</th><th>级别</th><th>手册 / 评测</th></tr>
+    <tr><td class="day">D1</td><td class="topic">Agent 评测体系</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W6D1-Agent评测体系-学习手册.html">学习手册</a><a class="quiz" href="FDE-W6D1-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D2</td><td class="topic">LLMOps 版本管理</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W6D2-LLMOps版本管理-学习手册.html">学习手册</a><a class="quiz" href="FDE-W6D2-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D3</td><td class="topic">Prompt Injection 与 MCP 安全</td><td class="tag"><span class="tag-a">A</span> <span class="tag-b">B</span></td><td><a class="manual" href="FDE-W6D3-PromptInjection与MCP安全-学习手册.html">学习手册</a><a class="quiz" href="FDE-W6D3-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D4</td><td class="topic">RAG 投毒与工具安全</td><td class="tag"><span class="tag-a">A</span> <span class="tag-b">B</span></td><td><a class="manual" href="FDE-W6D4-RAG投毒与工具安全-学习手册.html">学习手册</a><a class="quiz" href="FDE-W6D4-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D5</td><td class="topic">安全合规与 OWASP</td><td class="tag"><span class="tag-a">A</span> <span class="tag-b">B</span> <span class="tag-c">C</span></td><td><a class="manual" href="FDE-W6D5-安全合规与OWASP-学习手册.html">学习手册</a><a class="quiz" href="FDE-W6D5-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D6</td><td class="topic">Agent Memory 生命周期</td><td class="tag"><span class="tag-b">B</span></td><td><a class="manual" href="FDE-W6D6-Agent Memory生命周期-学习手册.html">学习手册</a><a class="quiz" href="FDE-W6D6-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D7</td><td class="topic">LLMOps 灰度回滚与整合</td><td class="tag"><span class="tag-a">A</span> <span class="tag-c">C</span></td><td><a class="manual" href="FDE-W6D7-LLMOps灰度回滚与整合-学习手册.html">学习手册</a><a class="quiz" href="FDE-W6D7-评测题.md">评测题</a></td></tr>
+  </table>
+</div>
+
+<div class="week">
+  <h2>Week 7 · Spring AI、模型网关、企业平台与部署交付<span class="goal">冲刺负责人岗（作品三）</span></h2>
+  <table>
+    <tr><th>天</th><th>主题</th><th>级别</th><th>手册 / 评测</th></tr>
+    <tr><td class="day">D1</td><td class="topic">Spring AI 基础（ChatClient/Advisor/Output）</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W7D1-SpringAI基础-学习手册.html">学习手册</a><a class="quiz" href="FDE-W7D1-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D2</td><td class="topic">Spring AI 工具调用与记忆</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W7D2-SpringAI工具调用与记忆-学习手册.html">学习手册</a><a class="quiz" href="FDE-W7D2-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D3</td><td class="topic">Spring AI MCP 与可观测</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W7D3-SpringAI-MCP与可观测-学习手册.html">学习手册</a><a class="quiz" href="FDE-W7D3-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D4</td><td class="topic">AI 网关自研核心</td><td class="tag"><span class="tag-a">A</span> <span class="tag-b">B</span></td><td><a class="manual" href="FDE-W7D4-AI网关自研核心-学习手册.html">学习手册</a><a class="quiz" href="FDE-W7D4-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D5</td><td class="topic">LiteLLM 集成与 Build vs Buy ADR</td><td class="tag"><span class="tag-b">B</span> <span class="tag-c">C</span></td><td><a class="manual" href="FDE-W7D5-LiteLLM集成与BuildVsBuyADR-学习手册.html">学习手册</a><a class="quiz" href="FDE-W7D5-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D6</td><td class="topic">单一调用链设计与部署交付基础</td><td class="tag"><span class="tag-b">B</span></td><td><a class="manual" href="FDE-W7D6-单一调用链设计与部署交付基础-学习手册.html">学习手册</a><a class="quiz" href="FDE-W7D6-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D7</td><td class="topic">K8s 拓扑、灰度回滚与企业平台整合</td><td class="tag"><span class="tag-b">B</span></td><td><a class="manual" href="FDE-W7D7-K8s基础拓扑灰度回滚与企业平台整合-学习手册.html">学习手册</a><a class="quiz" href="FDE-W7D7-评测题.md">评测题</a></td></tr>
+  </table>
+</div>
+
+<div class="week">
+  <h2>Week 8 · vLLM、容量成本、系统设计、作品整合与高级面试<span class="goal">★ 集中投递高薪</span></h2>
+  <table>
+    <tr><th>天</th><th>主题</th><th>级别</th><th>手册 / 评测</th></tr>
+    <tr><td class="day">D1</td><td class="topic">vLLM 服务化实验</td><td class="tag"><span class="tag-b">B</span></td><td><a class="manual" href="FDE-W8D1-vLLM服务化实验-学习手册.html">学习手册</a><a class="quiz" href="FDE-W8D1-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D2</td><td class="topic">容量与成本</td><td class="tag"><span class="tag-b">B</span></td><td><a class="manual" href="FDE-W8D2-容量与成本-学习手册.html">学习手册</a><a class="quiz" href="FDE-W8D2-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D3</td><td class="topic">Solution Delivery Pack 设计</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W8D3-SolutionDeliveryPack设计-学习手册.html">学习手册</a><a class="quiz" href="FDE-W8D3-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D4</td><td class="topic">系统设计题</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W8D4-系统设计题-学习手册.html">学习手册</a><a class="quiz" href="FDE-W8D4-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D5</td><td class="topic">POC 到生产 · ROI · 成本安全治理</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W8D5-POC到生产-ROI-成本安全治理-学习手册.html">学习手册</a><a class="quiz" href="FDE-W8D5-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D6</td><td class="topic">技术负责人视角 + 模拟面试</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W8D6-技术负责人视角-模拟面试-学习手册.html">学习手册</a><a class="quiz" href="FDE-W8D6-评测题.md">评测题</a></td></tr>
+    <tr><td class="day">D7</td><td class="topic">作品整合与集中投递</td><td class="tag"><span class="tag-a">A</span></td><td><a class="manual" href="FDE-W8D7-作品整合-集中投递-学习手册.html">学习手册</a><a class="quiz" href="FDE-W8D7-评测题.md">评测题</a></td></tr>
+  </table>
+</div>
+
+<p class="legend">级别：<span class="tag-a">A</span> = 面试核心必掌握（需亲自编码）　<span class="tag-b">B</span> = 跑通最小 Demo、能解释架构与取舍　<span class="tag-c">C</span> = 能解释原理与选型</p>
+
+<div class="ft">FDE 8周面试冲刺 · 每日学习手册门户 · 共 56 天 ×（手册 HTML + 评测 MD）· 标注数据存于各文件独立 localStorage key</div>
+
+</body>
+</html>

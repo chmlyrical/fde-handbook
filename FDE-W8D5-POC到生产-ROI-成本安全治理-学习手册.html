@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W8D5 学习手册 · POC到生产·ROI·成本安全治理（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W8D5 学习手册</span>
+  <a href="#s1">1.POC鸿沟</a><a href="#s2">2.数据坑</a><a href="#s3">3.评测坑</a><a href="#s4">4.监控坑</a><a href="#s5">5.成本坑</a>
+  <span class="sep"></span>
+  <a href="#s6">6.推进节奏</a><a href="#s7">7.ROI</a><a href="#s8">8.价值证明</a><a href="#s9">9.成本控制</a><a href="#s10">10.安全合规</a>
+  <span class="sep"></span>
+  <a href="#s11">11.边界划分</a><a href="#s12">12.资源</a><a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W8D5 学习手册 · POC到生产·ROI·成本安全治理</h1>
+<p class="sub">W8 Day5 · A 级（高级/架构/负责人岗必考）· 5h · 学完能讲透"从 POC 到生产怎么走、价值怎么证明、成本安全怎么控"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>前 7 周你已掌握 RAG / Agent / 平台 / 评测 / 私有化（W6 安全合规、W7 Fine-tune）等技术点，W8 是"把技术收口成项目与岗位"的冲刺周。D5 聚焦<strong>高级岗不可回避的软硬复合问题</strong>：POC 如何推进到生产、怎么向业务方证明大模型项目的价值与 ROI、成本与安全怎么治理。<br>
+  <strong>候选人背景：</strong>36 岁，Java + 大数据 + 医疗保险理赔领域，冲刺高级工程师 / 架构师 / 技术负责人。面试要体现"既懂技术细节、又能扛项目落地与商业价值"。<br>
+  <strong>学完能回答：</strong>① 从 POC 到生产有哪些常见坑（数据/评测/监控/成本）与推进节奏；② 大模型项目 ROI 怎么算、怎么向业务方证明价值（不空谈准确率）；③ 成本控制（API vs 私有、缓存、批处理、小模型降级）与安全合规（PII/租户隔离/审计）。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「工程含义」「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W8D5-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. POC→生产总览 ============ -->
+<h2 id="s1">一、POC→生产总览：鸿沟到底在哪</h2>
+<h3>1.1 原理：POC 和生产是两件事</h3>
+<p>POC（概念验证）的目标是<strong>证明"技术上可行"</strong>，通常用精选的小样本、人为构造的链路跑通 demo。生产的目标是<strong>在真实流量、真实数据、真实约束下"稳定、可控、可运营"</strong>。两者之间的落差（"POC 到生产的死亡之谷"）来自四类系统性差异：</p>
+<table>
+<tr><th>维度</th><th>POC 阶段</th><th>生产阶段</th></tr>
+<tr><td>数据</td><td>精选样本、干净闭环</td><td>脏数据、长尾、分布漂移</td></tr>
+<tr><td>评测</td><td>看几个 demo 觉得"牛"</td><td>系统化指标、回归、bad case 管理</td></tr>
+<tr><td>监控</td><td>基本没有</td><td>延迟/成本/质量/安全全链路可观测</td></tr>
+<tr><td>成本</td><td>不计较</td><td>每 token 都要算账、要降本</td></tr>
+</table>
+<h3>1.2 推进的五个阶段</h3>
+<ol>
+  <li><strong>Demo（1-2 周）</strong>：跑通最小链路，验证技术可能性。</li>
+  <li><strong>POC（2-4 周）</strong>：在代表性数据上验证效果能否达到业务阈值。</li>
+  <li><strong>试点（Pilot，1-2 月）</strong>：小流量 / 小业务范围真实用户使用，收集真实反馈与 bad case。</li>
+  <li><strong>灰度（Canary）</strong>：按比例放量，监控核心指标与异常。</li>
+  <li><strong>全量生产 + 持续运营</strong>：SLA、成本、质量持续追踪与迭代。</li>
+</ol>
+<div class="eng">生产化不是"把 demo 部署上去"，而是补齐数据、评测、监控、成本、安全、降级六套工程能力。高级岗面试里，能讲出"POC 之后还要补什么"比"怎么搭 demo"更值钱——因为这才是大多数大模型项目真正死掉的地方。</div>
+<div class="iv">POC 证明"能做"，生产要求"稳做、算得过账、不出事"。从 demo 到全量要经 POC→试点→灰度→生产 四步，每一步补的是数据/评测/监控/成本/安全/降级能力，而不是模型能力本身。</div>
+<div class="warn">① 别把 POC 的成功率当生产的成功率——POC 数据往往被"美化"（剔除了难样本），真实长尾一上来就崩。② 不要一上来就全量，没有试点和灰度，一次 bad case 可能直接让项目被砍。③ "模型效果不错"不是上生产的理由，"效果稳定 + 可监控 + 成本可接受 + 有降级"才是。</div>
+
+<!-- ============ 2. 数据层面的坑 ============ -->
+<h2 id="s2">二、数据层面的坑</h2>
+<h3>2.1 原理：LLM 应用的效果由"数据分布"决定</h3>
+<p>大模型应用的线上效果，很大程度上取决于<strong>输入数据的分布是否和评测/POC 数据一致</strong>。数据坑主要来自：</p>
+<ul>
+  <li><strong>分布漂移</strong>：POC 用的是历史干净数据，线上来了新药品、新政策、新话术，模型没见过。</li>
+  <li><strong>脏数据 / 格式异常</strong>：用户输入乱码、超长、非预期格式，导致解析失败或幻觉。</li>
+  <li><strong>标注噪声</strong>：评测集标注不一致，导致指标不可信。</li>
+  <li><strong>样本偏差</strong>：POC 只看"能答的"，忽略"该拒答的"（呼应 W2 拒答评测）。</li>
+</ul>
+<h3>2.2 工程应对</h3>
+<table>
+<tr><th>坑</th><th>应对</th></tr>
+<tr><td>分布漂移</td><td>线上埋点回收真实 query，定期重训评测集；做数据漂移检测</td></tr>
+<tr><td>脏数据</td><td>输入预处理 + 边界校验 + 失败降级（非预期输入转人工）</td></tr>
+<tr><td>标注噪声</td><td>双标 + 一致性仲裁；评测集版本化管理</td></tr>
+<tr><td>样本偏差</td><td>评测集按真实分布抽样，专门保留 should_refuse 的 case</td></tr>
+</table>
+<div class="eng">医疗理赔场景数据坑尤其致命：一个新特药上市、一条新医保政策发布，RAG 知识库没更新，模型就用旧知识答，轻则答错、重则合规事故。所以"知识库更新机制"和"数据漂移监控"是生产必备，不是可选项。</div>
+<div class="iv">数据坑 = 分布漂移 + 脏数据 + 标注噪声 + 样本偏差。应对是：线上回收真实 query 持续更新评测集、输入预处理与降级、评测集双标仲裁、按真实分布抽样（含拒答 case）。</div>
+<div class="warn">① 很多团队"重模型、轻数据"——但 LLM 应用 80% 的问题在数据，不在模型。② 评测集一旦定下来就不动，等于"用去年的题考今年的模型"，指标虚高。评测集必须跟线上分布同步演进。</div>
+
+<!-- ============ 3. 评测体系的坑 ============ -->
+<h2 id="s3">三、评测体系的坑（为什么只看准确率不够）</h2>
+<h3>3.1 原理：单点准确率无法支撑生产决策</h3>
+<p>POC 阶段常犯的错是"看几个例子觉得准就上了"。生产评测需要<strong>多维度指标体系</strong>，把"准"拆开：</p>
+<table>
+<tr><th>指标族</th><th>含义</th><th>为什么重要</th></tr>
+<tr><td>任务准确率</td><td>答案对不对</td><td>基础，但不充分</td></tr>
+<tr><td>拒答准确率</td><td>该拒答的是否拒答</td><td>企业场景防编造（呼应 W2）</td></tr>
+<tr><td>格式/可解析率</td><td>输出能否被系统消费</td><td>下游要 parse，解析失败=功能失效</td></tr>
+<tr><td>安全合规率</td><td>有无泄露 PII / 越权</td><td>合规红线</td></tr>
+<tr><td>鲁棒性</td><td>扰动输入是否仍稳</td><td>线上输入千奇百怪</td></tr>
+<tr><td>成本/延迟</td><td>单次调用 token 与时延</td><td>直接影响 ROI</td></tr>
+</table>
+<h3>3.2 评测要"可回归"</h3>
+<p>每次提示词 / 模型 / 知识库变更，都要跑同一套回归集，对比指标变化，防止"改一个 bug 引入三个 bug"。bad case 要入池、归因、闭环。</p>
+<div class="eng">评测不是 POC 的"一次性表演"，而是生产的"持续质检线"。高级岗要能设计分层评测：单元测试（单步链路）+ 集成测试（端到端）+ 回归测试（防回退）+ 红蓝对抗（安全）。</div>
+<div class="iv">只看准确率会漏掉拒答失败、解析失败、合规越权、鲁棒性差这些"要命"的问题。生产评测要多维：任务准确 + 拒答准确 + 可解析 + 安全合规 + 鲁棒 + 成本。且要可回归。</div>
+<div class="warn">① "准确率 95%"如果没说清楚是"在哪些 case 上、含不含拒答"，就是误导。② 不要拿评测集当训练集调参（过拟合评测），否则线上一塌糊涂。③ 拒答率过高也会被业务嫌弃"答得太少"，要在"敢答"和"不乱答"之间找平衡。</div>
+
+<!-- ============ 4. 监控与可观测性 ============ -->
+<h2 id="s4">四、监控与可观测性的坑</h2>
+<h3>4.1 原理：LLM 应用是"概率系统"，必须可观测</h3>
+<p>传统软件出错是确定的（抛异常），LLM 应用出错是<strong>概率的、渐进的</strong>（今天 95% 准，下周政策一变 70%）。没有监控，你连"已经崩了"都不知道。</p>
+<h3>4.2 要监控的四类信号</h3>
+<ul>
+  <li><strong>质量信号</strong>：线上抽样评测、用户反馈（赞/踩）、bad case 自动聚类。</li>
+  <li><strong>成本信号</strong>：每日 token 消耗、人均对话成本、异常尖峰。</li>
+  <li><strong>延迟信号</strong>：P50/P95/P99 时延，超时率。</li>
+  <li><strong>安全信号</strong>：PII 命中、越权访问、敏感词触发。</li>
+</ul>
+<div class="info"><strong>建议做法：</strong>每条请求落 Trace（输入、模型、参数、输出、token、耗时、评测分、用户反馈），既用于排障，也用于离线回放评测。这是 Java 大数据背景候选人的优势——把 LLM 日志当成"数据 pipeline"来做。</div>
+<div class="eng">监控的目标不是"画大屏"，而是"能定位、能告警、能回放"。一个能说清"我们怎么发现模型效果下降、怎么定位到是知识库过期"的候选人，在架构/负责人岗非常加分。</div>
+<div class="iv">LLM 是概率系统，效果会无声劣化，所以必须监控质量/成本/延迟/安全四类信号，并落全链路 Trace。监控是为了能定位、能告警、能回放评测，不是做报表。</div>
+<div class="warn">① 只监控"服务可用性（HTTP 200）"不够——返回 200 但答非所问，业务照样崩。② 没有 Trace，出了问题只能"猜"，定位成本极高。③ 监控指标要设阈值告警，别等月底看报表才发现成本炸了。</div>
+
+<!-- ============ 5. 成本控制的坑 ============ -->
+<h2 id="s5">五、成本控制的坑（看不见的成本）</h2>
+<h3>5.1 原理：成本 = f(调用量, 单次 token, 模型单价)</h3>
+<p>大模型成本常被低估，因为 POC 阶段调用量小。生产一放大，成本来自：</p>
+<ul>
+  <li><strong>推理单价</strong>：旗舰大模型贵，长上下文更贵。</li>
+  <li><strong>重复计算</strong>：相同问题反复调用、长 system prompt 每次重发。</li>
+  <li><strong>重试与兜底</strong>：校验失败重试、降级都增加调用。</li>
+  <li><strong>上下文膨胀</strong>：RAG 召回太多、历史对话全塞进去。</li>
+</ul>
+<div class="formula">
+单日成本 ≈ 日请求数 × 平均输入token × 输入单价 + 日请求数 × 平均输出token × 输出单价
+</div>
+<div class="eng">成本治理是高级岗的硬指标。能讲出"我们怎么把单次成本从 X 降到 Y"的项目，比"用了最牛的模型"更体现工程能力。Java 大数据背景可以类比：就像优化一个高 QPS 服务的单位请求成本。</div>
+<div class="iv">成本 = 调用量 × 单次 token × 单价。看不见的成本在重复计算、重试、上下文膨胀。治理要从"降单价、降 token、降调用"三路同时下手。</div>
+<div class="warn">① 不要以为"用最贵的模型效果最好"——很多场景小模型 + 好 RAG 就够了，贵的只用在难样本。② 长 system prompt 每次重发是隐性浪费，可缓存或用短指令 + 外挂配置。③ 不做成本监控，业务量一上来账单会吓死人。</div>
+
+<!-- ============ 6. 推进节奏 ============ -->
+<h2 id="s6">六、推进节奏：里程碑怎么定</h2>
+<h3>6.1 原理：用"门禁（Gate）"控制每一阶段是否放行</h3>
+<p>每个阶段结束都要设<strong>明确的放行标准</strong>，达不到就退回或调整，不盲目推进：</p>
+<table>
+<tr><th>阶段</th><th>放行门禁（示例）</th></tr>
+<tr><td>POC 完成</td><td>在代表性评测集上达到业务阈值（如准确率≥90%、拒答率达标）</td></tr>
+<tr><td>试点完成</td><td>真实用户 NPS / 采纳率达标，bad case 收敛，成本在预算内</td></tr>
+<tr><td>灰度完成</td><td>核心指标无回退，成本/延迟在 SLA 内，无安全事件</td></tr>
+<tr><td>全量</td><td>监控告警闭环、降级预案就绪、运营机制就位</td></tr>
+</table>
+<h3>6.2 节奏原则</h3>
+<ul>
+  <li><strong>小步快跑、快速失败</strong>：不确定就先小范围试，别憋大招。</li>
+  <li><strong>业务方共担目标</strong>：门禁指标和业务一起定，避免"技术说成了、业务说没用"。</li>
+  <li><strong>留降级预案</strong>：每个阶段都要有"不行就退回到上一阶段/转人工"的路径。</li>
+</ul>
+<div class="iv">推进不是"一路狂奔到全量"，而是每阶段设门禁：POC 看评测阈值、试点看真实采纳率、灰度看无回退无事故、全量看运营闭环。达标才放行，不达标就退。</div>
+<div class="warn">① 门禁指标别定得虚（"效果不错"），要可量化、可测量。② 业务方不参与定门禁，最后容易"技术验收了但业务不认"。③ 没有降级预案就放量，等于赌运气。</div>
+
+<!-- ============ 7. ROI ============ -->
+<h2 id="s7">七、评估大模型项目：ROI 怎么算</h2>
+<h3>7.1 原理：ROI = (收益 − 成本) / 成本</h3>
+<p>大模型项目 ROI 的难点是<strong>收益往往间接、滞后、难归因</strong>。要把收益拆成可量化项：</p>
+<table>
+<tr><th>收益项</th><th>量化方式</th></tr>
+<tr><td>人力节省</td><td>原需 N 人天的任务，现自动化比例 × 人力成本</td></tr>
+<tr><td>时效提升</td><td>处理时长从 X 小时降到 Y，折算业务价值</td></tr>
+<tr><td>准确率/合规提升</td><td>错误率下降带来的赔付/罚款减少</td></tr>
+<tr><td>收入增长</td><td>转化率、客单价提升（需归因模型）</td></tr>
+</table>
+<div class="formula">
+年化收益 = 人力节省 + 时效价值 + 风险下降价值 + 增收<br>
+ROI = (年化收益 − 年化成本) / 年化成本<br>
+年化成本 = 模型推理费 + 算力/私有化摊销 + 工程人力 + 运维
+</div>
+<h3>7.2 成本侧别漏算</h3>
+<ul>
+  <li>推理 API 费 / 私有化 GPU 折旧与电费。</li>
+  <li>工程人力（开发 + 评测 + 运营）。</li>
+  <li>知识库维护、数据标注、持续评测成本。</li>
+  <li>试错成本（失败的项目、被砍的方案）。</li>
+</ul>
+<div class="eng">ROI 不是财务一个人的事，是技术负责人必须能讲清楚的。能给出"我们这个项目第一年投入 X、节省 Y、回收期 Z 个月"的叙事，高级岗面试直接加分。注意把隐性成本（运营、评测、维护）算进去，否则 ROI 虚高。</div>
+<div class="iv">ROI = (年化收益−年化成本)/年化成本。收益要拆成人力节省+时效+风险下降+增收并量化；成本别漏算推理费、工程人力、知识库运营、试错。回收期比单纯 ROI 更直观。</div>
+<div class="warn">① 只算"模型调用费"不算"人力+运营"，ROI 会虚高到离谱。② 把"转化率提升"全算给大模型是过度归因，业务方不信。要用 A/B 或对照基线。③ "省了 10 个人"如果没真裁员或转岗，只是"理论上省"，业务方不认。</div>
+
+<!-- ============ 8. 价值证明 ============ -->
+<h2 id="s8">八、怎么向业务方证明价值（不空谈准确率）</h2>
+<h3>8.1 原理：业务方听得懂的是"钱、时间、风险"，不是"准确率"</h3>
+<p>技术人爱讲"准确率 92%"，但业务方关心：<strong>省了多少钱、快了多少、少赔了多少、客户满不满意</strong>。价值证明要完成"技术语言 → 业务语言"的翻译。</p>
+<h3>8.2 证明价值的四步法</h3>
+<ol>
+  <li><strong>对齐业务目标</strong>：先问业务方"你最痛的是什么"——是理赔员不够、还是赔付差错高、还是客户等太久。</li>
+  <li><strong>选对照基线</strong>：用"上线前 vs 上线后"或"A 组用 / B 组不用"的对比，给出可归因数字。</li>
+  <li><strong>讲场景化收益</strong>：不说"准确率 92%"，说"特药理赔初审从 2 小时压到 8 分钟，初审员人均日处理量翻 3 倍"。</li>
+  <li><strong>持续汇报</strong>：按月给业务方看成本、采纳率、bad case 收敛曲线，建立信任。</li>
+</ol>
+<div class="info"><strong>话术示例：</strong>"我们不是来炫技术，是来解决'初审慢、差错高'的。上线 3 个月，初审时效降 93%，因材料不全的退件率降 40%，相当于释放 5 个初审人力去做高价值核赔——这是您能直接看到的。"</div>
+<div class="eng">能向业务方"翻译价值"的技术负责人，才是真负责人。这恰恰匹配候选人"Java+大数据+医疗"背景——你懂业务系统、懂数据口径，比纯算法背景的人更适合做"技术到业务的桥梁"。</div>
+<div class="iv">证明价值 = 对齐业务痛点 → 设对照基线 → 用"省多少钱/快多少/少赔多少"代替"准确率" → 持续汇报。业务方要的是结果指标，不是模型指标。</div>
+<div class="warn">① 一上来就甩准确率，业务方直接走神。先听痛点再讲方案。② 没有基线对照的"提升"都是自嗨。③ 把技术收益翻译成业务结果时别夸大，一次翻车信任就没了。</div>
+
+<!-- ============ 9. 成本控制方法 ============ -->
+<h2 id="s9">九、成本控制方法：API vs 私有 / 缓存 / 批处理 / 小模型降级</h2>
+<h3>9.1 API vs 私有化（呼应 W6 私有化与成本）</h3>
+<table>
+<tr><th>维度</th><th>API（公有云）</th><th>私有化（自建）</th></tr>
+<tr><td>起步成本</td><td>低，按量付费</td><td>高，GPU 采购/租赁</td></tr>
+<tr><td>边际成本</td><td>随调用量线性上升</td><td>摊薄后趋近固定</td></tr>
+<tr><td>数据安全</td><td>需脱敏/合规评估</td><td>数据不出域，合规友好</td></tr>
+<tr><td>适用</td><td>量小、试水、波动大</td><td>量大、稳定、强合规</td></tr>
+</table>
+<div class="formula">决策拐点：当月调用量 × API单价 &gt; 私有化月摊成本 时，私有化更划算（医疗理赔量大且强合规，常走私有化）</div>
+<h3>9.2 缓存（Cache）</h3>
+<ul>
+  <li><strong>语义缓存</strong>：相似问题命中缓存答案，省一次推理（如 Redis + 向量相似度）。</li>
+  <li><strong>前缀缓存</strong>：长 system prompt / 知识上下文复用，避免每次重算（很多 API 支持 prompt cache）。</li>
+  <li><strong>结果缓存</strong>：对确定性查询（如"某药品报销比例"）直接缓存。</li>
+</ul>
+<h3>9.3 批处理（Batch）</h3>
+<p>非实时任务（如夜间批量初审、离线抽取）走批处理 API，单价常低 50%，用时延换成本。</p>
+<h3>9.4 小模型降级（Routing）</h3>
+<p>用<strong>路由器</strong>把简单问题分给小模型/规则，只有难样本才调旗舰模型：</p>
+<div class="formula">分类/抽取/简单问答 → 小模型(7B/14B) ｜ 复杂推理/多步 → 大模型</div>
+<div class="eng">成本治理是一套组合拳：先用路由把"简单活"留给小模型，再用缓存吃掉重复查询，长上下文走前缀缓存，离线任务走批处理，量大且合规的走私有化。Java 大数据候选人可把这套类比成"读写分离 + 缓存 + 批处理"的架构思想。</div>
+<div class="iv">降本四招：① API/私有看拐点（量大合规选私有）；② 语义缓存+前缀缓存吃重复；③ 离线走批处理省半价；④ 路由器把简单问题分小模型，难样本才用大模型。组合用最划算。</div>
+<div class="warn">① 缓存要防"脏缓存"——知识库更新后旧答案还在缓存里，要有失效机制。② 小模型降级若路由判错，会把难题给弱模型答崩，路由本身也要评测。③ 私有化不是"买了 GPU 就便宜"，还有运维、折旧、扩容成本，量不够反而更贵。</div>
+
+<!-- ============ 10. 安全合规 ============ -->
+<h2 id="s10">十、安全合规：PII / 租户隔离 / 审计（呼应 W6）</h2>
+<h3>10.1 原理：医疗理赔是强合规场景</h3>
+<p>理赔数据含大量 PII（姓名、身份证、病历、保单），受《个人信息保护法》等约束。生产必须解决三件事：</p>
+<table>
+<tr><th>合规项</th><th>工程做法</th></tr>
+<tr><td>PII 防护</td><td>输入脱敏（姓名/证件号打码）、输出过滤、最小必要原则</td></tr>
+<tr><td>租户隔离</td><td>多租户数据物理/逻辑隔离，检索不串库，向量库按 tenant_id 过滤</td></tr>
+<tr><td>审计</td><td>全链路日志留痕：谁、何时、用哪份知识、模型回了什么</td></tr>
+<tr><td>权限</td><td>基于角色的访问控制（RBAC），越权请求直接拒</td></tr>
+</table>
+<h3>10.2 与 W6 私有化的关系</h3>
+<p>W6 讲的是"私有化部署怎么落地"，W8D5 这里强调"为什么必须私有化/合规"——医疗场景数据不出域，是私有化的核心驱动力之一。两者是"手段 → 目的"的关系。</p>
+<div class="eng">合规不是"上线后补"，是"架构一开始就要内建"。能在面试里把"PII 脱敏链路 + 租户隔离方案 + 审计日志"讲成一套架构，是架构/负责人岗的硬通货。这正好发挥你医疗 + Java 后端（RBAC、多租户）的积累。</div>
+<div class="iv">医疗合规三件套：PII 脱敏（输入打码+输出过滤）、租户隔离（检索按 tenant 过滤不串库）、审计留痕（谁何时用哪份知识回了什么）。合规是架构内建，不是事后补丁，也驱动 W6 私有化。</div>
+<div class="warn">① 只脱敏输入不脱敏输出，PII 照样从回答里漏出去。② 向量库不做 tenant 过滤，A 客户的知识可能召回给 B 客户——严重事故。③ 审计日志本身含敏感信息，也要加密脱敏存储。</div>
+
+<!-- ============ 11. 边界划分 ============ -->
+<h2 id="s11">十一、规则 / RAG / Agent / 人工 边界怎么划分</h2>
+<h3>11.1 原理：不是所有问题都该上大模型</h3>
+<p>大模型贵且概率性，要把<strong>确定性高、成本低</strong>的事留给传统手段，<strong>模糊、需推理</strong>的事才用大模型：</p>
+<table>
+<tr><th>任务类型</th><th>首选方案</th><th>理由</th></tr>
+<tr><td>固定规则/强校验（算保费）</td><td>规则引擎 / 代码</td><td>确定、可审计、零成本</td></tr>
+<tr><td>基于已知文档的问答</td><td>RAG</td><td>可控、可溯源、成本中</td></tr>
+<tr><td>多步、需调工具的任务</td><td>Agent</td><td>灵活但贵且有风险</td></tr>
+<tr><td>高风险/模型不确定</td><td>人工</td><td>兜底、合规</td></tr>
+</table>
+<h3>11.2 决策原则</h3>
+<ul>
+  <li><strong>能规则就别 RAG，能 RAG 就别 Agent</strong>：越往右越贵越不可控。</li>
+  <li><strong>AI 负责"初筛+建议"，人负责"决策+兜底"</strong>：理赔尤其如此。</li>
+  <li><strong>每个 AI 环节都要能"转人工"</strong>：置信度低/触发安全/超阈值就交人。</li>
+</ul>
+<div class="eng">边界划分本质是"成本与风险的分级治理"。高级岗要能画出"任务→方案"的决策树，并讲清为什么某些环节坚决不让模型碰（如最终赔付决定）。这是技术判断力的体现。</div>
+<div class="iv">边界：规则(确定/零成本) → RAG(可控/中成本) → Agent(灵活/贵) → 人工(高风险兜底)。原则：能规则就别 RAG、能 RAG 就别 Agent；AI 做初筛、人做决策；每环都能转人工。</div>
+<div class="warn">① "什么都用 Agent"是新手病——Agent 贵且有失控风险，简单检索别上 Agent。② 让模型直接做"最终赔付决定"是红线，模型只给建议，人来定。③ 没有"转人工"兜底，一旦模型抽风就是客诉/合规事故。</div>
+
+<!-- ============ 12. 资源 ============ -->
+<h2 id="s12">十二、相关学习资源（中文 / 非 OpenAI）</h2>
+<div class="info">
+  <strong>📚 本日配套资源：</strong><br>
+  • 《FDE面试备战手册.html》—— 高级/架构岗面试体系总览，含项目叙事与 ROI 话术模板。<br>
+  • 通义千问（Qwen）大模型文档 / 阿里云百炼平台 —— 企业级 RAG、Agent、私有化部署实战参考。<br>
+  • DeepSeek 开放平台文档 —— 成本控制（缓存、批处理）、API 调用与评测实践。<br>
+  • 模拟面试：可用 <strong>通义 / DeepSeek 当面试官</strong>，把本手册各「面试话术」作为提问素材自测（详见 W8D6）。<br>
+  • 合规参考：《个人信息保护法》、金融行业 AI 应用合规指引（了解 PII / 审计要求）。
+</div>
+<div class="iv">资源用法：先啃《FDE面试备战手册》建立面试框架，再用通义/DeepSeek 模拟"怎么向业务方证明 ROI"这类开放题，最后回本手册补技术细节。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：能讲清从 POC 到生产的路径和常见坑</h2>
+<table>
+<tr><th>阶段</th><th>核心交付</th><th>常见坑</th></tr>
+<tr><td>POC</td><td>技术可行性 + 达到业务阈值</td><td>数据被美化、只看 demo</td></tr>
+<tr><td>试点</td><td>真实用户采纳、bad case 收敛</td><td>无真实反馈、样本偏差</td></tr>
+<tr><td>灰度</td><td>按比例放量、无回退</td><td>没降级预案就放量</td></tr>
+<tr><td>生产</td><td>监控/成本/安全闭环</td><td>只监控可用性、无 Trace</td></tr>
+</table>
+<div class="iv">核心叙事：POC 证明"能做"，生产要求"稳做+算账+不出事"。从 demo 到全量走 POC→试点→灰度→生产，每阶段设门禁；数据/评测/监控/成本四套工程能力是 POC 后必须补齐的，而不是模型能力本身。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：能讲清怎么向业务方证明大模型项目的 ROI（不空谈准确率）</h2>
+<div class="formula">
+对齐痛点 → 设对照基线 → 量化收益(人力/时效/风险/增收) → 扣掉全成本(推理+人力+运营+试错) → 算回收期 → 持续汇报
+</div>
+<ol>
+  <li><strong>对齐业务目标</strong>：先听业务最痛的点，不说技术黑话。</li>
+  <li><strong>选对照基线</strong>：上线前后 / A-B 对照，避免过度归因。</li>
+  <li><strong>量化收益</strong>：用"省多少钱、快多少、少赔多少"替代"准确率"。</li>
+  <li><strong>全成本口径</strong>：推理费 + 工程人力 + 知识库运营 + 试错，别只算调用费。</li>
+  <li><strong>持续汇报</strong>：按月给业务方看采纳率、成本、bad case 收敛。</li>
+</ol>
+<div class="iv">证明价值不是报准确率，是翻译业务结果：用对照基线 + 场景化收益（如"初审从 2h 压到 8min，释放 5 个初审人力"）+ 全成本口径算回收期，并持续汇报建立信任。</div>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W8D5 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能画出 POC→试点→灰度→生产 四阶段，并说清每阶段要补的工程能力（数据/评测/监控/成本/安全/降级）。</li>
+<li>能讲出 POC 与生产的四类系统性差异，以及"死亡之谷"为什么常死在坑上。</li>
+<li>能列出数据层面的四个坑（漂移/脏数据/标注噪声/样本偏差）及应对。</li>
+<li>能解释为什么"只看准确率不够"，并说出生产评测的六个指标维度。</li>
+<li>能讲清 LLM 应用要监控的四类信号（质量/成本/延迟/安全）和为什么需要全链路 Trace。</li>
+<li>能写出成本公式，并说出四个"看不见的成本"（重复计算/重试/上下文膨胀/隐性运营）。</li>
+<li>能解释推进节奏的"门禁"机制，说出每个阶段的放行标准。</li>
+<li>能写出 ROI 公式，并说清收益怎么拆、成本别漏算什么。</li>
+<li>能讲出向业务方证明价值的四步法，并现场翻译一句"准确率 92%"成业务语言。</li>
+<li>能对比 API vs 私有化的拐点，并说出降本四招（缓存/批处理/小模型降级/路由）。</li>
+<li>能讲清医疗场景的合规三件套（PII/租户隔离/审计）及与 W6 私有化的关系。</li>
+<li>能画出规则/RAG/Agent/人工 的边界决策树，并说清为什么最终赔付不让模型定。</li>
+<li>能讲清两个达标线（路径与坑、ROI 证明）。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：POC 成功是不是就能上生产？</div><div class="a">不是。POC 证明"能做"，生产要求"稳做+算账+不出事"。POC 数据常被美化，真实长尾一上来就崩，必须补数据/评测/监控/成本/安全/降级能力。</div></div>
+<div class="qcard"><div class="q">Q：为什么不能只报"准确率 92%"？</div><div class="a">准确率掩盖了拒答失败、解析失败、合规越权、鲁棒性差这些要命问题。业务方要的是省多少钱、快多少、少赔多少。</div></div>
+<div class="qcard"><div class="q">Q：大模型项目 ROI 怎么算才不虚？</div><div class="a">ROI=(年化收益−年化成本)/成本；收益拆人力/时效/风险/增收并量化，成本必须含推理费+工程人力+运营+试错，并用对照基线避免过度归因。</div></div>
+<div class="qcard"><div class="q">Q：API 和私有化怎么选？</div><div class="a">看拐点：月调用量×API单价 &gt; 私有化月摊成本时私有化更划算。医疗理赔量大且强合规，常走私有化（呼应 W6）。</div></div>
+<div class="qcard"><div class="q">Q：降本除了换便宜模型还有啥？</div><div class="a">四招组合：路由器把简单问题分小模型、语义/前缀缓存吃重复、离线批处理省半价、量大合规走私有化。缓存要防脏数据。</div></div>
+<div class="qcard"><div class="q">Q：医疗场景合规三件套是什么？</div><div class="a">PII 脱敏（输入打码+输出过滤）、租户隔离（检索按 tenant 不过库）、审计留痕（谁何时用哪份知识回了什么）。合规内建非补丁。</div></div>
+<div class="qcard"><div class="q">Q：什么任务该用 Agent，什么不该？</div><div class="a">能规则就别 RAG、能 RAG 就别 Agent。固定强校验用规则，已知文档问答用 RAG，多步调工具用 Agent，高风险/不确定转人工。</div></div>
+<div class="qcard"><div class="q">Q：为什么最终赔付决定不能让模型做？</div><div class="a">模型概率性且可能幻觉，涉及钱和合规属红线。AI 做初筛和建议，人做决策和兜底，每环节都要能转人工。</div></div>
+<div class="qcard"><div class="q">Q：推进节奏里的"门禁"是什么？</div><div class="a">每阶段设量化放行标准：POC 看评测阈值、试点看真实采纳率、灰度看无回退无事故、全量看运营闭环。不达标就退或调整。</div></div>
+<div class="qcard"><div class="q">Q：LLM 应用监控和 traditional 监控有何不同？</div><div class="a">传统监控可用性(HTTP200)不够——返回200也可能答非所问。要监控质量/成本/延迟/安全四类信号并落全链路 Trace 以便定位回放。</div></div>
+
+<div class="ft">FDE W8D5 学习手册 · POC到生产·ROI·成本安全治理（面试级）· 配合《FDE-W8D5-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w8d5_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W8D5 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W8D5-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

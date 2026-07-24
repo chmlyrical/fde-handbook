@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W4D1 学习手册 · Agent 核心与 Loop（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W4D1 学习手册</span>
+  <a href="#s1">1.Agent概念</a><a href="#s2">2.核心特征</a><a href="#s3">3.ReAct</a><a href="#s4">4.ToolLoop</a><a href="#s5">5.停止条件</a><a href="#s6">6.步数预算</a>
+  <span class="sep"></span>
+  <a href="#s7">7.结果回填</a><a href="#s8">8.工程含义</a><a href="#s9">9.实战Py</a><a href="#s10">10.实战Java</a><a href="#s11">11.易错</a><a href="#s12">12.资源</a>
+  <span class="sep"></span>
+  <a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W4D1 学习手册 · Agent 核心与 Loop</h1>
+<p class="sub">W4 Week1 Day1 · A 级（必须掌握，面试核心）· 4h · 学完能讲清"Agent / Workflow / Agentic Workflow 的区别"并手写一个 Agent Loop</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W4 进入"Agent 工程化"阶段。Day1 打地基：先厘清 Agent 到底和 Workflow 有何不同，再吃透最朴素的"模型决策→调工具→回填→判断停止"循环（Agent Loop），这是所有 Agent 框架（包括 Day2 的 LangGraph）的底层逻辑。<br>
+  <strong>学完能回答：</strong>① 用一句话区分 Agent / Workflow / Agentic Workflow；② 讲清 ReAct、Tool Calling Loop、停止条件、最大步骤、Token 预算；③ 手写或口述一个带错误处理和工具回填的 Agent Loop；④ 结合特药理赔 Agent 说明"为什么需要循环"。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「面试话术」「易错点」→ 动手跑一遍 s9/s10 的代码 → 做自测清单 → 配合《FDE-W4D1-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. Agent / Workflow / Agentic Workflow ============ -->
+<h2 id="s1">一、概念区分：Agent / Workflow / Agentic Workflow</h2>
+<h3>1.1 三者定义</h3>
+<ul>
+  <li><strong>Workflow（工作流）</strong>：流程是<strong>预先写死</strong>的，由代码/配置固定每一步的先后顺序，模型只在某几个确定节点被调用（或完全不用模型）。本质是"确定性管道"。例：固定 7 步的 ETL 批处理。</li>
+  <li><strong>Agent（智能体）</strong>：由<strong>模型自主决策</strong>下一步做什么——决定调哪个工具、是否继续、何时停止。<strong>控制权在模型手里</strong>，流程是动态生成的。本质是一个"循环 + 自主决策"的系统。</li>
+  <li><strong>Agentic Workflow（智能体化工作流 / 代理式工作流）</strong>：<strong>Workflow 与 Agent 的混合体</strong>——大框架是人工编排的图（有确定性骨架），但在某些节点把"该走哪条分支/怎么调工具"交给模型自主决定。兼具可预期性与灵活性。</li>
+</ul>
+<h3>1.2 对比表</h3>
+<table>
+<tr><th>维度</th><th>Workflow</th><th>Agent</th><th>Agentic Workflow</th></tr>
+<tr><td>流程是否写死</td><td>完全写死</td><td>动态生成</td><td>骨架写死，分支/工具由模型决策</td></tr>
+<tr><td>控制权</td><td>开发者</td><td>模型</td><td>开发者（骨架）+ 模型（节点内）</td></tr>
+<tr><td>可预测性</td><td>高</td><td>低</td><td>中</td></tr>
+<tr><td>灵活性</td><td>低</td><td>高</td><td>中高</td></tr>
+<tr><td>适用</td><td>固定规则批处理</td><td>开放/探索性任务</td><td>企业可控的复杂业务（推荐）</td></tr>
+</table>
+<h3>1.3 关键判断：一个系统是不是 Agent？</h3>
+<p>核心看<strong>"下一步行动是否由模型在运行时动态决定"</strong>。如果下一步永远是 <code>if/else</code> 写死的，那只是 Workflow；如果模型根据中间结果自己选下一步，就是 Agent；如果"整体走哪几条预设路径"由模型选，就是 Agentic Workflow。</p>
+<div class="eng">工程上<strong>不要盲目上纯 Agent</strong>。企业场景（理赔、风控）要可控、可复盘、可合规，纯 Agent 不可预测、难审计。最佳实践是把确定性的主流程写成 Workflow/图（Day2 LangGraph 的状态图），只在少数需要"判断/检索/决策"的节点交给模型——这就是 Agentic Workflow，也是特药理赔 Agent 采用的形态。</div>
+<div class="iv">一句话：Workflow 是"代码定死每一步"；Agent 是"模型自己决定每一步"；Agentic Workflow 是"开发者定骨架、模型填细节"。判断标准就看"下一步是谁决定的"。企业里多数用 Agentic Workflow，因为要可控。</div>
+<div class="warn">① Agent ≠ 调了大模型就等于 Agent。一个写了死的 <code>for</code> 循环、每步固定调一次 LLM 做摘要，那只是 Workflow。② Agentic Workflow 不是"降级版 Agent"，而是<strong>更成熟的企业形态</strong>，别觉得"非 Agent 不高级"。③ 面试官常追问"你的理赔系统算哪种"——答：主链路是 Agentic Workflow（图骨架 + 风险/材料判断节点由模型决策），其中纯规则校验是 Workflow。</div>
+
+<!-- ============ 2. Agent 四大核心特征 ============ -->
+<h2 id="s2">二、Agent 的四大核心特征</h2>
+<p>一个典型 LLM Agent 由四个要素构成，缺一不可：</p>
+<ol>
+  <li><strong>模型（Model）</strong>：做决策的"大脑"，通常是 LLM，负责理解、规划、选工具、生成结论。生产用低 Temperature（0~0.3）保证决策稳定。</li>
+  <li><strong>工具（Tools）</strong>：Agent 能调用的外部能力，如 OCR、数据库查询、规则引擎、HTTP 接口。工具要有明确的 schema（名称、参数、返回）。</li>
+  <li><strong>环境 / 记忆（Memory / State）</strong>：保存对话历史、工具返回、中间状态，供下一轮决策使用。</li>
+  <li><strong>控制循环（Control Loop）</strong>：把"模型决策→执行工具→回填结果→再决策"串成循环，并决定何时停。这是 Agent 区别于"一次性问答"的本质。</li>
+</ol>
+<div class="info"><strong>候选视角（Java+大数据+医保）：</strong>你已有的 OCR 服务、理赔 DB 查询、规则引擎，本质上就是 Agent 的<strong>工具</strong>；你熟悉的"状态机/工作流引擎"对应 Agent 的<strong>控制循环</strong>。Agent 不是推翻你旧系统，而是给旧系统套一层"会自己决策的编排层"。</div>
+<div class="iv">Agent = 模型 + 工具 + 记忆 + 控制循环。核心是"控制循环"让它能在多轮里不断调用工具、逼近目标，而不是一问一答。</div>
+
+<!-- ============ 3. ReAct ============ -->
+<h2 id="s3">三、ReAct 范式（推理 + 行动）</h2>
+<h3>3.1 原理</h3>
+<p>ReAct（<em>Reason + Act</em>）是 2022 年提出的经典 Agent 范式：让模型交替进行<strong>推理（Thought）</strong>和<strong>行动（Action）</strong>，每轮先把"我为什么这么做"想清楚（Thought），再决定调什么工具（Action），看到工具结果（Observation）后继续下一轮推理。</p>
+<div class="formula">
+Thought（我该做什么）→ Action（调哪个工具+参数）→ Observation（工具返回）→ Thought → Action → ... → 最终答案
+</div>
+<h3>3.2 为什么重要</h3>
+<ul>
+  <li>把"思考链"显式化，模型不容易瞎走，便于 debug（你能看到它的 Thought）。</li>
+  <li>是 Tool Calling Loop 的"思维模板"。现代 Agent 不一定在输出里打印 Thought，但内部逻辑一致：模型根据历史和工具结果决定下一步。</li>
+</ul>
+<div class="iv">ReAct = 让模型一边"想"（Thought）一边"做"（Action），看到结果（Observation）再想再做，直到能回答。它是 Agent Loop 的思想原型；今天的 Tool Calling 只是把 Thought/Action 结构化成函数调用。</div>
+<div class="warn">① ReAct 不是"多一个花哨功能"，而是 Agent Loop 的通用模板，理解它能理解一切 Agent 框架。② 现代框架（LangChain/LangGraph）不一定让你手写 Thought 文本，而是用 <strong>tool_calls</strong> 字段表达 Action——别以为"没看到 Reason/Act 字样就不是 ReAct"。</div>
+
+<!-- ============ 4. Tool Calling Loop ============ -->
+<h2 id="s4">四、Tool Calling Loop（工具调用循环）</h2>
+<h3>4.1 循环骨架</h3>
+<p>一次 Agent 运行就是不断重复下面这条 Loop，直到模型不再请求工具、直接给最终答案：</p>
+<div class="formula">
+初始化 messages（system + user）→ 循环：调模型 → 若模型返回 tool_calls → 逐个执行工具 → 把工具结果作为 tool 消息回填 → 回到循环；否则（模型返回普通文本）→ 结束
+</div>
+<h3>4.2 一次迭代里发生了什么</h3>
+<ol>
+  <li>把完整 <code>messages</code>（含历史 + 之前工具结果）发给模型。</li>
+  <li>模型返回：要么是<strong>普通文本</strong>（最终答案，循环结束），要么是 <code>tool_calls</code>（一组待执行工具）。</li>
+  <li>对每个 tool_call：按名字找到本地工具函数，把参数喂进去，拿到返回值。</li>
+  <li>把返回值封装成 <code>role: "tool"</code> 的消息，<strong>回填</strong>进 messages。</li>
+  <li>带着更新后的 messages 再调模型——模型看到工具结果，决定下一步或结束。</li>
+</ol>
+<h3>4.3 消息结构（OpenAI 风格，业界通用）</h3>
+<pre><code># 模型请求调用工具（assistant 消息携带 tool_calls）
+{ "role": "assistant", "tool_calls": [
+    { "id": "call_1", "type": "function",
+      "function": { "name": "ocr_scan", "arguments": "{\"file_url\":\"...\"}" } } ] }
+
+# 工具结果回填（tool 消息，必须带对应 tool_call_id）
+{ "role": "tool", "tool_call_id": "call_1", "content": "{\"fields\": {...}}" }</code></pre>
+<div class="eng">这个 Loop 是 Agent 的全部。LangGraph、AutoGen、CrewAI 底层都是这个循环，只是加了"图编排、状态管理、并发、持久化"等外壳。面试中能纯手写这个 Loop，说明你懂 Agent 的本质，而不是只会调框架 API。企业生产里真正跑的也是它，框架只是帮你少写胶水代码。</div>
+<div class="iv">Agent Loop 就三步循环：① 调模型看它要调什么工具；② 执行工具拿到结果；③ 把结果回填回对话，再问模型。模型不再要工具、直接给答案时，循环结束。</div>
+
+<!-- ============ 5. 停止条件 ============ -->
+<h2 id="s5">五、停止条件与循环终止</h2>
+<h3>5.1 什么时候停</h3>
+<p>循环终止有三类信号，命中任一即停：</p>
+<table>
+<tr><th>停止信号</th><th>含义</th><th>谁触发</th></tr>
+<tr><td>模型返回最终答案（无 tool_calls）</td><td>任务完成</td><td>模型自主判断</td></tr>
+<tr><td>达到最大步骤数（max_steps）</td><td>防死循环，强制退出</td><td>代码硬限制</td></tr>
+<tr><td>达到 Token 预算 / max_tokens</td><td>防成本与超长</td><td>代码/API 限制</td></tr>
+</table>
+<h3>5.2 常见"停不下来"的隐患</h3>
+<ul>
+  <li>工具反复返回"需要更多信息"，模型反复调同一个工具 → 必须靠 <code>max_steps</code> 兜底。</li>
+  <li>模型陷入"调工具 A → A 说调 B → B 说调 A"的环 → 需要去重 / 循环检测。</li>
+  <li>模型一直不返回最终答案（持续 tool_calls）→ 靠 max_steps 强制收敛到"转人工/降级"。</li>
+</ul>
+<div class="iv">停止靠三件事：模型自己说"做完了"（不再要工具）、达到最大步数、达到 Token 上限。生产必须设 max_steps，否则模型可能一直转圈烧钱。</div>
+<div class="warn">① 永远不要只依赖"模型自觉停止"——必须设 <strong>max_steps 硬上限</strong>，否则遇上有 bug 的工具会无限循环、无限烧 token。② 达到 max_steps 时<strong>不能直接抛错给业务方</strong>，要降级（转人工 / 返回"处理超时，请补充材料"）。③ max_steps 和 max_tokens 是两回事：前者是"循环轮数"，后者是"单轮生成 token 数"。</div>
+
+<!-- ============ 6. 最大步骤与 Token 预算 ============ -->
+<h2 id="s6">六、最大步骤（max_steps）与 Token 预算</h2>
+<h3>6.1 参数设计</h3>
+<table>
+<tr><th>参数</th><th>含义</th><th>经验值</th></tr>
+<tr><td>max_steps</td><td>循环最多几轮</td><td>特药理赔建议 8~15 轮；开放任务可到 20+</td></tr>
+<tr><td>max_tokens（每轮）</td><td>单轮模型输出上限</td><td>工具调用场景 800~2000</td></tr>
+<tr><td>总 Token 预算</td><td>整次 Agent 运行的上限</td><td>按成本 SLA 设定，如 8000</td></tr>
+</table>
+<h3>6.2 预算为什么重要（成本 & 延迟）</h3>
+<p>每轮都要把<strong>完整 messages（含之前所有工具结果）重发给模型</strong>，所以 Token 消耗随轮数线性增长。10 轮、每轮历史 2000 token，输入就已 2 万 token。不控制预算，单次理赔可能花掉几毛到几块钱，量大了成本爆炸。</p>
+<div class="eng">Agent 的成本主要来自"每轮重发历史"。工程上：① 工具结果只回填<strong>必要字段</strong>（别把 50KB OCR 原文全塞回 messages）；② 对长工具结果做截断/摘要后再回填；③ 设总 Token 预算，超限即降级。理赔日均百万单，省 500 token/单就是实打实的钱。</div>
+<div class="iv">max_steps 管"转几圈"，Token 预算管"总共花多少 token"。因为每轮都要重发历史，轮数越多越贵越慢。生产要压缩回填内容 + 设预算上限。</div>
+<div class="warn">① 很多人忽略"工具结果回填也会进历史、被反复计费"——一个 50KB 的 OCR JSON 原样回填，10 轮就重复计费 500KB。② max_steps 设太小会让复杂案子提前失败；设太大又烧钱。要按业务分档（简单案 5 步、复杂案 15 步）。</div>
+
+<!-- ============ 7. 错误处理与工具结果回填 ============ -->
+<h2 id="s7">七、错误处理与工具结果回填</h2>
+<h3>7.1 回填的两条铁律</h3>
+<ol>
+  <li><strong>回填消息必须带 <code>tool_call_id</code></strong>，框架靠它把结果对应回那次调用。漏了会报错或直接忽略。</li>
+  <li><strong>工具出错也要回填</strong>（把错误信息文本作为 tool 消息返回），而不是让程序抛异常中断整个 Loop——让模型看到错误后自行决定重试 / 换工具 / 转人工。</li>
+</ol>
+<h3>7.2 错误处理矩阵</h3>
+<table>
+<tr><th>错误类型</th><th>处理</th><th>回填内容</th></tr>
+<tr><td>工具超时</td><td>重试 1~2 次，仍超时回填错误</td><td>"OCR 服务超时，请重试或转人工"</td></tr>
+<tr><td>参数校验失败</td><td>把错误反馈模型，让它改参数再调</td><td>"参数 file_url 缺失/格式错"</td></tr>
+<tr><td>工具返回空/异常</td><td>回填异常，模型决定降级</td><td>"未识别到发票字段"</td></tr>
+<tr><td>模型要了不存在的工具</td><td>代码拦截，回填"无此工具"</td><td>"unknown_tool: xxx"</td></tr>
+</table>
+<h3>7.3 代码示例（回填错误而非抛异常）</h3>
+<pre><code>for tool_call in assistant.tool_calls:
+    try:
+        result = dispatch(tool_call.function.name, **json.loads(tool_call.function.arguments))
+    except Exception as e:
+        result = f"[tool_error] {e}"   # 错误也回填，让模型看见
+    messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": str(result)})</code></pre>
+<div class="eng">把异常"喂回模型"而非"中断流程"，是 Agent 健壮性的关键。模型看到 OCR 超时，可以自己选"换 OCR 工具 / 让用户输入 / 转人工"。这正是 Agent 比死代码优雅的地方：错误也是下一次决策的 Observation。但你也要在代码层加熔断（连续 N 次错误直接转人工），别无限信任模型的"自救"。</div>
+<div class="iv">工具报错也要回填（带 tool_call_id），让模型看见错误后自己决定重试还是转人工——别直接让程序崩。同时要设失败熔断，避免无限重试。</div>
+<div class="warn">① 漏填 <code>tool_call_id</code> 是新手最常见 bug，结果工具结果对不上调用，模型"瞎答"。② 不要把原始异常堆栈全回填（可能含密钥/SQL），要脱敏成"OCR 服务异常"。③ 不能只靠模型自救——必须代码层加"连续失败 N 次→转人工"的熔断。</div>
+
+<!-- ============ 8. 工程含义 ============ -->
+<h2 id="s8">八、Agent Loop 的工程含义（面试常问）</h2>
+<div class="eng">
+<ul>
+  <li><strong>可观测性</strong>：每一轮（输入、tool_calls、工具结果、输出）都要落 Trace，否则线上出问题无法复盘——这是 FDE（前端/全栈开发工程师？此处指 AI 工程）的核心能力。</li>
+  <li><strong>幂等</strong>：工具要幂等，因为模型可能重复调同一工具（尤其重试时）。你的 OCR / 查询接口必须支持重复调用不产生副作用。</li>
+  <li><strong>可控性</strong>：用 max_steps + Token 预算 + 熔断保证"不会失控"，这是企业敢上 Agent 的前提。</li>
+  <li><strong>降级</strong>：任何一步失败都要有兜底路径（转人工 / 默认值 / 拒答），流程绝不能卡死。</li>
+  <li><strong>与旧系统协同</strong>：Agent 是"编排层"，你的 Java 微服务、规则引擎、数仓都是它的工具，不是要重写，是要被挂载。</li>
+</ul>
+</div>
+<div class="iv">工程上 Agent Loop 不是写完循环就完事：要落 Trace 可观测、工具要幂等、要 max_steps/预算/熔断防失控、每步要有降级兜底。Agent 是编排层，复用你已有的 Java 服务和规则引擎。</div>
+
+<!-- ============ 9. 实战 Python ============ -->
+<h2 id="s9">九、实战：手写一个 Agent Loop（Python）</h2>
+<p>下面是不依赖任何框架的极简 Agent Loop，逻辑与 LangGraph 底层一致。以特药理赔场景为例：模型可调用 <code>ocr_scan</code>（识别材料）、<code>query_policy</code>（查保单）。</p>
+<pre><code>import json, openai
+
+client = openai.OpenAI()
+TOOLS = [
+  {"type":"function","function":{"name":"ocr_scan",
+     "description":"识别理赔材料图片，返回结构化字段","parameters":{
+       "type":"object","properties":{"file_url":{"type":"string"}},"required":["file_url"]}}}},
+  {"type":"function","function":{"name":"query_policy",
+     "description":"按保单号查保单与特药目录","parameters":{
+       "type":"object","properties":{"policy_no":{"type":"string"}},"required":["policy_no"]}}}},
+]
+
+def dispatch(name, args):
+    # 真实场景这里调你的 Java 微服务 / 规则引擎
+    if name == "ocr_scan":   return {"patient":"张三","drug":"奥希替尼","amount":38000}
+    if name == "query_policy": return {"covered":True,"copay":0.3,"quota":50000}
+    raise ValueError("unknown_tool")
+
+def run_agent(user_req, max_steps=10):
+    messages = [{"role":"system","content":"你是特药理赔审核助手，按需调用工具。"},
+                {"role":"user","content":user_req}]
+    for step in range(max_steps):
+        resp = client.chat.completions.create(
+            model="your-model", messages=messages, tools=TOOLS, temperature=0.1)
+        msg = resp.choices[0].message
+        if not msg.tool_calls:                 # 模型给出最终答案 → 停止
+            return msg.content
+        messages.append(msg)                   # 把 assistant(tool_calls) 加入历史
+        for tc in msg.tool_calls:
+            try:
+                args = json.loads(tc.function.arguments)
+                result = dispatch(tc.function.name, args)
+            except Exception as e:
+                result = f"[tool_error] {e}"
+            messages.append({"role":"tool","tool_call_id":tc.id,"content":json.dumps(result, ensure_ascii=False)})
+    return "已达最大步骤，转人工审核"            # 降级兜底
+
+print(run_agent("帮我审核这张特药理赔单，文件在 /tmp/claim1.png，保单号 P123"))</code></pre>
+<div class="info"><strong>这段代码覆盖的考点：</strong>循环结构、tool_calls 解析、tool_call_id 回填、错误处理回填、max_steps 终止、最终答案终止、降级兜底。面试手写版不必能跑，但要结构清晰。</div>
+
+<!-- ============ 10. 实战 Java 视角 ============ -->
+<h2 id="s10">十、实战：从 Java 工程师视角看 Agent Loop</h2>
+<p>你熟悉 Spring / 微服务，可以把 Agent Loop 映射成你会的模式：</p>
+<table>
+<tr><th>Agent 概念</th><th>Java 对应物</th></tr>
+<tr><td>messages 列表</td><td>一个 <code>List&lt;ChatMessage&gt;</code>，贯穿一次请求</td></tr>
+<tr><td>tools 注册</td><td>一个 <code>Map&lt;String, Function&lt;String,String&gt;&gt;</code> 或 Spring Bean 容器</td></tr>
+<tr><td>dispatch</td><td>策略模式 / 工厂：按 name 路由到对应 Service</td></tr>
+<tr><td>tool 结果回填</td><td>构造 <code>ToolMessage</code> 加入 list</td></tr>
+<tr><td>max_steps / 预算</td><td>for 循环上限 + 计数器（Guava RateLimiter 控成本）</td></tr>
+<tr><td>熔断</td><td>Resilience4j 的 CircuitBreaker 包住工具调用</td></tr>
+</table>
+<div class="eng">你的 Java 背景不是负担而是优势：Agent Loop 本质就是一个"带 LLM 决策的 while 循环 + 策略路由 + 熔断降级"，和你们做过的"订单状态机 + 风控规则引擎"同构。面试时可以主动说："我用 Spring 把工具做成 Bean，用 Resilience4j 做熔断，用 TraceId 串联每轮调用做可观测"——这比只会调 LangChain 更显工程深度。</div>
+<div class="iv">Agent Loop 映射成 Java 就是：List 存对话、Map 注册工具、策略模式 dispatch、for 上限做 max_steps、Resilience4j 做熔断、TraceId 做可观测。你旧系统的能力直接当工具挂载。</div>
+
+<!-- ============ 11. 易错点 ============ -->
+<h2 id="s11">十一、Agent Loop 高频易错点（综合）</h2>
+<div class="warn">① <strong>把 Workflow 当 Agent 讲</strong>：写死流程 + 每步固定调一次 LLM，不是 Agent，别在面试里混淆。② <strong>漏 tool_call_id</strong>：工具结果回填必须带 id，否则模型对不上。③ <strong>只靠模型自觉停止</strong>：必须有 max_steps，否则死循环烧钱。④ <strong>异常直接抛</strong>：应脱敏后回填，让模型决策。⑤ <strong>工具不幂等</strong>：模型重试会放大副作用（重复扣减、重复发短信）。⑥ <strong>回填超长原文</strong>：OCR/DB 大结果原样回填导致成本翻倍。⑦ <strong>无降级</strong>：任何一步失败都应转人工/默认值，不能让理赔流程卡死。⑧ <strong>Temperature 太高</strong>：工具参数要准，Agent 决策用 0~0.3，别用 0.9。</div>
+
+<!-- ============ 12. 资源 ============ -->
+<h2 id="s12">十二、学习资源（中文 / 非 OpenAI）</h2>
+<div class="info">
+<ul>
+  <li><strong>B站 · 李宏毅《生成式人工智能导论》第2讲 AI Agent 原理</strong>：讲 Agent 基本范式与 ReAct，入门首选。<br><a href="https://www.bilibili.com/video/BV1aiADewEBC" target="_blank">https://www.bilibili.com/video/BV1aiADewEBC</a></li>
+  <li><strong>B站 · LangGraph 构建智能 AI 应用（ReAct + Tool Calling 实战）</strong>：手把手实现 Loop 与工具调用。<br><a href="https://www.bilibili.com/video/BV1zKx4zWEZP" target="_blank">https://www.bilibili.com/video/BV1zKx4zWEZP</a></li>
+  <li><strong>LangGraph 中文官方文档</strong>：概念与示例（Day2 深入用）。<br><a href="https://langgraph.com.cn" target="_blank">https://langgraph.com.cn</a></li>
+</ul>
+</div>
+<div class="iv">先看完李宏毅第2讲建立 Agent 直觉，再用 B站 LangGraph 视频看 Loop 怎么落地，最后翻官方文档查细节。三件套足够覆盖本日面试。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：Agent / Workflow / Agentic Workflow 区别</h2>
+<table>
+<tr><th>问题</th><th>满分回答要点</th></tr>
+<tr><td>三者区别？</td><td>Workflow=流程写死、开发者控制；Agent=模型自主决策下一步；Agentic Workflow=骨架写死、关键分支/工具由模型决策。判断标准：下一步是谁决定的。</td></tr>
+<tr><td>你们理赔系统算哪种？</td><td>主链路是 Agentic Workflow（图骨架 + 风险/材料判断节点由模型决策），纯规则校验是 Workflow。强调"企业用可控的混合形态"。</td></tr>
+<tr><td>为什么不直接上纯 Agent？</td><td>不可预测、难审计、合规风险；企业偏好可控的 Agentic Workflow，确定性主流程 + 模型决策节点。</td></tr>
+</table>
+<div class="iv">达标线①核心：能一句话区分三者（谁决定下一步），并能结合特药理赔说清"为什么用 Agentic Workflow 而非纯 Agent"。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：写/讲清一个简单 Agent Loop</h2>
+<div class="formula">
+system+user 初始化 → while step &lt; max_steps：调模型 → 有 tool_calls？逐个 dispatch 执行 → 脱敏错误也回填(tool_call_id) → 无 tool_calls？返回答案并 break → 超限返回降级（转人工）
+</div>
+<ol>
+  <li><strong>循环</strong>：重复"模型决策→执行工具→回填"直到模型给最终答案。</li>
+  <li><strong>工具调用</strong>：解析 <code>tool_calls</code>，按 name 路由到本地函数，参数 JSON 解析。</li>
+  <li><strong>结果回填</strong>：构造 <code>role:tool</code> 消息，带 <code>tool_call_id</code>，错误也回填（脱敏）。</li>
+  <li><strong>停止判断</strong>：模型无 tool_calls → 结束；达到 max_steps → 降级转人工。</li>
+  <li><strong>工程保障</strong>：max_steps、Token 预算、幂等工具、熔断、Trace、降级兜底。</li>
+</ol>
+<div class="iv">达标线②核心：能口述或手写这个循环（决策→调工具→回填→判停），并提到 tool_call_id 回填、错误处理回填、max_steps 终止、降级兜底四个关键点。</div>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W4D1 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能一句话区分 Agent / Workflow / Agentic Workflow，并说清判断标准（下一步谁决定）。</li>
+<li>能结合特药理赔说明为什么用 Agentic Workflow 而非纯 Agent。</li>
+<li>能说出 Agent 四大要素（模型/工具/记忆/控制循环）。</li>
+<li>能讲清 ReAct 的 Thought→Action→Observation 模板及其与 Tool Calling 的关系。</li>
+<li>能口述 Tool Calling Loop 的完整循环（决策→执行→回填→再决策）。</li>
+<li>能说清三种停止信号，并强调为什么必须设 max_steps。</li>
+<li>能解释 max_steps 与 max_tokens（每轮/总量）的区别及成本来源（每轮重发历史）。</li>
+<li>能说出工具结果回填的两条铁律（带 tool_call_id、错误也回填）及脱敏要求。</li>
+<li>能讲清错误处理矩阵（超时/参数错/异常/未知工具）与失败熔断。</li>
+<li>能默写或讲清一个带 max_steps+降级的 Agent Loop 骨架（达标线②）。</li>
+<li>能从 Java 视角把 Agent Loop 映射到 List/Map/策略模式/Resilience4j/TraceId。</li>
+<li>能说出 Agent Loop 的工程含义：可观测、幂等、可控、降级、复用旧系统。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：Agent 和 Workflow 有什么区别？</div><div class="a">Workflow 流程写死、开发者控制；Agent 下一步由模型自主决策。判断标准："下一步是谁决定的"。</div></div>
+<div class="qcard"><div class="q">Q：什么是 Agentic Workflow？</div><div class="a">骨架由开发者写死（图/流程），但关键分支和工具调用由模型在运行时决策，兼顾可控与灵活，企业最常用。</div></div>
+<div class="qcard"><div class="q">Q：一个系统调了 LLM 就是 Agent 吗？</div><div class="a">不一定。如果每步都是 if/else 写死的，只是 Workflow。Agent 的核心是"模型动态决定下一步"。</div></div>
+<div class="qcard"><div class="q">Q：Agent Loop 为什么必须设 max_steps？</div><div class="a">防止模型陷入死循环（反复调同一工具/互调）无限烧 token。命中上限要降级转人工，不能直接报错。</div></div>
+<div class="qcard"><div class="q">Q：工具调用结果回填要注意什么？</div><div class="a">① 必须带 tool_call_id 对应回那次调用；② 工具报错也要脱敏后回填，让模型决策重试/转人工，别直接中断。</div></div>
+<div class="qcard"><div class="q">Q：Agent 成本高在哪？</div><div class="a">每轮都要把完整历史（含之前工具结果）重发给模型，Token 随轮数线性增长。要压缩回填内容、设 Token 预算。</div></div>
+<div class="qcard"><div class="q">Q：ReAct 和 Tool Calling 什么关系？</div><div class="a">ReAct 是"想(Thought)→做(Action)→看(Observation)"的范式原型；现代 Tool Calling 把 Action 结构化成 tool_calls，思想一致。</div></div>
+<div class="qcard"><div class="q">Q：工具不幂等会有什么问题？</div><div class="a">模型可能重试调用，放大副作用（重复扣减、重复发短信）。工具必须幂等，Agent 才安全。</div></div>
+<div class="qcard"><div class="q">Q：Agent 温度为什么用低值？</div><div class="a">工具参数必须准确、决策要稳定，用 0~0.3；高温度会让参数乱飞、决策漂移。</div></div>
+<div class="qcard"><div class="q">Q：Java 工程师做 Agent 有什么优势？</div><div class="a">Agent Loop = while循环+策略路由+熔断降级，与你做过的状态机/规则引擎同构；旧系统直接当工具挂载，Spring/Resilience4j 经验直接用。</div></div>
+
+<div class="ft">FDE W4D1 学习手册 · Agent 核心与 Loop（面试级）· 配合《FDE-W4D1-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w4d1_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W4D1 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W4D1-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

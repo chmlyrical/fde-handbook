@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE 学习路径 v3.3 · 每日任务+资源链接版</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.7; font-size: 14px; padding: 24px; max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 24px; margin-bottom: 6px; font-weight: 600; }
+  h2 { font-size: 18px; margin-top: 36px; margin-bottom: 12px; padding: 8px 12px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 20px; }
+  .key { background: #E6F1FB; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; border-left: 4px solid #185FA5; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 13px; }
+  th, td { padding: 7px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #fff; font-weight: 600; }
+  .week-h { display: flex; align-items: center; gap: 10px; margin: 32px 0 10px 0; padding: 10px 14px; background: #E6F1FB; border-radius: 8px; border-left: 4px solid #185FA5; }
+  .wn { background: #185FA5; color: #fff; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; flex-shrink: 0; }
+  .wt { font-size: 16px; font-weight: 600; }
+  .ws { font-size: 12px; color: #666; }
+  .day { display: grid; grid-template-columns: 70px 1fr; margin-bottom: 6px; background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; overflow: hidden; }
+  .dl { background: #F1EFE8; padding: 10px 8px; font-weight: 600; color: #185FA5; font-size: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #e5e3dd; }
+  .dl .h { font-size: 10px; font-weight: 400; color: #888; }
+  .dc { padding: 8px 12px; font-size: 13px; }
+  .dc strong { color: #1a1a1a; display: block; margin-bottom: 4px; }
+  .dc ul { list-style: none; padding-left: 0; }
+  .dc li { padding-left: 14px; position: relative; margin-bottom: 2px; }
+  .dc li::before { content: "▸"; position: absolute; left: 0; color: #BA7517; font-size: 10px; }
+  .res { margin-top: 6px; padding: 6px 10px; background: #FAEEDA; border-left: 3px solid #BA7517; border-radius: 4px; font-size: 12px; }
+  .res strong { color: #633806; font-size: 12px; }
+  .res a { color: #185FA5; text-decoration: none; margin-right: 8px; display: inline-block; margin-bottom: 2px; }
+  .res a:hover { text-decoration: underline; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .ta { background: #E6F1FB; color: #185FA5; }
+  .tb { background: #FAEEDA; color: #BA7517; }
+  .tc { background: #E1F5EE; color: #0F6E56; }
+  .td { background: #FBEAF0; color: #993556; }
+  .deliv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 8px 14px; border-radius: 6px; margin: 6px 0 12px 0; font-size: 12px; }
+  .deliv strong { color: #0F6E56; }
+  .ms { background: #FBEAF0; border-left: 4px solid #993556; padding: 8px 14px; border-radius: 6px; margin: 10px 0; font-size: 13px; font-weight: 500; }
+  .ms::before { content: "★ "; color: #993556; }
+  code { background: #f1efe8; padding: 1px 5px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 11px; }
+  .ft { text-align: center; color: #888; font-size: 11px; margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e3dd; }
+  @media (max-width: 720px) { .day { grid-template-columns: 56px 1fr; } .dl { font-size: 11px; } }
+</style>
+</head>
+<body>
+
+<h1>FDE 学习路径 v3.3 · 每日任务+资源链接</h1>
+<p class="sub">真正冻结执行版 · 每天任务清单内嵌 B站/官方文档资源链接 · 点击直达</p>
+
+<div class="key">
+  <strong>ChatGPT 综合评分 9/10</strong> · 每周保留四类证据：①可运行代码 ②测试评测报告 ③ADR ④失败案例及修复<br>
+  <strong>资源原则：</strong>视频按需看对应章节（别从头刷），官方文档优先（MCP/Spring AI/vLLM 迭代快），B 站 1.5-2x 倍速
+</div>
+
+<h2>12周总览</h2>
+<table>
+<tr><th>周</th><th>主题</th><th>作品</th><th>投简历</th></tr>
+<tr><td>W1</td><td>大模型基础、模型调用、模型选型、轻量模型网关</td><td>—</td><td></td></tr>
+<tr><td>W2</td><td>Tool Calling、MCP（固定版本）、多模态 Document AI</td><td>—</td><td></td></tr>
+<tr><td>W3</td><td>文档解析、AI 数据工程、Chunk、Embedding、基础 RAG</td><td>作品① 启动</td><td></td></tr>
+<tr><td>W4</td><td>混合检索、Rerank、ACL、RAG 评测（50 Cases）</td><td>作品① 完成</td><td><strong>★ 市场验证</strong></td></tr>
+<tr><td>W5</td><td>Agent Loop、ReAct、Context Engine、Tool Runtime</td><td>作品② 启动</td><td></td></tr>
+<tr><td>W6</td><td>LangGraph、Checkpoint、HITL、中断恢复</td><td>作品② 推进</td><td></td></tr>
+<tr><td>W7</td><td>Agent Harness 企业扩展、Text2SQL、RAG-SQL-API 三路路由</td><td>作品② 推进</td><td></td></tr>
+<tr><td>W8</td><td>评测四层、Trace、OpenTelemetry、LLMOps</td><td>作品② 完成</td><td><strong>★ 第二批</strong></td></tr>
+<tr><td>W9</td><td>Agent 安全、OWASP（LLM+Agentic）、Agent Memory</td><td>—</td><td></td></tr>
+<tr><td>W10</td><td>模型网关平台版、vLLM 服务化实验、部署交付</td><td>作品③ 启动</td><td></td></tr>
+<tr><td>W11</td><td>Spring AI、企业系统集成、平台最小版本</td><td>作品③ 推进</td><td></td></tr>
+<tr><td>W12</td><td>作品打磨、NFR、FDE Pack、模拟面试</td><td>作品③ 完成</td><td><strong>★ 第三批</strong></td></tr>
+</table>
+
+<!-- W1 -->
+<div class="week-h"><div class="wn">1</div><div><div class="wt">Week 1：大模型基础、模型调用、模型选型、轻量模型网关</div><div class="ws">28h · [A] 级为主 · 打地基</div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>大模型原理（宏观）<span class="tag ta">A</span></strong><ul><li>Transformer、Self-Attention、Multi-Head Attention</li><li>Token / Tokenizer / BPE / Tiktoken</li><li>Embedding 本质、上下文窗口、KV Cache、Prefill vs Decode</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1mXpuz7E9v/" target="_blank">B站 李宏毅生成式AI导论2025（42集）</a><a href="https://www.bilibili.com/video/BV1aiADewEBC/" target="_blank">B站 李宏毅机器学习2025</a><a href="https://llmbook-zh.github.io/" target="_blank">人大《大语言模型》教材</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>采样参数与输出控制<span class="tag ta">A</span></strong><ul><li>Temperature、Top P、Top K、Stop Sequences</li><li>Structured Output（JSON Mode、JSON Schema）</li><li>Function Calling 概念入门、推理模型 vs 普通对话</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1mXpuz7E9v/" target="_blank">B站 李宏毅 第2讲：今日生成式AI厉害在哪</a><a href="https://platform.openai.com/docs/guides/structured-outputs" target="_blank">OpenAI Structured Output 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>模型选型与权衡<span class="tag ta">A</span> + 选型决策树<span class="tag tc">C</span></strong><ul><li>开源 vs 闭源 vs 本地部署</li><li>准确率/延迟/吞吐/成本/上下文长度权衡</li><li>SFT、LoRA、量化、蒸馏概念</li><li>Prompt/RAG/Fine-tuning/规则引擎选型决策树</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1aiADewEBC/" target="_blank">B站 李宏毅 第五讲：预训练-对齐 + 第七讲 DeepSeek-R1 深度思考</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>API 调用实战 + 轻量模型网关<span class="tag ta">A</span></strong><ul><li>OpenAI/通义/智谱/DeepSeek API 调用</li><li>流式输出（SSE）、JSON 结构化输出</li><li>Token 统计与成本计算</li><li>轻量 Model Adapter：多模型统一接口、Provider 适配、基础路由、失败重试、Trace Hook</li></ul><div class="res"><strong>资源：</strong><a href="https://platform.openai.com/docs/api-reference" target="_blank">OpenAI API 文档</a><a href="https://help.aliyun.com/zh/model-studio/developer-reference/use-qwen-by-calling-api" target="_blank">通义千问 API 文档</a><a href="https://open.bigmodel.cn/dev/api" target="_blank">智谱 API 文档</a><a href="https://api-docs.deepseek.com/" target="_blank">DeepSeek API 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>Prompt 工程基础<span class="tag ta">A</span></strong><ul><li>System / User / Assistant Prompt</li><li>Zero Shot、Few Shot、Chain of Thought</li><li>CoT 工程使用边界</li><li>Prompt 模板与变量管理、Prompt Injection 防御</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1mXpuz7E9v/" target="_blank">B站 李宏毅 第5-6讲：训练不了AI你可以训练你自己</a><a href="https://platform.openai.com/docs/guides/prompt-engineering" target="_blank">OpenAI Prompt Engineering 指南</a><a href="https://docs.anthropic.com/claude/docs/prompt-engineering" target="_blank">Anthropic Prompt Engineering</a></div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>Prompt 进阶 + 本地部署<span class="tag ta">A</span><span class="tag tb">B</span></strong><ul><li>JSON Schema 强约束、Prompt 测试集概念</li><li>Ollama 本地跑 Qwen3，理解量化与显存</li><li>vLLM 概念了解</li></ul><div class="res"><strong>资源：</strong><a href="https://ollama.com/" target="_blank">Ollama 官网</a><a href="https://ollama.com/library/qwen3" target="_blank">Ollama Qwen3 模型</a><a href="https://docs.vllm.ai/" target="_blank">vLLM 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>本周整合 + Java 恢复<span class="tag ta">A</span></strong><ul><li>整理代码到 GitHub</li><li>写博客：模型选型决策框架 + 选型决策树</li><li>Java 恢复：集合、并发基础复习</li><li>Spring Boot 项目骨架搭建</li></ul><div class="res"><strong>资源：</strong><a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot 官网</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① 轻量模型网关 v1（Model Adapter + Provider 路由 + 失败重试 + Trace Hook）<span class="tag ta">A</span> ② Prompt 模板管理系统 ③ 模型选型决策文档 + 选型决策树 ④ GitHub 仓库初始化 + Java 骨架</div>
+
+<!-- W2 -->
+<div class="week-h"><div class="wn">2</div><div><div class="wt">Week 2：Tool Calling、MCP（固定版本）、工具权限、多模态 Document AI</div><div class="ws">28h · Agent 前置 · <span class="tag ta">A</span>+<span class="tag tb">B</span></div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>Function Calling 深入<span class="tag ta">A</span></strong><ul><li>OpenAI/Claude/Qwen Function Calling 规范对比</li><li>Tool Schema 写法、参数校验、错误处理</li><li>多工具并行调用、多轮工具调用循环</li></ul><div class="res"><strong>资源：</strong><a href="https://help.aliyun.com/zh/model-studio/qwen-function-calling" target="_blank">阿里云百炼 Function Calling 完整文档（含Python/Node示例）</a><a href="https://platform.openai.com/docs/guides/function-calling" target="_blank">OpenAI Function Calling 指南</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>OCR Tool + 多模态 Document AI（缩减版）<span class="tag ta">A</span><span class="tag tb">B</span></strong><ul><li>PaddleOCR 或云 OCR 实现医疗单据 OCR</li><li>多模态 Document AI（6 项必做）：OCR文本+坐标、字段结构化抽取、置信度、人工复核、原图坐标关联</li><li>跨页/复杂表格/手写体只做设计</li></ul><div class="res"><strong>资源：</strong><a href="https://paddlepaddle.github.io/paddleocr/" target="_blank">PaddleOCR 官方文档</a><a href="https://github.com/PaddlePaddle/PaddleOCR" target="_blank">PaddleOCR GitHub</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>DB Query Tool + 规则引擎<span class="tag ta">A</span></strong><ul><li>DB Query Tool：参数化 SQL 执行，只读权限</li><li>规则引擎 Tool：基于 Drools 或简单规则脚本</li><li>工具权限与白名单设计、参数校验与沙箱</li></ul><div class="res"><strong>资源：</strong><a href="https://docs.python.org/3/library/sqlite3.html" target="_blank">Python sqlite3 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>MCP 协议学习<span class="tag tb">B</span>（固定版本 2025-11-25）</strong><ul><li>MCP Host/Client/Server、Tools/Resources/Prompts</li><li><strong>Transport：stdio / Streamable HTTP</strong>（旧 HTTP+SSE 已废弃）</li><li>OAuth 2.1（主要适用 HTTP，可选）、Tool Annotation 不可信原则</li><li>MCP Session 生命周期、能力协商、Server 信任准入</li><li>安全风险：Tool Poisoning、工具描述注入、供应链</li></ul><div class="res"><strong>资源：</strong><a href="https://modelcontextprotocol.io/specification/2025-11-25/basic/transports" target="_blank">MCP Transport 规范</a><a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization" target="_blank">MCP 授权规范</a><a href="https://modelcontextprotocol.io/specification/2025-06-18/schema" target="_blank">MCP Schema（含 Tool Annotation）</a><a href="https://modelcontextprotocol.io/" target="_blank">MCP 官网</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>实现 MCP Server<span class="tag tb">B</span></strong><ul><li>Python MCP SDK 实现（固定协议版本 2025-11-25）</li><li>暴露医疗 Tools：OCR、保单查询、规则校验</li><li>实现 Resources + Prompts + Tool Annotation</li></ul><div class="res"><strong>资源：</strong><a href="https://github.com/modelcontextprotocol/python-sdk" target="_blank">MCP Python SDK GitHub</a><a href="https://modelcontextprotocol.io/examples" target="_blank">MCP 官方示例</a></div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>实现 MCP Client + 工具权限<span class="tag tb">B</span></strong><ul><li>MCP Client 调用自研 Server</li><li>工具白名单机制、参数校验与沙箱</li><li>对比 MCP vs Function Calling 差异</li></ul><div class="res"><strong>资源：</strong>参考 Day 5 的 SDK 文档</div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>整合 + Java 恢复<span class="tag ta">A</span></strong><ul><li>整理 Tool + MCP + 多模态代码到 GitHub</li><li>画 Function Calling → MCP 演进图</li><li>Java 恢复：Spring Boot 复习</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 全套（84集，重点看第36-56集 Tools+MCP）</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① OCR Tool + DB Query Tool + Rule Engine Tool <span class="tag ta">A</span> ② 多模态 Document AI 模块 <span class="tag tb">B</span> ③ MCP Server（固定版本）<span class="tag tb">B</span> ④ MCP Client + 工具权限白名单 <span class="tag tb">B</span></div>
+
+<!-- W3 -->
+<div class="week-h"><div class="wn">3</div><div><div class="wt">Week 3：文档解析、AI 数据工程、Chunk、Embedding、基础 RAG、知识库选型 ADR</div><div class="ws">28h · 作品①启动 · <span class="tag ta">A</span> 为主</div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>RAG 概念与流程<span class="tag ta">A</span><span class="tag tb">B</span></strong><ul><li>Naive RAG 完整流程：摄取→解析→切分→Embedding→检索→生成</li><li>RAG 四阶段：Naive → Advanced → Modular → Agentic</li><li>LangChain RAG quickstart 跑通</li><li>Dify 知识库体验（对比低代码）</li></ul><div class="res"><strong>资源：</strong><a href="https://python.langchain.com/docs/tutorials/rag/" target="_blank">LangChain RAG Quickstart</a><a href="https://www.bilibili.com/video/BV1zKx4zWEZP/" target="_blank">B站 LangGraph构建智能AI应用（含RAG）</a><a href="https://docs.dify.ai/" target="_blank">Dify 官方文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>文档解析与清洗<span class="tag ta">A</span></strong><ul><li>PyMuPDF / unstructured 解析 PDF</li><li>Word / PPT / Excel 解析</li><li>OCR 与版面分析（PaddleOCR）</li><li>文本清洗：去噪、去重、规范化</li></ul><div class="res"><strong>资源：</strong><a href="https://pymupdf.readthedocs.io/" target="_blank">PyMuPDF 文档</a><a href="https://unstructured-io.github.io/unstructured/" target="_blank">unstructured 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>AI 数据工程 W3 部分<span class="tag ta">A</span><span class="tag tc">C</span></strong><ul><li>亲自实现：Document ID/Chunk ID/文件 Hash</li><li>亲自实现：摄取任务状态</li><li>亲自实现：文档和 Embedding 版本字段</li><li>只做设计：数据血缘、多租户隔离、摄取可观测性</li></ul><div class="res"><strong>资源：</strong>参考 ETL/数据治理经验，LangChain Document 元数据设计</div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>Chunk 策略 + Embedding + 知识库选型 ADR<span class="tag ta">A</span><span class="tag tc">C</span></strong><ul><li>Chunk 策略：固定/段落/滑动窗口/Parent-Child/Sentence Window/语义切分</li><li>Embedding 选型：BGE / GTE / OpenAI ada</li><li>Elasticsearch 安装与向量检索配置</li><li>知识库平台选型 ADR：比较 Dify/RAGFlow/ES 自研/pgvector/云托管</li></ul><div class="res"><strong>资源：</strong><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html" target="_blank">ES 向量检索文档</a><a href="https://huggingface.co/BAAI/bge-large-zh" target="_blank">BGE-large-zh 模型</a><a href="https://github.com/infiniflow/ragflow" target="_blank">RAGFlow GitHub</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>检索与生成<span class="tag ta">A</span></strong><ul><li>向量检索（Top-K）+ BM25 关键词检索</li><li>引用溯源实现、无答案拒答策略</li><li>Prompt 模板：问答 + 引用 + 拒答</li></ul><div class="res"><strong>资源：</strong><a href="https://python.langchain.com/docs/how_to/reciprocal_rank_fusion/" target="_blank">LangChain 混合检索（RRF）</a></div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>作品①启动：保险知识库基础版<span class="tag ta">A</span></strong><ul><li>数据：5-10 份公开保险条款 PDF</li><li>架构：摄取 pipeline + ES + LangChain + 通义 API</li><li>功能：上传 PDF → chunk → embedding → 检索 → 问答 + 引用</li><li>创建 10 个基础评测 Case</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1D37GzLEe5/" target="_blank">B站 2025最全RAG教程</a></div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>整合 + Java 恢复<span class="tag ta">A</span></strong><ul><li>作品①基础版跑通，README 完善</li><li>画 RAG 流程图（含数据工程环节）</li><li>Java 恢复：Spring AI 入门（ChatClient、Model Adapter）</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 全套（第1-17集 ChatClient入门）</a><a href="https://docs.spring.io/spring-ai/reference/" target="_blank">Spring AI 官方文档</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① RAG 基础 demo（ES + LangChain + AI 数据工程）<span class="tag ta">A</span> ② 知识库选型 ADR <span class="tag tc">C</span> ③ 作品①基础版 <span class="tag ta">A</span> ④ 10 个评测 Case ⑤ Spring AI 入门 demo <span class="tag tb">B</span></div>
+
+<!-- W4 -->
+<div class="week-h"><div class="wn">4</div><div><div class="wt">Week 4：混合检索、Rerank、ACL、AI 数据工程 W4 部分、RAG 评测（50 Cases）、作品一</div><div class="ws">28h · 作品①完成 · ★ 投简历</div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>ES 混合检索 + AI 数据工程 W4<span class="tag ta">A</span></strong><ul><li>向量检索 + BM25 融合（RRF 算法）</li><li>医疗场景适配：药品名、ICD 编码、保单号精确匹配</li><li>AI 数据工程 W4：增量更新、失败重试+死信、一致性检查、文档删除和索引失效</li></ul><div class="res"><strong>资源：</strong><a href="https://www.elastic.co/what-is/hybrid-search" target="_blank">ES 混合搜索官方说明</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>Rerank + Query 改写<span class="tag ta">A</span></strong><ul><li>bge-reranker 模型使用</li><li>Query Rewrite（HyDE、Query 扩展、Multi-Query）</li><li>Query Decomposition、Context Compression</li><li>评测集补充到 30 个</li></ul><div class="res"><strong>资源：</strong><a href="https://huggingface.co/BAAI/bge-reranker-large" target="_blank">bge-reranker-large 模型</a><a href="https://python.langchain.com/docs/how_to/query_transformer/" target="_blank">LangChain Query 改写</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>权限控制与文档治理<span class="tag ta">A</span></strong><ul><li>chunk 级权限标签（部门/角色）</li><li>检索时 Metadata filter（用户身份过滤）</li><li>文档版本管理与失效、增量索引、缓存失效</li></ul><div class="res"><strong>资源：</strong><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html" target="_blank">ES Metadata 过滤文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>RAG 评测（50 Cases）<span class="tag ta">A</span></strong><ul><li>确定性检索指标：Hit Rate@K、Recall@K、Precision@K、MRR、nDCG@K</li><li>RAGAS 四指标：Faithfulness/Answer Relevancy/Context Precision/Context Recall</li><li>9 类问题：普通/关键词精确/语义改写/跨条款/无答案/权限受限/易混淆/恶意注入/版本失效</li><li>评测集扩充到 50（20 Golden + 30 扩展）</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1aZ421W7DB/" target="_blank">B站 RAG评估资料（RAGAS+LangSmith）</a><a href="https://www.bilibili.com/video/BV1D37GzLEe5/" target="_blank">B站 2025最全RAG教程（含RAGAS）</a><a href="https://docs.ragas.io/" target="_blank">RAGAS 官方文档</a><a href="https://github.com/explodinggradients/ragas" target="_blank">RAGAS GitHub</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>作品①企业级完成<span class="tag ta">A</span></strong><ul><li>整合：ES 混合检索 + rerank + 权限 + AI 数据工程 + 评测</li><li>架构图绘制、README 完整化、Streamlit/Gradio 前端</li></ul><div class="res"><strong>资源：</strong><a href="streamlit.io" target="_blank">Streamlit 官网</a><a href="https://gradio.app/" target="_blank">Gradio 官网</a></div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>简历改造 + 投简历准备</strong><ul><li>简历突出：医疗/保险 + 大数据 + AI 数据工程 + Java + RAG 作品</li><li>三个面试故事定稿</li><li>整理目标公司清单</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>★ 投第一批简历（市场验证）+ Java 恢复<span class="tag td">投简历</span></strong><ul><li>定位：市场验证、测试简历定位、获取真实面试问题</li><li>主投：行业匹配的 AI 解决方案岗位、RAG/知识库岗位、医疗保险 AI 应用岗</li><li>Java 恢复：Spring AI Tool Calling</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 第36-44集 Tools</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① 企业级 RAG 系统完整版 <span class="tag ta">A</span> ② 作品①完成 <span class="tag ta">A</span> ③ 简历 + 面试故事 ④ <strong>投第一批简历（市场验证）</strong></div>
+<div class="ms">W4 末里程碑：作品①完成 + 简历投出 + 具备面试 RAG/解决方案架构师岗位的能力</div>
+
+<!-- W5 -->
+<div class="week-h"><div class="wn">5</div><div><div class="wt">Week 5：Agent Loop、ReAct、Context Engine、Tool Runtime、Agent 框架选型 ADR</div><div class="ws">28h · 作品②启动 · Agent Harness 核心</div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>Agent 核心概念<span class="tag ta">A</span></strong><ul><li>Agent vs Workflow vs Agentic Workflow</li><li>Tool Calling 作为执行原语、ReAct 模式</li><li>Plan-and-Execute、Reflection、Self Correction</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1aiADewEBC/" target="_blank">B站 李宏毅 第二讲：一堂课搞懂AI Agent原理</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>Agent Harness 参考能力模型<span class="tag tb">B</span></strong><ul><li>明确表述：参考能力模型，非行业标准</li><li>七大能力域：Loop/Context/Tool Runtime/State/Policy/Workspace/Trace</li><li>不重复开发框架已有能力，重点放企业扩展</li></ul><div class="res"><strong>资源：</strong>OpenAI Agents SDK 文档 + LangGraph 文档</div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>Agent Loop Engine 实战<span class="tag ta">A</span></strong><ul><li>实现 Agent Loop：模型调用→工具调用→结果回填→停止条件</li><li>最大步骤数、最大 Token 数、执行预算、异常处理与重试</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1zKx4zWEZP/" target="_blank">B站 LangGraph构建智能AI应用（含Tool Loop）</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>Context Engine 实战<span class="tag ta">A</span></strong><ul><li>组装 System Prompt + 用户输入 + 会话历史 + RAG 结果 + 工具结果</li><li>上下文超长时裁剪、摘要与压缩、记忆管理</li></ul><div class="res"><strong>资源：</strong><a href="https://python.langchain.com/docs/how_to/chatbots_memory/" target="_blank">LangChain Memory 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>Tool Runtime + Agent 框架选型 ADR<span class="tag ta">A</span><span class="tag tc">C</span></strong><ul><li>工具注册与 Schema 管理、参数校验与鉴权、超时/重试/幂等/沙箱</li><li>Agent 框架选型 ADR：比较 LangGraph/Spring AI/OpenAI Agents SDK</li><li>区分 Agents as Tools vs Handoff</li></ul><div class="res"><strong>资源：</strong><a href="https://docs.langchain.com/oss/python/langgraph/overview" target="_blank">LangGraph 文档</a><a href="https://docs.spring.io/spring-ai/reference/" target="_blank">Spring AI 文档</a><a href="https://openai.github.io/openai-agents-python/" target="_blank">OpenAI Agents SDK 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>作品②启动：特药理赔 Agent 需求设计<span class="tag ta">A</span></strong><ul><li>场景：用户上传理赔材料（医疗单据、处方、保单）</li><li>流程：OCR → 抽取 → 保单匹配 → 规则校验 → 知识库 → 人工审批 → 结论</li><li>用 Agent Harness 参考模型重新设计</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>OpenAI Agents SDK 学习<span class="tag tb">B</span> + Java 恢复</strong><ul><li>Agent/Runner/Tool/Handoff/Guardrail/Session/Trace</li><li>对比 LangChain Agent 抽象</li><li>Java 恢复：Spring AI ChatClient + Advisor</li></ul><div class="res"><strong>资源：</strong><a href="https://www.duoke360.com/post/45952" target="_blank">OpenAI Agents SDK 中文实战教程</a><a href="https://github.com/NanGePlus/OpenAIAgentsSDKTest" target="_blank">OpenAI Agents SDK 示例项目</a><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 第15-25集 ChatClient+Advisor</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① Agent Loop + Context Engine + Tool Runtime 实现 <span class="tag ta">A</span> ② Agent 框架选型 ADR <span class="tag tc">C</span> ③ 作品②需求设计文档 <span class="tag ta">A</span> ④ OpenAI Agents SDK demo <span class="tag tb">B</span></div>
+
+<!-- W6 -->
+<div class="week-h"><div class="wn">6</div><div><div class="wt">Week 6：LangGraph、Checkpoint、HITL、中断恢复</div><div class="ws">28h · 作品②推进 · <span class="tag ta">A</span> 级</div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>LangGraph 核心概念<span class="tag ta">A</span></strong><ul><li>State/Node/Edge/Conditional Edge/Checkpointer/Interrupt/Command/Subgraph</li><li>LangGraph 已有 Durable Execution/Interrupt/HITL/失败恢复</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1zKx4zWEZP/" target="_blank">B站 LangGraph构建智能AI应用（从零开始完整教程）</a><a href="https://langgraph.com.cn/tutorials/get-started/1-build-basic-chatbot/index.html" target="_blank">LangGraph 中文官方教程</a><a href="https://docs.langchain.com/oss/python/langgraph/overview" target="_blank">LangGraph 官方文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>LangGraph 实战①：状态图 + 条件分支<span class="tag ta">A</span></strong><ul><li>定义 State（messages、tool_results、current_step）</li><li>实现 Node：OCR、抽取、校验、检索、生成</li><li>Conditional Edge + Tool Node 集成</li></ul><div class="res"><strong>资源：</strong>参考 Day 1 的 LangGraph 教程</div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>LangGraph 实战②：Checkpoint + 中断恢复<span class="tag ta">A</span></strong><ul><li>PostgreSQL Checkpointer 持久化</li><li>Interrupt（等待人工审批）+ Command（恢复执行）</li><li>长任务断点续跑</li></ul><div class="res"><strong>资源：</strong><a href="https://docs.langchain.com/oss/python/langgraph/interrupts" target="_blank">LangGraph Interrupts 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>LangGraph 实战③：Human in the Loop<span class="tag ta">A</span></strong><ul><li>关键节点插入人工审批</li><li>审批通过/驳回分支、超时降级、人工修改状态</li></ul><div class="res"><strong>资源：</strong>参考 LangGraph 官方 HITL 教程</div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>作品②推进：理赔 Agent 核心流程<span class="tag ta">A</span></strong><ul><li>LangGraph 搭建理赔 Agent 骨架</li><li>集成 W2 工具 + W4 RAG 知识库</li><li>状态图：OCR → 抽取 → 校验 → 检索 → 审批 → 结论</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>作品②推进：人工审批与中断恢复<span class="tag ta">A</span></strong><ul><li>理赔金额 > 5000 触发人工审批</li><li>审批中断 → 状态持久化 → 异步恢复</li><li>Trace 记录全程</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>整合 + Java 恢复<span class="tag ta">A</span></strong><ul><li>作品②核心流程跑通、LangGraph 流程图绘制</li><li>Java 恢复：Spring AI RAG Advisor</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 第57-77集 RAG全套</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① LangGraph 实战 demo（Checkpoint + Interrupt + HITL）<span class="tag ta">A</span> ② 作品②核心流程跑通 <span class="tag ta">A</span> ③ Spring AI RAG Advisor demo <span class="tag tb">B</span></div>
+
+<!-- W7 -->
+<div class="week-h"><div class="wn">7</div><div><div class="wt">Week 7：Agent Harness 企业扩展、Text2SQL、RAG-SQL-API 三路路由</div><div class="ws">28h · Temporal/多Agent/A2A 默认不实现</div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>Agent Harness 企业扩展<span class="tag tb">B</span></strong><ul><li>State 与 Checkpoint Engine、Policy Engine、Artifact 与 Workspace</li><li>重点：工具鉴权、执行预算、Context 裁剪、业务状态映射、错误恢复、审计、评测 Hook</li></ul><div class="res"><strong>资源：</strong>B站搜 "Agent Harness Engineering"（李宏毅系列有转载）</div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>业务状态归属 + 幂等/重试/补偿<span class="tag ta">A</span><span class="tag tc">C</span></strong><ul><li>状态归属：Agent 消息→LangGraph；理赔单→MySQL；跨系统→Temporal（可选）；事件→Kafka</li><li>幂等设计、重试与退避、补偿机制</li><li>状态归属图绘制</li></ul><div class="res"><strong>资源：</strong><a href="https://docs.langchain.com/oss/python/langgraph/interrupts" target="_blank">LangGraph Interrupts（避免与Temporal重复）</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>Text2SQL 最小 Demo<span class="tag tb">B</span>（利用大数据优势）</strong><ul><li>用户问题 → 数据路由 → Schema Linking → 生成只读 SQL → 安全校验 → 执行 → 结果解释</li><li>语义层、SQL 只读控制、表字段权限、语法检查、执行计划超时</li></ul><div class="res"><strong>资源：</strong><a href="https://blog.csdn.net/weixin_51955414/article/details/162274784" target="_blank">NL2SQL 技术原理与实战指南</a><a href="https://github.com/eosphoros-ai/awesome-text2sql" target="_blank">Awesome-Text2SQL 开源项目</a><a href="https://python.langchain.com/docs/tutorials/sql_qa/" target="_blank">LangChain SQL QA 教程</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>RAG-SQL-API 三路数据路由<span class="tag ta">A</span></strong><ul><li>路由判断：什么走 RAG（知识库）、什么走 SQL（结构化数据）、什么走 API（实时数据）</li><li>路由策略设计与实现、三路结果融合</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>作品②业务编排设计 + 多 Agent（压缩）<span class="tag ta">A</span><span class="tag tb">B</span></strong><ul><li>理赔流程跨系统编排设计</li><li>多 Agent 协作（压缩到 8h）：Router、Supervisor</li><li>Agents as Tools vs Handoff 明确区分</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1zKx4zWEZP/" target="_blank">B站 LangGraph（多智能体协作部分）</a></div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>A2A（压缩到2h，只阅读）<span class="tag tc">C</span> + 作品②推进</strong><ul><li>A2A vs MCP 层级差异、Agent Card、Task、Message</li><li>Temporal（可选，Java SDK）</li><li>作品②业务 Workflow 版本推进</li></ul><div class="res"><strong>资源：</strong><a href="https://a2a-protocol.org/" target="_blank">A2A 协议官网</a><a href="https://docs.temporal.io/develop/java" target="_blank">Temporal Java SDK 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>整合 + Java 恢复<span class="tag ta">A</span></strong><ul><li>作品②业务 Workflow 版本跑通、Agent Harness 企业扩展图</li><li>Java 恢复：Spring AI MCP Client</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 第49-56集 MCP</a><a href="https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html" target="_blank">Spring AI MCP 文档</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① Agent Harness 企业扩展 <span class="tag tb">B</span> ② Text2SQL Demo <span class="tag tb">B</span> ③ RAG-SQL-API 三路路由 <span class="tag ta">A</span> ④ 业务状态归属图 <span class="tag ta">A</span> ⑤ 作品②业务 Workflow 版本 <span class="tag ta">A</span></div>
+
+<!-- W8 -->
+<div class="week-h"><div class="wn">8</div><div><div class="wt">Week 8：评测四层、Trace（固定字段+版本）、OpenTelemetry、LLMOps、作品二</div><div class="ws">28h · 作品②完成 · ★ 投第二批</div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>Trace 与可观测性<span class="tag ta">A</span><span class="tag tb">B</span>（固定字段+版本）</strong><ul><li>Trace/Span/Prompt 记录、Agent 执行轨迹（结构化）</li><li>两类 Span：标准基础（HTTP/DB/ES/API）+ 自定义 AI（llm.call/rag.retrieve/agent.step/tool.call/human.approval/eval.case）</li><li>每条 Trace 含 trace_id/user_id_hash/tenant_id/model_provider/model_name/prompt_version 等 15 字段</li></ul><div class="res"><strong>资源：</strong><a href="https://opentelemetry.io/blog/2025/ai-agent-observability/" target="_blank">OpenTelemetry AI Agent 可观测性博客</a><a href="https://opentelemetry.io/" target="_blank">OpenTelemetry 官网</a><a href="https://smith.langchain.com/" target="_blank">LangSmith</a><a href="https://langfuse.com/" target="_blank">Langfuse</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>Token 与成本看板<span class="tag ta">A</span></strong><ul><li>Token 消耗统计（按 Agent/Tool/用户）、成本看板、延迟与错误率监控、告警</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>四层测试体系（RAG 50 + Agent 30 独立）<span class="tag ta">A</span></strong><ul><li>① 工具单元测试：OCR/Rule/DB 各 10-20 个</li><li>② 流程集成测试：状态流转、条件分支、异常重试、人工审批</li><li>③ 模型离线评测：场景识别、字段抽取、检索召回、答案正确率、工具选择</li><li>④ 线上业务指标：定义指标+埋点+计算口径，离线回放或模拟流量验证</li><li>RAG 测试集（50）与 Agent 测试集（30）独立管理</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1aZ421W7DB/" target="_blank">B站 RAG评估资料</a><a href="https://docs.ragas.io/" target="_blank">RAGAS 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>LLMOps 必须实现<span class="tag ta">A</span></strong><ul><li>Prompt 版本号、模型与 Embedding 配置版本、评测集版本</li><li>一键离线回归脚本、Trace、Token 成本统计、错误 Case 保存</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>LLMOps 只做设计<span class="tag tc">C</span></strong><ul><li>灰度发布/A/B 测试/自动回滚/在线漂移监控/发布审批（架构设计+接口定义）</li><li>完整链路文档：需求定义→数据集构建→原型→离线评测→安全测试→灰度→在线监控→错误回流→版本优化</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>作品②完成 + 简历更新 + ★ 投第二批<span class="tag td">投简历</span></strong><ul><li>构造理赔场景测试集（30+ Case）、跑四层测试、Trace 看板、LLMOps 闭环</li><li>README 完整化、简历加入作品②</li><li>主投：AI 应用工程师/AI 解决方案架构师/企业 GenAI 架构师/医疗保险 AI/AI FDE（筛选出差）/AI Deployment Engineer</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>面试复盘 + Java 恢复<span class="tag ta">A</span></strong><ul><li>回顾 W4 投出简历后的面试反馈、整理被问倒的问题</li><li>Java 恢复：Spring AI Observability</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 第78集 指标监控</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① Trace 看板（固定字段+版本）<span class="tag ta">A</span> ② 四层测试体系 <span class="tag ta">A</span> ③ LLMOps 必须实现 <span class="tag ta">A</span> + 只做设计 <span class="tag tc">C</span> ④ 作品②完成 <span class="tag ta">A</span> ⑤ <strong>投第二批简历</strong></div>
+<div class="ms">W8 末里程碑：作品①②完成 + 具备面试 Agent/解决方案架构师岗位的能力</div>
+
+<!-- W9 -->
+<div class="week-h"><div class="wn">9</div><div><div class="wt">Week 9：Agent 安全、红队测试、OWASP（LLM+Agentic）、Agent Memory</div><div class="ws">28h · 高级岗加分 · <span class="tag ta">A</span>+<span class="tag tb">B</span>+<span class="tag tc">C</span></div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>Prompt Injection 防护<span class="tag ta">A</span></strong><ul><li>Direct/Indirect Prompt Injection（来自文档/工具返回）</li><li>防御：输入过滤、输出校验、指令隔离、工具返回隔离</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>供应链与 MCP 安全 + OWASP<span class="tag tc">C</span></strong><ul><li>第三方模型/Embedding/Reranker 供应链风险</li><li>MCP Server 信任管理、Tool Poisoning、工具描述注入</li><li>RAG 数据投毒、模型输出注入下游</li><li>OWASP LLM Top 10 2025 + OWASP Agentic Applications 2026</li></ul><div class="res"><strong>资源：</strong><a href="https://genai.owasp.org/llm-top-10/" target="_blank">OWASP LLM Top 10</a><a href="https://genai.owasp.org/initiatives/agentic-security-initiative/" target="_blank">OWASP Agentic Security Initiative</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>数据越权防护 + Agent Memory 生命周期<span class="tag ta">A</span><span class="tag tb">B</span></strong><ul><li>知识库越权、敏感信息泄露（PII/医疗数据）、脱敏、租户隔离</li><li>Agent Memory：Working/Summary/Episodic/用户级长期记忆、保留时间、删除更正、敏感过滤、Memory Poisoning、租户隔离</li></ul><div class="res"><strong>资源：</strong><a href="https://python.langchain.com/docs/how_to/chatbots_memory/" target="_blank">LangChain Memory 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>工具滥用防护 + 审批与审计<span class="tag ta">A</span></strong><ul><li>任意 SQL/代码执行风险、最小权限、工具白名单、沙箱</li><li>Human Approval、Agent 身份权限、审计日志、合规（HIPAA/数据安全法）</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>执行预算 + 红队测试<span class="tag ta">A</span><span class="tag tb">B</span></strong><ul><li>执行预算（Token/调用次数/时长）、最大步骤数、超限降级</li><li>红队测试：主动攻击自己的 Agent 系统</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>作品①②安全加固<span class="tag ta">A</span></strong><ul><li>保险知识库：权限过滤、脱敏、Memory Poisoning 防护</li><li>理赔 Agent：工具白名单、审批、审计、安全事件日志</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>整合 + Java 恢复<span class="tag ta">A</span></strong><ul><li>安全加固后测试、安全架构图</li><li>Java 恢复：Spring Security</li></ul><div class="res"><strong>资源：</strong>B站搜 "Spring Security 教程"</div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① Agent 安全防护层 <span class="tag ta">A</span>+<span class="tag tc">C</span> ② Agent Memory 生命周期设计 <span class="tag tb">B</span> ③ 作品①②安全加固版 <span class="tag ta">A</span> ④ 安全架构图 <span class="tag ta">A</span></div>
+
+<!-- W10 -->
+<div class="week-h"><div class="wn">10</div><div><div class="wt">Week 10：模型网关平台版、vLLM 服务化实验、性能容量、部署交付</div><div class="ws">28h · 作品③启动 · <span class="tag ta">A</span>+<span class="tag tb">B</span>+<span class="tag tc">C</span></div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>平台化 AI Gateway 自研核心<span class="tag ta">A</span></strong><ul><li>多模型统一接口、Provider 适配、路由策略</li><li>主备模型与降级、Fallback、Token 统计与简单限流、Trace Hook</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>LiteLLM 集成体验<span class="tag tb">B</span> + Build vs Buy ADR<span class="tag tc">C</span></strong><ul><li>使用 LiteLLM 体验：虚拟密钥、预算、项目级成本、多租户、管理界面</li><li>AI Gateway Build vs Buy ADR：自研 vs 集成决策分析</li></ul><div class="res"><strong>资源：</strong><a href="https://docs.litellm.ai/" target="_blank">LiteLLM 官方文档</a><a href="https://github.com/BerriAI/litellm" target="_blank">LiteLLM GitHub</a></div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>vLLM 服务化部署实验<span class="tag tb">B</span>（非生产部署）</strong><ul><li>vLLM 安装、启动 OpenAI Compatible API</li><li>指定模型和量化方式、设置输入/输出分布、并发和速率</li><li>模型量化（AWQ、GPTQ、INT4/INT8）、Continuous Batching、KV Cache</li></ul><div class="res"><strong>资源：</strong><a href="https://docs.vllm.ai/" target="_blank">vLLM 官方文档</a><a href="https://blog.csdn.net/weixin_29363791/article/details/158033304" target="_blank">vLLM 量化部署保姆级教程</a><a href="https://www.cnbugs.com/post-8018.html" target="_blank">vLLM 部署高性能推理服务</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>性能与容量评估<span class="tag tb">B</span></strong><ul><li>关键指标：TTFT、TPOT、ITL、端到端延迟、队列时间、Tokens Per Second</li><li>目标：跑通 vLLM 服务，完成一次条件明确的 Benchmark，输出容量规划和优化建议</li><li>没有 GPU 时：小模型实测 + 32B 公式估算，假设条件全部写清楚</li></ul><div class="res"><strong>资源：</strong><a href="https://docs.vllm.ai/en/stable/benchmarking/cli/" target="_blank">vLLM Benchmark CLI（官方）</a><a href="https://docs.vllm.ai/en/latest/features/per_request_metrics/" target="_blank">vLLM Per-Request Metrics</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>部署交付工程<span class="tag tb">B</span></strong><ul><li>Docker/Docker Compose、环境隔离、Secret 管理</li><li>Health Check、CI/CD、数据库迁移、日志指标 Trace 采集</li><li>API 限流、容器资源限制、K8s 基础、灰度和回滚</li><li>能画出生产部署拓扑，说明每个组件如何扩容和容灾</li></ul><div class="res"><strong>资源：</strong>B站搜 "Docker Compose 教程" / "Kubernetes 入门"</div></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>作品③启动：企业 Agent 平台骨架<span class="tag ta">A</span></strong><ul><li>基于 Spring AI 搭建 Java 后端</li><li>模型网关（W1 轻量版升级为平台版，自研核心 + LiteLLM 集成）</li><li>Tool Registry + MCP Registry（固定版本 2025-11-25）、Prompt 管理、基础 Trace</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 全套</a></div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>架构图与文档 + Java 强化<span class="tag ta">A</span></strong><ul><li>完整 AI 中台架构图、组件职责说明、技术选型决策文档</li><li>与作品①②的集成关系图</li><li>Java 强化：Spring AI 全模块串讲</li></ul><div class="res"><strong>资源：</strong><a href="https://docs.spring.io/spring-ai/reference/" target="_blank">Spring AI 官方文档</a></div></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① 平台化 AI Gateway（自研+LiteLLM）<span class="tag ta">A</span>+<span class="tag tb">B</span> ② Build vs Buy ADR <span class="tag tc">C</span> ③ vLLM 服务化部署 + Benchmark <span class="tag tb">B</span> ④ 容量规划文档 <span class="tag tb">B</span> ⑤ 部署交付工程文档 <span class="tag tb">B</span> ⑥ 作品③骨架 <span class="tag ta">A</span></div>
+
+<!-- W11 -->
+<div class="week-h"><div class="wn">11</div><div><div class="wt">Week 11：Spring AI、企业系统集成、平台最小版本</div><div class="ws">28h · 作品③推进 · Java 重点投入</div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>Java 八股复习<span class="tag ta">A</span></strong><ul><li>Java 集合（HashMap/ConcurrentHashMap）</li><li>Java 并发（线程池、锁、CAS、AQS）</li><li>JVM（内存模型、GC、调优）</li></ul><div class="res"><strong>资源：</strong>B站搜 "Java 面试题" / "JVM 调优"</div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>Spring Boot + 中间件<span class="tag ta">A</span></strong><ul><li>Spring Boot 核心机制</li><li>Redis 缓存与分布式锁、MySQL 索引与优化、Kafka 消息队列</li></ul><div class="res"><strong>资源：</strong>B站搜 "Spring Boot 原理" / "Redis 分布式锁"</div></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>Spring AI 深入<span class="tag ta">A</span></strong><ul><li>ChatClient + Advisor 高级用法、ToolCallback + Structured Output</li><li>Chat Memory（持久化对话）、VectorStore 抽象（接 ES）</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 第15-33集（ChatClient+Advisor+Memory+结构化输出）</a><a href="https://docs.spring.io/spring-ai/reference/" target="_blank">Spring AI 官方文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>Spring AI MCP 集成<span class="tag ta">A</span><span class="tag tb">B</span></strong><ul><li>Spring AI 作为 MCP Client（Streamable HTTP）</li><li>Spring AI 实现 MCP Server、Observability 集成</li><li>把 W2 的 Python MCP Server 接入 Spring AI</li></ul><div class="res"><strong>资源：</strong><a href="https://www.bilibili.com/video/BV1GfyGBqEm6/" target="_blank">B站 Spring AI 第49-56集 MCP全套</a><a href="https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html" target="_blank">Spring AI MCP 文档</a></div></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>作品③核心模块落地<span class="tag ta">A</span></strong><ul><li>模型网关（Spring AI 实现，自研核心 + LiteLLM 集成）</li><li>Tool Registry + MCP Registry、Prompt 管理 + 版本控制</li><li>Trace + Token 成本看板</li><li>简化：Knowledge Base/Evaluation/IAM/Marketplace 先做架构设计和接口定义</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>作品③权限与审计<span class="tag ta">A</span></strong><ul><li>Spring Security 集成、RBAC 权限模型</li><li>审计日志、多租户隔离</li></ul><div class="res"><strong>资源：</strong>B站搜 "Spring Security 教程"</div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>整合 + 面试准备<span class="tag ta">A</span></strong><ul><li>作品③核心模块跑通</li><li>Java 面试题刷题（并发、JVM、Spring）</li><li>Spring AI 面试题整理</li></ul></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① Java 八股复习笔记 + 面试题集 <span class="tag ta">A</span> ② Spring AI 深度实战 demo <span class="tag ta">A</span> ③ 作品③核心模块落地 <span class="tag ta">A</span></div>
+
+<!-- W12 -->
+<div class="week-h"><div class="wn">12</div><div><div class="wt">Week 12：作品打磨、NFR、FDE Pack、系统设计、模拟面试</div><div class="ws">28h · ★ 投第三批</div></div></div>
+
+<div class="day"><div class="dl">Day 1<span class="h">4h</span></div><div class="dc"><strong>作品①最终打磨 + NFR + FDE Pack<span class="tag ta">A</span></strong><ul><li>README 终版、NFR 验收指标表（P95延迟/Recall@K/数据更新时效/权限隔离）</li><li>FDE Solution Delivery Pack（10 页内，10 章节）</li><li>代码清理、演示视频、在线 Demo 部署</li></ul><div class="res"><strong>资源：</strong><a href="https://streamlit.io/" target="_blank">Streamlit</a><a href="https://huggingface.co/spaces" target="_blank">HuggingFace Space 部署</a></div></div></div>
+
+<div class="day"><div class="dl">Day 2<span class="h">4h</span></div><div class="dc"><strong>作品②最终打磨 + NFR + FDE Pack<span class="tag ta">A</span></strong><ul><li>README 终版、NFR 指标表（任务完成率/人工接管率按风险级别/Token成本/工具成功率/最大步骤数/错误恢复）</li><li>FDE Solution Delivery Pack</li><li>演示视频、在线 Demo 部署</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 3<span class="h">4h</span></div><div class="dc"><strong>作品③最终打磨 + NFR + FDE Pack<span class="tag ta">A</span></strong><ul><li>README 终版（AI 中台架构图、模块说明、部署交付拓扑、Build vs Buy ADR）</li><li>NFR 指标表（Mock QPS/真实并发/Agent 吞吐/RTO-RPO 架构设计目标/API 限流/可用性）</li><li>FDE Solution Delivery Pack、架构决策文档、部署文档</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 4<span class="h">4h</span></div><div class="dc"><strong>GitHub 整体整理<span class="tag ta">A</span></strong><ul><li>个人 GitHub 主页优化、Portfolio 仓库</li><li>技术博客发布（1-2 篇深度文章）</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 5<span class="h">4h</span></div><div class="dc"><strong>简历终版 + ★ 投第三批<span class="tag td">投简历</span></strong><ul><li>简历加入三个作品 + NFR 指标 + FDE Pack</li><li>更新面试故事（架构 + Agent Harness + LLMOps + 推理服务 + 部署交付 + NFR）</li><li>投第三批：AI 解决方案架构师、企业 GenAI 架构师、技术负责人</li></ul></div></div>
+
+<div class="day"><div class="dl">Day 6<span class="h">4h</span></div><div class="dc"><strong>模拟面试<span class="tag ta">A</span></strong><ul><li>RAG 方向 10 题模拟（自答 + 复盘）</li><li>Agent 方向 10 题模拟</li><li>系统设计题：设计一个医疗 AI 平台</li><li>Java 八股模拟</li></ul><div class="res"><strong>资源：</strong>参考《FDE面试备战手册.html》中的 20 道模拟题</div></div></div>
+
+<div class="day"><div class="dl">Day 7<span class="h">4h</span></div><div class="dc"><strong>查漏补缺 + 反问准备<span class="tag ta">A</span></strong><ul><li>回顾所有面试反馈，补最后缺口</li><li>准备反问清单（团队、技术栈、数据基础、AI 落地阶段、LLMOps 现状）</li><li>面试当天 checklist</li></ul></div></div>
+
+<div class="deliv"><strong>本周产出：</strong>① 三个作品最终版（GitHub + Demo + 视频 + NFR + FDE Pack）② 简历终版 + 面试故事全集 ③ <strong>投第三批简历</strong> ④ 模拟面试复盘</div>
+<div class="ms">W12 末里程碑：三个作品完成 + 简历三批投完 + 具备面试 AI 解决方案架构师/企业 GenAI 架构师的能力</div>
+
+<div class="ft">
+  FDE 学习路径 v3.3 · 每日任务+资源链接版 · 2026-07-21<br>
+  每周保留四类证据：可运行代码 / 测试评测报告 / ADR / 失败案例及修复
+</div>
+
+</body>
+</html>

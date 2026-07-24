@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE 学习手册总览 (WXDX)</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  #app { display:flex; height:100vh; }
+  #sidebar { width:300px; min-width:300px; background:#1f2933; color:#cbd2d9; height:100%; overflow-y:auto; border-right:1px solid #323f4b; }
+  #sidebar h1 { font-size:15px; padding:14px 16px; margin:0; background:#2b3742; color:#fff; position:sticky; top:0; z-index:2; }
+  #sidebar .home-link { display:block; font-size:12.5px; color:#9fd8e6; text-decoration:none; padding:9px 16px; background:#23303a; border-bottom:1px solid #323f4b; }
+  #sidebar .home-link:hover { color:#fff; background:#2c3b47; }
+  #sidebar .hint { font-size:11.5px; color:#7b8794; padding:8px 16px 12px; background:#2b3742; position:sticky; top:46px; z-index:1; }
+  .week-group { border-bottom:1px solid #323f4b; }
+  .week-title { cursor:pointer; padding:10px 16px; font-size:13px; font-weight:600; background:#27313b; display:flex; justify-content:space-between; align-items:center; user-select:none; }
+  .week-title:hover { background:#2f3b47; }
+  .week-title .arrow { transition:transform .15s; font-size:11px; color:#9aa5b1; }
+  .week-group.collapsed .arrow { transform:rotate(-90deg); }
+  .week-group.collapsed .nav-list { display:none; }
+  .nav-list { list-style:none; margin:0; padding:0; }
+  .nav-list li a { display:block; padding:7px 16px 7px 28px; font-size:12.5px; color:#9aa5b1; text-decoration:none; border-left:3px solid transparent; }
+  .nav-list li a:hover { background:#2f3b47; color:#fff; }
+  .nav-list li a.active { background:#0b7285; color:#fff; border-left-color:#66d9e8; }
+  #content { flex:1; height:100%; background:#fff; }
+  #viewer { width:100%; height:100%; border:none; display:block; }
+  #empty { padding:40px; color:#52606d; font-size:14px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <h1>FDE 学习手册总览</h1>
+    <a class="home-link" href="./学习手册首页.html">← 返回门户首页</a>
+    <div class="hint">共 56 天 · 点击左侧菜单在当前页内联加载</div>
+    <nav id="nav">
+    <div class="week-group" data-week="W1">
+      <div class="week-title" onclick="toggleWeek(this)"><span>Week 1 · 7 天</span><span class="arrow">▾</span></div>
+      <ul class="nav-list">
+        <li><a href="#" data-url="FDE-W1D1-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%A0%B8%E5%BF%83%E5%9F%BA%E7%A1%80-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W1D1-大模型核心基础</a></li>
+        <li><a href="#" data-url="FDE-W1D2-%E9%87%87%E6%A0%B7%E5%8F%82%E6%95%B0%E4%B8%8E%E7%BB%93%E6%9E%84%E5%8C%96%E8%BE%93%E5%87%BA-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W1D2-采样参数与结构化输出</a></li>
+        <li><a href="#" data-url="FDE-W1D3-%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E4%B8%8E%E6%8A%80%E6%9C%AF%E8%BE%B9%E7%95%8C-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W1D3-模型选型与技术边界</a></li>
+        <li><a href="#" data-url="FDE-W1D4-%E5%A4%9A%E6%A8%A1%E5%9E%8B%E7%BB%9F%E4%B8%80%E6%8E%A5%E5%85%A5-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W1D4-多模型统一接入</a></li>
+        <li><a href="#" data-url="FDE-W1D5-Prompt%E5%B7%A5%E7%A8%8B-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W1D5-Prompt工程</a></li>
+        <li><a href="#" data-url="FDE-W1D6-%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B%E4%BD%93%E9%AA%8C-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W1D6-本地模型体验</a></li>
+        <li><a href="#" data-url="FDE-W1D7-%E6%95%B4%E5%90%88%E4%B8%8E%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W1D7-整合与面试准备</a></li>
+      </ul>
+    </div>
+    <div class="week-group" data-week="W2">
+      <div class="week-title" onclick="toggleWeek(this)"><span>Week 2 · 7 天</span><span class="arrow">▾</span></div>
+      <ul class="nav-list">
+        <li><a href="#" data-url="FDE-W2D1-ToolCalling-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W2D1-ToolCalling</a></li>
+        <li><a href="#" data-url="FDE-W2D2-%E5%8C%BB%E7%96%97OCR%E4%B8%8EDocumentAI-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W2D2-医疗OCR与DocumentAI</a></li>
+        <li><a href="#" data-url="FDE-W2D3-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E8%A7%84%E5%88%99Tool-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W2D3-数据库与规则Tool</a></li>
+        <li><a href="#" data-url="FDE-W2D4-MCP%E6%A0%B8%E5%BF%83-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W2D4-MCP核心</a></li>
+        <li><a href="#" data-url="FDE-W2D5-MCP%20Server-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W2D5-MCP Server</a></li>
+        <li><a href="#" data-url="FDE-W2D6-%E5%9F%BA%E7%A1%80RAG-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W2D6-基础RAG</a></li>
+        <li><a href="#" data-url="FDE-W2D7-%E6%95%B4%E5%90%88%E4%B8%8E%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W2D7-整合与面试准备</a></li>
+      </ul>
+    </div>
+    <div class="week-group" data-week="W3">
+      <div class="week-title" onclick="toggleWeek(this)"><span>Week 3 · 7 天</span><span class="arrow">▾</span></div>
+      <ul class="nav-list">
+        <li><a href="#" data-url="FDE-W3D1-AI%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W3D1-AI数据工程</a></li>
+        <li><a href="#" data-url="FDE-W3D2-%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2%E4%B8%8ERerank-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W3D2-混合检索与Rerank</a></li>
+        <li><a href="#" data-url="FDE-W3D3-%E6%9D%83%E9%99%90%E5%92%8C%E6%96%87%E6%A1%A3%E6%B2%BB%E7%90%86-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W3D3-权限和文档治理</a></li>
+        <li><a href="#" data-url="FDE-W3D4-Query%E4%BC%98%E5%8C%96-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W3D4-Query优化</a></li>
+        <li><a href="#" data-url="FDE-W3D5-RAG%E8%AF%84%E6%B5%8B-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W3D5-RAG评测</a></li>
+        <li><a href="#" data-url="FDE-W3D6-%E4%BD%9C%E5%93%81%E4%B8%80%E6%89%93%E7%A3%A8-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W3D6-作品一打磨</a></li>
+        <li><a href="#" data-url="FDE-W3D7-%E7%AC%AC%E4%B8%80%E8%BD%AE%E6%A8%A1%E6%8B%9F%E9%9D%A2%E8%AF%95-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W3D7-第一轮模拟面试</a></li>
+      </ul>
+    </div>
+    <div class="week-group" data-week="W4">
+      <div class="week-title" onclick="toggleWeek(this)"><span>Week 4 · 7 天</span><span class="arrow">▾</span></div>
+      <ul class="nav-list">
+        <li><a href="#" data-url="FDE-W4D1-Agent%E6%A0%B8%E5%BF%83%E4%B8%8ELoop-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W4D1-Agent核心与Loop</a></li>
+        <li><a href="#" data-url="FDE-W4D2-LangGraph-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W4D2-LangGraph</a></li>
+        <li><a href="#" data-url="FDE-W4D3-%E7%89%B9%E8%8D%AF%E7%90%86%E8%B5%94Agent%E4%B8%BB%E6%B5%81%E7%A8%8B-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W4D3-特药理赔Agent主流程</a></li>
+        <li><a href="#" data-url="FDE-W4D4-HITL%E4%B8%8E%E4%B8%AD%E6%96%AD%E6%81%A2%E5%A4%8D-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W4D4-HITL与中断恢复</a></li>
+        <li><a href="#" data-url="FDE-W4D5-Trace%E4%B8%8E%E6%88%90%E6%9C%AC-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W4D5-Trace与成本</a></li>
+        <li><a href="#" data-url="FDE-W4D6-%E4%BD%9C%E5%93%81%E4%BA%8C%E6%A0%B8%E5%BF%83%E7%89%88%E6%89%93%E7%A3%A8-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W4D6-作品二核心版打磨</a></li>
+        <li><a href="#" data-url="FDE-W4D7-%E6%AD%A3%E5%BC%8F%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W4D7-正式面试准备</a></li>
+      </ul>
+    </div>
+    <div class="week-group" data-week="W5">
+      <div class="week-title" onclick="toggleWeek(this)"><span>Week 5 · 7 天</span><span class="arrow">▾</span></div>
+      <ul class="nav-list">
+        <li><a href="#" data-url="FDE-W5D1-Agent-Loop-%E4%BC%81%E4%B8%9A%E6%89%A9%E5%B1%95-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W5D1-Agent-Loop-企业扩展</a></li>
+        <li><a href="#" data-url="FDE-W5D2-%E5%B7%A5%E5%85%B7%E8%BF%90%E8%A1%8C%E6%97%B6%E4%B8%8E%E5%8F%AF%E9%9D%A0%E6%80%A7-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W5D2-工具运行时与可靠性</a></li>
+        <li><a href="#" data-url="FDE-W5D3-%E8%B6%85%E6%97%B6%E9%87%8D%E8%AF%95%E9%80%80%E9%81%BF%E8%A1%A5%E5%81%BF-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W5D3-超时重试退避补偿</a></li>
+        <li><a href="#" data-url="FDE-W5D4-%E4%B8%9A%E5%8A%A1%E7%8A%B6%E6%80%81%E5%BD%92%E5%B1%9E%E4%B8%8E%E5%AE%A1%E8%AE%A1-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W5D4-业务状态归属与审计</a></li>
+        <li><a href="#" data-url="FDE-W5D5-Text2SQL%E6%9C%80%E5%B0%8FDemo-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W5D5-Text2SQL最小Demo</a></li>
+        <li><a href="#" data-url="FDE-W5D6-%E4%B8%89%E8%B7%AF%E6%95%B0%E6%8D%AE%E8%B7%AF%E7%94%B1-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W5D6-三路数据路由</a></li>
+        <li><a href="#" data-url="FDE-W5D7-%E6%95%B4%E5%90%88%E4%B8%8E%E8%BE%B9%E7%95%8C-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W5D7-整合与边界</a></li>
+      </ul>
+    </div>
+    <div class="week-group" data-week="W6">
+      <div class="week-title" onclick="toggleWeek(this)"><span>Week 6 · 7 天</span><span class="arrow">▾</span></div>
+      <ul class="nav-list">
+        <li><a href="#" data-url="FDE-W6D1-Agent%E8%AF%84%E6%B5%8B%E4%BD%93%E7%B3%BB-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W6D1-Agent评测体系</a></li>
+        <li><a href="#" data-url="FDE-W6D2-LLMOps%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W6D2-LLMOps版本管理</a></li>
+        <li><a href="#" data-url="FDE-W6D3-PromptInjection%E4%B8%8EMCP%E5%AE%89%E5%85%A8-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W6D3-PromptInjection与MCP安全</a></li>
+        <li><a href="#" data-url="FDE-W6D4-RAG%E6%8A%95%E6%AF%92%E4%B8%8E%E5%B7%A5%E5%85%B7%E5%AE%89%E5%85%A8-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W6D4-RAG投毒与工具安全</a></li>
+        <li><a href="#" data-url="FDE-W6D5-%E5%AE%89%E5%85%A8%E5%90%88%E8%A7%84%E4%B8%8EOWASP-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W6D5-安全合规与OWASP</a></li>
+        <li><a href="#" data-url="FDE-W6D6-Agent%20Memory%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W6D6-Agent Memory生命周期</a></li>
+        <li><a href="#" data-url="FDE-W6D7-LLMOps%E7%81%B0%E5%BA%A6%E5%9B%9E%E6%BB%9A%E4%B8%8E%E6%95%B4%E5%90%88-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W6D7-LLMOps灰度回滚与整合</a></li>
+      </ul>
+    </div>
+    <div class="week-group" data-week="W7">
+      <div class="week-title" onclick="toggleWeek(this)"><span>Week 7 · 7 天</span><span class="arrow">▾</span></div>
+      <ul class="nav-list">
+        <li><a href="#" data-url="FDE-W7D1-SpringAI%E5%9F%BA%E7%A1%80-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W7D1-SpringAI基础</a></li>
+        <li><a href="#" data-url="FDE-W7D2-SpringAI%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E4%B8%8E%E8%AE%B0%E5%BF%86-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W7D2-SpringAI工具调用与记忆</a></li>
+        <li><a href="#" data-url="FDE-W7D3-SpringAI-MCP%E4%B8%8E%E5%8F%AF%E8%A7%82%E6%B5%8B-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W7D3-SpringAI-MCP与可观测</a></li>
+        <li><a href="#" data-url="FDE-W7D4-AI%E7%BD%91%E5%85%B3%E8%87%AA%E7%A0%94%E6%A0%B8%E5%BF%83-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W7D4-AI网关自研核心</a></li>
+        <li><a href="#" data-url="FDE-W7D5-LiteLLM%E9%9B%86%E6%88%90%E4%B8%8EBuildVsBuyADR-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W7D5-LiteLLM集成与BuildVsBuyADR</a></li>
+        <li><a href="#" data-url="FDE-W7D6-%E5%8D%95%E4%B8%80%E8%B0%83%E7%94%A8%E9%93%BE%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%83%A8%E7%BD%B2%E4%BA%A4%E4%BB%98%E5%9F%BA%E7%A1%80-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W7D6-单一调用链设计与部署交付基础</a></li>
+        <li><a href="#" data-url="FDE-W7D7-K8s%E5%9F%BA%E7%A1%80%E6%8B%93%E6%89%91%E7%81%B0%E5%BA%A6%E5%9B%9E%E6%BB%9A%E4%B8%8E%E4%BC%81%E4%B8%9A%E5%B9%B3%E5%8F%B0%E6%95%B4%E5%90%88-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W7D7-K8s基础拓扑灰度回滚与企业平台整合</a></li>
+      </ul>
+    </div>
+    <div class="week-group" data-week="W8">
+      <div class="week-title" onclick="toggleWeek(this)"><span>Week 8 · 7 天</span><span class="arrow">▾</span></div>
+      <ul class="nav-list">
+        <li><a href="#" data-url="FDE-W8D1-vLLM%E6%9C%8D%E5%8A%A1%E5%8C%96%E5%AE%9E%E9%AA%8C-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W8D1-vLLM服务化实验</a></li>
+        <li><a href="#" data-url="FDE-W8D2-%E5%AE%B9%E9%87%8F%E4%B8%8E%E6%88%90%E6%9C%AC-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W8D2-容量与成本</a></li>
+        <li><a href="#" data-url="FDE-W8D3-SolutionDeliveryPack%E8%AE%BE%E8%AE%A1-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W8D3-SolutionDeliveryPack设计</a></li>
+        <li><a href="#" data-url="FDE-W8D4-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E9%A2%98-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W8D4-系统设计题</a></li>
+        <li><a href="#" data-url="FDE-W8D5-POC%E5%88%B0%E7%94%9F%E4%BA%A7-ROI-%E6%88%90%E6%9C%AC%E5%AE%89%E5%85%A8%E6%B2%BB%E7%90%86-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W8D5-POC到生产-ROI-成本安全治理</a></li>
+        <li><a href="#" data-url="FDE-W8D6-%E6%8A%80%E6%9C%AF%E8%B4%9F%E8%B4%A3%E4%BA%BA%E8%A7%86%E8%A7%92-%E6%A8%A1%E6%8B%9F%E9%9D%A2%E8%AF%95-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W8D6-技术负责人视角-模拟面试</a></li>
+        <li><a href="#" data-url="FDE-W8D7-%E4%BD%9C%E5%93%81%E6%95%B4%E5%90%88-%E9%9B%86%E4%B8%AD%E6%8A%95%E9%80%92-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" onclick="return load(event,this)">W8D7-作品整合-集中投递</a></li>
+      </ul>
+    </div>
+    </nav>
+  </aside>
+  <main id="content">
+    <iframe id="viewer" src="FDE-W1D1-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%A0%B8%E5%BF%83%E5%9F%BA%E7%A1%80-%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C.html" title="手册内容"></iframe>
+  </main>
+</div>
+<script>
+  function load(ev, el) {
+    ev.preventDefault();
+    var url = el.getAttribute('data-url');
+    document.getElementById('viewer').src = url;
+    document.querySelectorAll('.nav-list li a.active').forEach(function(a){ a.classList.remove('active'); });
+    el.classList.add('active');
+    // ensure parent week expanded
+    var wg = el.closest('.week-group');
+    if (wg) wg.classList.remove('collapsed');
+    return false;
+  }
+  function toggleWeek(el) {
+    el.parentElement.classList.toggle('collapsed');
+  }
+  // 默认高亮第一个并展开 W1
+  window.addEventListener('DOMContentLoaded', function() {
+    var first = document.querySelector('.nav-list li a');
+    if (first) first.classList.add('active');
+  });
+</script>
+</body>
+</html>

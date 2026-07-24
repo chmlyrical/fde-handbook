@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W3D3 学习手册 · 权限和文档治理（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W3D3 学习手册</span>
+  <a href="#s1">1.全景</a><a href="#s2">2.ACL模型</a><a href="#s3">3.检索过滤</a><a href="#s4">4.失效删除</a><a href="#s5">5.增量</a>
+  <span class="sep"></span>
+  <a href="#s6">6.死信</a><a href="#s7">7.一致性</a><a href="#s8">8.ES过滤</a><a href="#s9">9.自查询</a><a href="#s10">10.运维</a>
+  <span class="sep"></span>
+  <a href="#s11">11.评测集</a><a href="#s12">达标①</a><a href="#s13">达标②</a><a href="#s14">自测</a><a href="#s15">速记</a>
+</div>
+
+<h1>FDE W3D3 学习手册 · 权限和文档治理（Chunk 级 ACL / 失效删除 / 死信重试）</h1>
+<p class="sub">W3 Day3 · A 级（必须掌握，面试核心）· 5h · 学完能讲透"企业 RAG 的权限闸与文档生命周期：谁能看、旧了怎么退场、错了怎么兜底"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W3D1 讲了数据底座（元数据/血缘），W3D2 讲了检索执行（混合+Rerank），W3D3 落到"治理与安全"——企业 RAG 不只是"能搜到"，更要"搜得对的人、旧的下得去、错的兜得住"。这呼应你做医疗数据治理时最熟悉的"权限 + 一致性 + 重试"三件套。<br>
+  <strong>学完能回答：</strong>① Chunk 级 ACL 怎么实现、检索时怎么过滤；② 文档更新/删除时索引一致性怎么保证、死信和重试怎么设计；③ 评测集怎么扩到 30 个 Cases。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「🔧工程含义」「🎤面试话术」「⚠易错点」→ 做自测清单 → 配合《FDE-W3D3-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 全景 ============ -->
+<h2 id="s1">一、权限与文档治理全景：企业 RAG 的"安全闸"</h2>
+<p>消费级 RAG（如公开文档问答）不用管权限，但企业 RAG 直接关系商业机密与个人隐私：一份《高净值客户特药福利》手册，普通客服不该看到；一个客户的理赔记录，其他客户绝不可检索。文档治理则保证"知识库不是一潭死水"——条款修订、手册下线、解析失败都要有严谨处理，否则检索结果会混入过期/越权内容。</p>
+<div class="info"><strong>治理三大命题：</strong>① 权限（谁该看）→ Chunk 级 ACL；② 生命周期（旧的怎么退场）→ 失效/删除/增量更新；③ 可靠性（错的怎么兜底）→ 重试/死信/一致性校验。三者共同决定企业 RAG 的"可信边界"。</div>
+<div class="eng">工程含义：权限与治理是"合规红线"。医疗行业受《个人信息保护法》、保险监管约束，越权泄露客户健康信息后果严重。这不是"锦上添花"，是上线前置条件。你的数据治理经验在这里直接变现。</div>
+<div class="iv">企业 RAG 和消费级最大的区别就是"治理"——谁能看、旧的怎么下、错的怎么兜。具体三件事：Chunk 级 ACL 控制权限，文档失效/删除/增量更新管生命周期，重试+死信+一致性校验保可靠性。医疗场景里越权泄露客户健康信息是直接违规，所以这是上线前置条件，不是可选项。</div>
+<div class="warn">① "先上线后补权限"是高危做法——一旦越权检索发生就是事故。② 权限不能只做在应用层"展示时遮罩"，必须在<strong>检索层就过滤</strong>，否则被绕过/被向量库直查就泄露。③ 治理和 W3D1 的元数据强绑定：ACL、状态、版本都依赖 chunk 上挂的元数据字段。</div>
+
+<!-- ============ 2. ACL模型 ============ -->
+<h2 id="s2">二、Chunk 级 ACL 数据模型设计</h2>
+<p>权限要到 <strong>Chunk 级</strong>而非 Document 级——一份 PDF 里可能前 10 页公开、后 5 页仅限理赔审核岗。所以 ACL 要挂在每个 chunk 上。</p>
+<h3>2.1 三种常见授权维度</h3>
+<table>
+<tr><th>维度</th><th>示例</th><th>chunk 上字段</th></tr>
+<tr><td>用户（user）</td><td>仅保单持有人本人</td><td>allowed_users: ["u_1001"]</td></tr>
+<tr><td>角色（role）</td><td>理赔审核岗、客服岗</td><td>allowed_roles: ["claims_auditor"]</td></tr>
+<tr><td>部门（dept）</td><td>华东分公司、特药事业部</td><td>allowed_depts: ["special_drug"]</td></tr>
+</table>
+<h3>2.2 chunk 上的 ACL 字段设计</h3>
+<pre><code>{
+  "chunk_id": "c_8f3a...",
+  "content": "高净值客户特药年度额度 50 万...",
+  "acl": {
+    "allowed_roles": ["claims_auditor", "vip_advisor"],
+    "allowed_depts": ["special_drug"],
+    "allowed_users": [],
+    "visibility": "internal"        // public / internal / restricted
+  }
+}</code></pre>
+<h3>2.3 设计要点</h3>
+<ul>
+  <li><strong>继承 + 覆盖</strong>：chunk 默认继承 document 级 ACL，敏感段落可单独收紧（覆盖）。</li>
+  <li><strong>用位或组合</strong>：检索时"用户角色命中 OR 部门命中 OR 显式用户"即放行，避免维度爆炸。</li>
+  <li><strong>默认最小权限</strong>：未标注的 chunk 按"仅内部"处理，防止漏配导致公开泄露。</li>
+</ul>
+<div class="eng">工程含义：ACL 到 chunk 级是"最小授权原则"的落地。Document 级太粗（一份手册里混着公开与机密），用户级太细（每条都配不现实）。角色+部门二维组合 + 默认最小权限，既安全又可控。</div>
+<div class="iv">权限要做到 Chunk 级，因为一份 PDF 里可能前几页公开、后面几页只有理赔审核岗能看。ACL 挂在每个 chunk 上，用"角色+部门+显式用户"三个维度，检索时命中任一即放行（OR 组合）。默认最小权限——没标的 chunk 当内部处理，防止漏配泄露。chunk 默认继承文档级 ACL，敏感段落再单独收紧。</div>
+<div class="warn">① ACL 只做用户级会维度爆炸（每 chunk 列全用户），必须上"角色/部门"抽象。② 默认权限设成"公开"是灾难——漏配就泄露，必须默认最小（internal/restricted）。③ 继承关系要清晰：chunk 覆盖 document 时，更新 document ACL 不会自动同步到已覆盖的 chunk，要约定清楚。④ ACL 字段也要版本化，权限变更要可追溯。</div>
+
+<!-- ============ 3. 检索过滤 ============ -->
+<h2 id="s3">三、检索时的权限过滤（用户 / 角色 / 部门）</h2>
+<p>权限过滤必须发生在<strong>检索阶段（预过滤）</strong>，确保越权 chunk 根本不进候选集。以 ES 为例：</p>
+<pre><code>def build_acl_filter(user):
+    return {
+      "bool": {
+        "should": [
+          {"terms": {"acl.allowed_roles": user.roles}},
+          {"terms": {"acl.allowed_depts": user.depts}},
+          {"terms": {"acl.allowed_users": [user.id]}}
+        ],
+        "must_not": [ {"term": {"acl.visibility": "restricted_external"}} ],
+        "minimum_should_match": 1
+      }
+    }
+
+# 检索：ACL 过滤 与 BM25/向量 召回 在 bool 内 AND
+query = {
+  "bool": {
+    "filter": [ build_acl_filter(current_user) ],     # 权限硬约束
+    "should": [ {"match": {"content": q}},
+                {"knn": {"field":"embedding","query_vector":qv,"k":50}} ]
+  }
+}</code></pre>
+<h3>3.1 关键原则</h3>
+<ul>
+  <li><strong>filter 不是 must</strong>：用 <code>filter</code> 上下文（不评分、可缓存），权限是硬约束不参与相关性打分。</li>
+  <li><strong>最小权限校验在服务端</strong>：不能依赖前端传"用户角色"——要从服务端会话取，防伪造。</li>
+  <li><strong>LLM 也要收到过滤后的上下文</strong>：即便检索过滤了，传给 LLM 的 chunks 必须是已授权的。</li>
+</ul>
+<div class="eng">工程含义：权限过滤是" WHERE 条件 + 安全闸"。用 filter 上下文既能保证不评分不影响召回质量，又能被 ES 缓存提速。服务端取身份是关键——任何"客户端声明角色"的方案都能被绕过。</div>
+<div class="iv">权限过滤必须放检索阶段用预过滤，越权 chunk 根本不进候选。ES 里用 bool.filter 挂 ACL 条件（角色/部门/用户命中其一即放行，minimum_should_match=1），filter 不评分还能被缓存提速。身份必须从服务端会话取，不能信前端传的角色——否则能被伪造绕过。传给 LLM 的也必须是已过滤的 chunks。</div>
+<div class="warn">① 把权限当 must 会影响评分且不被缓存，应用 filter 上下文。② "前端传 role"会被篡改绕过，必须从服务端会话/网关取身份。③ 只过滤检索不够——LLM 拿到的上下文也要是过滤后的，且最终回答不能"顺带引用"越权 chunk。④ 测试要覆盖"越权用户应召回 0 条"的负向 case。</div>
+
+<!-- ============ 4. 失效删除 ============ -->
+<h2 id="s4">四、文档失效、删除与索引失效处理</h2>
+<h3>4.1 三种"下线"语义</h3>
+<table>
+<tr><th>操作</th><th>含义</th><th>索引处理</th></tr>
+<tr><td>失效（deprecate）</td><td>条款过期但保留审计</td><td>chunk.status=deprecated，检索过滤排除</td></tr>
+<tr><td>删除（delete）</td><td>彻底移除</td><td>物理删除向量 + 元数据，记删除日志</td></tr>
+<tr><td>替换（replace）</td><td>新版上线旧版退场</td><td>新 chunk active + 旧 chunk deprecated（原子切换）</td></tr>
+</table>
+<h3>4.2 软失效优于硬删除</h3>
+<p>医疗合规要求"可追溯"，所以优先 <strong>软失效</strong>（status 标记）而非物理删。只有确认无审计价值且合规允许才硬删。</p>
+<div class="formula">
+下线请求 → 校验权限/合规 → 标记 status=deprecated（软）或 物理删除（硬）
+         → 同步更新"文档→chunk"索引映射 → 触发增量重算（如影响召回统计）
+</div>
+<div class="eng">工程含义：失效/删除不是"删库跑路"，是受控的状态迁移。软失效保留审计链、支持回滚；物理删除要留删除日志与备份点。替换要"原子"——新旧切换瞬间完成，避免用户一会儿看到旧版一会儿新版。</div>
+<div class="iv">文档下线分三种：失效（保留审计，标 deprecated）、删除（物理移除+记日志）、替换（新版 active、旧版 deprecated 原子切换）。医疗合规优先软失效，因为要可追溯、可回滚。关键是所有下线都是"受控状态迁移"，不是直接删，而且要同步更新文档到 chunk 的索引映射，避免脏数据。</div>
+<div class="warn">① 直接物理删而不留日志，审计追溯断链，监管质疑时无法自证。② 替换非原子会导致用户短暂看到混合版本，要用"先标新 active 再标旧 deprecated"或版本指针切换。③ 失效后忘了同步更新"文档→chunk"映射，会有孤儿 chunk 仍被索引。④ 删除操作要有二次确认与权限校验，防误删。</div>
+
+<!-- ============ 5. 增量 ============ -->
+<h2 id="s5">五、增量更新与一致性保证</h2>
+<h3>5.1 增量更新流程</h3>
+<p>文档小改（如某页条款数字调整）不必全量重摄取，只更新受影响 chunk：定位变更 chunk → 重新解析该块 → 重算 embedding → 原子替换旧向量。</p>
+<h3>5.2 一致性三要素</h3>
+<div class="formula">
+原文件 ⇄ 解析结果 ⇄ 向量索引  三者必须一致
+改其一 → 要么级联更新另两者，要么标记不一致待修复
+</div>
+<ul>
+  <li><strong>版本一致</strong>：chunk 的 doc_version/embedding_version 与实际内容匹配。</li>
+  <li><strong>计数一致</strong>：document 的 chunk 数 = 索引中该 doc 的 active chunk 数。</li>
+  <li><strong>引用一致</strong>：chunk 的 source/page 指向真实存在的内容。</li>
+</ul>
+<div class="eng">工程含义：增量更新省成本（不必全量重算），但引入"部分更新导致不一致"的风险。必须有"变更→级联更新→一致性校验"的闭环，否则索引慢慢腐化（W3D1 说的"数据腐烂"）。</div>
+<div class="iv">小改不必全量重摄取，只更新受影响的 chunk：定位变更块→重解析→重算向量→原子替换。但增量更新要保证"原文件、解析结果、向量索引"三者一致——改一个要级联改另外两个，否则索引会慢慢腐烂。还要校验版本一致、计数一致（文档 chunk 数 = 索引里 active 数）、引用一致。</div>
+<div class="warn">① 增量只更新了向量却忘了更新 chunk 的 doc_version，导致版本漂移（呼应 W3D1）。② 部分更新中途失败会留"半成品"chunk，要有事务/补偿。③ 计数不一致若不校验，检索可能命中已失效 chunk。④ 增量与全量并存时要防冲突（同一 doc 同时跑两种任务）。</div>
+
+<!-- ============ 6. 死信 ============ -->
+<h2 id="s6">六、失败重试与死信队列（DLQ）</h2>
+<h3>6.1 重试策略</h3>
+<table>
+<tr><th>策略</th><th>做法</th><th>适用</th></tr>
+<tr><td>立即重试</td><td>失败马上重试 1~2 次（短退避）</td><td>瞬时故障（网络抖动、限流）</td></tr>
+<tr><td>指数退避</td><td>等待 2^n 秒后重试</td><td>依赖服务繁忙</td></tr>
+<tr><td>死信队列</td><td>超过最大重试进 DLQ 待人工/定时处理</td><td>持久失败（格式错、权限错）</td></tr>
+</table>
+<h3>6.2 死信队列设计</h3>
+<pre><code>def handle_ingest(task):
+    for attempt in range(MAX_RETRY := 5):
+        try:
+            run_pipeline(task); return mark_success(task)
+        except TransientError:
+            sleep(backoff(attempt)); continue
+        except PermanentError as e:
+            send_to_dlq(task, reason=str(e)); return   # 不无限重试
+    send_to_dlq(task, reason="exceeded retries")</code></pre>
+<div class="info">死信记录至少含：task_id、失败阶段、错误类型、原始输入引用、重试次数、首次/最后失败时间、payload 快照。便于排查与重放。</div>
+<div class="eng">工程含义：重试不能无限——持久错误（如解析器崩、格式不支持）重试 N 次也失败，占着 worker 还产生错误结果。死信队列把"处理不了的"隔离出来，告警+人工介入，保证主流程不被脏任务拖死。这正是你 ETL 里"失败任务进异常表"的翻版。</div>
+<div class="iv">摄取失败要分瞬时和持久：瞬时故障（网络抖、限流）用指数退避立即重试；持久错误（格式不支持、权限错）重试也没用，超过最大次数就进死信队列（DLQ）隔离，告警+人工处理。死信记录要带 task_id、失败阶段、错误类型、重试次数、payload 快照，方便重放。这和你 ETL 里"失败任务进异常表"一模一样。</div>
+<div class="warn">① 无限重试持久错误会拖垮整个摄取管道（worker 被占满）。② 死信不能"进了就忘"——要有监控告警和定期重放机制，否则失败任务堆积成知识库缺口。③ 退避要加 jitter，避免大量任务同时重试造成"重试风暴"。④ DLQ 也要有容量上限与老化策略。</div>
+
+<!-- ============ 7. 一致性 ============ -->
+<h2 id="s7">七、原文件 / 解析结果 / 索引一致性校验</h2>
+<p>三份数据（原始文件、解析后的结构化文本、向量索引）可能因中途失败而漂移，需要定期/事件触发校验。</p>
+<table>
+<tr><th>校验项</th><th>方法</th><th>不一致时</th></tr>
+<tr><td>文件↔解析</td><td>重算 file_hash 比对，抽样全文比对</td><td>重新解析该 doc</td></tr>
+<tr><td>解析↔索引</td><td>每个 chunk 应有对应向量；向量数=active chunk 数</td><td>补算缺失向量</td></tr>
+<tr><td>索引↔元数据</td><td>chunk 的 status/version 与实际一致</td><td>修正状态/版本</td></tr>
+<tr><td>文档↔chunk 映射</td><td>doc.chunk_count = 索引中该 doc 的 chunk 数</td><td>清理孤儿/补建</td></tr>
+</table>
+<pre><code>def consistency_check(doc_id):
+    src_hash = sha256(load_raw(doc_id))
+    parsed  = load_parsed(doc_id)
+    chunks  = es.count(filter={"document_id": doc_id, "status":"active"})
+    vectors = vector_store.count(document_id=doc_id)
+    assert parsed.file_hash == src_hash, "解析与源不一致"
+    assert chunks == vectors, "chunk 数与向量数不一致"
+    # 不一致 → 入修复队列</code></pre>
+<div class="eng">工程含义：一致性校验是"数据可信的守门员"。它把 W3D1 的元数据（hash/version/status）真正用起来——定期扫一遍，发现"有 chunk 没向量""有向量版本旧了"就自动进修复队列。没有它，索引腐化是静默的。</div>
+<div class="iv">原文件、解析结果、向量索引三份数据会因中途失败漂移，要定期校验：文件↔解析用 hash 比对，解析↔索引看 chunk 数和向量数是否相等，索引↔元数据看 status/version 是否一致，文档↔chunk 映射看计数对不对。不一致就自动进修复队列重算。这把 W3D1 设计的 hash/version/status 真正用起来了，防止索引静默腐化。</div>
+<div class="warn">① 一致性校验要"可修复"而不只是"报警"——发现缺失向量要能自动补算，否则只是知道坏了修不了。② 全量校验成本高，要增量（只查变更 doc）+ 定时全量兜底。③ 校验本身也可能失败/超时，要设超时与重试，别让校验任务卡死。④ 修复过程要保证幂等，重复跑不产生脏数据。</div>
+
+<!-- ============ 8. ES过滤 ============ -->
+<h2 id="s8">八、ES Metadata Filter 实现 ACL 过滤</h2>
+<p>Elasticsearch 的 <code>terms</code> 查询是 ACL 过滤的利器——用服务端用户身份构造过滤条件。</p>
+<pre><code># 服务端取身份（不从前端信任）
+user_roles = get_roles_from_session(request)     # ["claims_auditor"]
+user_depts = get_depts_from_session(request)     # ["special_drug"]
+user_id    = get_user_id(request)                # "u_1001"
+
+acl_filter = {
+  "bool": {
+    "should": [
+      {"terms": {"acl.allowed_roles": user_roles}},
+      {"terms": {"acl.allowed_depts": user_depts}},
+      {"terms": {"acl.allowed_users": [user_id]}}
+    ],
+    "minimum_should_match": 1
+  }
+}
+# 与召回 AND：{ "bool": { "filter": [acl_filter], "should": [bm25, knn] } }</code></pre>
+<div class="info">官方文档：<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html">Elasticsearch Terms Query（ACL 过滤核心）</a>。多值字段用 <code>terms</code> 做"命中集合任一即匹配"，正是角色/部门授权的语义。</div>
+<div class="eng">工程含义：ES terms 查询天生匹配"集合相交"，角色/部门授权直接用。配合 W3D2 的 bool+knn 混合检索，ACL 作为 filter 上下文零评分、可缓存。关键是身份从会话取，条件在服务端构造——这是权限不外泄的底线。</div>
+<div class="iv">ES 的 terms 查询天生做"集合相交"——用户角色集合和 chunk 的 allowed_roles 集合任一相交即放行，正好是角色/部门授权的语义。ACL 作为 bool.filter 挂上，和 BM25+向量召回 AND，filter 不评分还能缓存。身份必须从服务端会话取，过滤条件在服务端构造，绝不能信前端。</div>
+<div class="warn">① terms 查询要求字段是 keyword 类型，ACL 字段若设为 text 会被分词失效。② 空用户集合（如 roles=[]）配合 minimum_should_match=1 会"全不匹配"——要处理"公开 chunk"用 visibility=public 单独放行。③ 过滤条件拼接要用参数化，防注入（尤其用户 id 进查询）。④ 别把 ACL 逻辑只写在应用层 if 判断，检索层必须过滤。</div>
+
+<!-- ============ 9. 自查询 ============ -->
+<h2 id="s9">九、LangChain 自查询检索器（Self-Query Retriever）</h2>
+<p>自查询检索器让 LLM 从自然语言问题里<strong>自动抽取结构化过滤条件</strong>（metadata filter），把"用户口语"转成"ES 过滤+语义查询"。</p>
+<pre><code>from langchain.retrievers import SelfQueryRetriever
+from langchain.retrievers.self_query.base import AttributeInfo
+
+metadata_field_info = [
+    AttributeInfo(name="acl.allowed_roles", description="可访问角色", type="list[string]"),
+    AttributeInfo(name="doc_version", description="文档版本", type="string"),
+    AttributeInfo(name="section", description="章节", type="string"),
+]
+retriever = SelfQueryRetriever.from_llm(
+    llm, vectorstore, "保险知识库", metadata_field_info,
+    search_kwargs={"k": 8}
+)
+# 用户问"理赔审核岗能看的靶向药报销范围" → LLM 生成 filter: allowed_roles contains claims_auditor
+docs = retriever.get_relevant_documents("理赔审核岗能看的靶向药报销范围")</code></pre>
+<div class="info">官方文档：<a href="https://python.langchain.com/docs/how_to/self_query/">LangChain Self-Query Retriever</a> —— 用 LLM 把自然语言转成结构化 filter + 检索。</div>
+<div class="eng">工程含义：自查询把"用户描述的权限/范围"自动转成 metadata 过滤，减少手写规则。但它生成的 filter 必须再和<strong>服务端真实 ACL 做交集</strong>——不能让 LLM 决定"用户能看到什么"（否则被 prompt 注入绕过权限）。自查询是"用户意图"的便利层，最终权限仍以服务端 ACL 为准。</div>
+<div class="iv">LangChain 自查询检索器用 LLM 从自然语言里抽结构化过滤条件，比如用户问"理赔审核岗能看的靶向药范围"，它自动生成 allowed_roles contains claims_auditor 的 filter。很方便，但生成的 filter 必须再和服务端真实 ACL 取交集——绝不能让 LLM 决定用户能看到什么，否则被 prompt 注入就能越权。自查询只是"意图便利层"，权限底线还是服务端 ACL。</div>
+<div class="warn">① 自查询生成的 filter 不能代替权限校验，必须和服务端 ACL 取交集，防 prompt 注入越权。② LLM 抽 filter 可能抽错字段/值，要有字段白名单校验，非法字段直接拒绝。③ 自查询增加一次 LLM 调用延迟，高频场景要缓存或降级为规则。④ metadata_field_info 描述要准，否则 LLM 抽错。</div>
+
+<!-- ============ 10. 运维 ============ -->
+<h2 id="s10">十、文档治理的运维与监控</h2>
+<table>
+<tr><th>监控项</th><th>含义</th><th>告警</th></tr>
+<tr><td>ACL 命中率</td><td>检索中被权限过滤掉的比例</td><td>异常高/低都查</td></tr>
+<tr><td>越权访问尝试</td><td>用户请求了无权限 doc</td><td>立即告警（安全）</td></tr>
+<tr><td>孤儿 chunk</td><td>索引里有但文档已删/失效</td><td>&gt;0 即修复</td></tr>
+<tr><td>死信堆积</td><td>DLQ 任务数</td><td>&gt;0 即处理</td></tr>
+<tr><td>软失效占比</td><td>deprecated chunk 比例</td><td>过高说明清理滞后</td></tr>
+</table>
+<div class="eng">工程含义：治理不是"配一次就完"，要持续可观测。越权访问尝试是安全事件级告警；孤儿 chunk 和死信堆积是数据腐烂信号。医疗场景建议定期出"权限审计报告"给合规团队。</div>
+<div class="iv">治理要持续可观测：监控 ACL 命中率、越权访问尝试（安全事件级告警）、孤儿 chunk（索引里有但文档已删）、死信堆积、软失效占比。越权访问要立即告警，孤儿 chunk 和死信大于 0 就修。医疗建议定期出权限审计报告给合规团队——这就是数据治理的常态动作。</div>
+<div class="warn">① 越权访问只记日志不告警，等于没防。② 孤儿 chunk 不清理会持续污染检索，要自动修复任务。③ 软失效 chunk 长期不物理清理会拖慢索引、占存储。④ 审计报告要能回答"某用户此刻能看到哪些文档"，这是合规的硬要求。</div>
+
+<!-- ============ 11. 评测集 ============ -->
+<h2 id="s11">十一、评测集扩展到 30 Cases 的策略</h2>
+<p>W3D1 你有 10 个 Golden Case，W3D3 治理主题要把评测集扩到 30，重点是<strong>补权限与治理类 case</strong>。</p>
+<div class="formula">
+10 个（基础问答） → +10 权限/ACL case → +10 失效/删除/一致性/重试 case → 共 30
+</div>
+<table>
+<tr><th>新增类别</th><th>示例</th><th>测什么</th></tr>
+<tr><td>越权负向</td><td>普通客服检索"高净值特药额度"应召回 0</td><td>ACL 过滤生效</td></tr>
+<tr><td>权限正向</td><td>理赔审核岗检索同内容应命中</td><td>角色授权正确</td></tr>
+<tr><td>失效一致性</td><td>手册失效后旧条款不应再被召回</td><td>status 过滤</td></tr>
+<tr><td>死信降级</td><td>解析失败的手册不应污染检索</td><td>失败隔离</td></tr>
+</table>
+<div class="eng">工程含义：评测集要随功能长。治理功能（权限/失效/重试）不上评测，就等于"没人验证的安全闸"。每加一个治理能力就补对应 case，且权限类必须以"负向 case（应召回 0）"验证——只测正向会漏掉越权漏洞。</div>
+<div class="iv">W3D1 的 10 个基础 case，到 W3D3 扩到 30：加 10 个权限/ACL case（越权应召回 0、授权应命中），加 10 个失效/删除/一致性/重试 case（手册失效后旧条款不应召回、解析失败不污染检索）。关键是权限类必须包含"负向 case"——只测正向会漏掉越权漏洞，那才是最危险的。</div>
+<div class="warn">① 评测集只加正向 case 不设越权负向 case，等于没测权限。② 失效/删除 case 要验证"旧版本确实不再被召回"，否则软失效没生效也发现不了。③ 死信 case 要确认失败任务不污染检索结果。④ 评测集版本要同步更新（eval_v2），前后对比才有意义（呼应 W3D1）。</div>
+
+<!-- ============ 12. 达标线① ============ -->
+<h2 id="s12">十二、面试达标线①：Chunk 级 ACL 实现与检索过滤</h2>
+<table>
+<tr><th>问题</th><th>答案要点</th></tr>
+<tr><td>ACL 挂哪</td><td>挂每个 chunk（非 document 级），角色+部门+用户三维，默认最小权限</td></tr>
+<tr><td>检索时怎么过滤</td><td>bool.filter 上下文 + terms 查询，命中任一即放行；身份从服务端会话取</td></tr>
+<tr><td>为什么检索层过滤</td><td>应用层遮罩可被绕过/直查向量库泄露；过滤在检索阶段彻底隔离</td></tr>
+<tr><td>自查询注意</td><td>LLM 生成的 filter 须与服务端 ACL 取交集，防注入越权</td></tr>
+</table>
+<div class="iv">核心一句话：ACL 挂到 chunk 级（角色+部门+用户三维、默认最小权限），检索时用 ES bool.filter + terms 查询在服务端做预过滤，身份从会话取不信任前端；自查询检索器生成的 filter 必须再和真实 ACL 取交集。权限过滤必须在检索层，不能只做展示遮罩——否则被直查向量库就泄露。</div>
+
+<!-- ============ 13. 达标线② ============ -->
+<h2 id="s13">十三、面试达标线②：更新/删除一致性与死信重试设计</h2>
+<div class="formula">
+更新/删除：软失效(status=deprecated)优先 → 同步文档→chunk 映射 → 替换要原子
+一致性：原文件⇄解析⇄向量 三份一致，定期校验+自动修复队列
+重试：瞬时故障指数退避，持久错误进 DLQ（带 task_id/阶段/错误/重试次数），告警+重放
+</div>
+<ol>
+  <li><strong>文档下线三语义</strong>：失效（保留审计）/删除（物理+日志）/替换（原子切换新旧）。</li>
+  <li><strong>一致性三要素</strong>：版本一致、计数一致（doc chunk 数=索引 active 数）、引用一致。</li>
+  <li><strong>增量更新</strong>：只更新受影响 chunk，级联更新另两份数据，防索引腐化。</li>
+  <li><strong>死信重试</strong>：区分瞬时/持久错误，持久错误超重试进 DLQ 并告警重放，主流程不被拖死。</li>
+</ol>
+
+<!-- ============ 14. 自测清单 ============ -->
+<h2 id="s14">十四、W3D3 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清企业 RAG 为什么必须做权限与文档治理（合规红线）。</li>
+<li>能设计 Chunk 级 ACL 数据模型（角色/部门/用户三维 + 默认最小权限 + 继承覆盖）。</li>
+<li>能写出检索时 ACL 过滤的 ES 查询（bool.filter + terms + minimum_should_match）。</li>
+<li>能说明为什么权限过滤必须在检索层而非应用层遮罩，身份为何从服务端取。</li>
+<li>能区分文档失效/删除/替换三语义，说清软失效优先与原子替换。</li>
+<li>能解释增量更新流程与"原文件⇄解析⇄向量"三者一致性要素。</li>
+<li>能设计失败重试策略（立即重试/指数退避/死信队列）并说明为何不死重试。</li>
+<li>能列出死信记录应包含的信息与重放机制。</li>
+<li>能说出一致性校验的四项（文件↔解析/解析↔索引/索引↔元数据/文档↔chunk 映射）。</li>
+<li>能写出 ES terms 查询实现 ACL 过滤，并点出字段须 keyword、空集合处理。</li>
+<li>能讲清 LangChain 自查询检索器原理及"生成的 filter 须与真实 ACL 取交集"。</li>
+<li>能讲清评测集扩到 30 的策略（补权限负向/失效/死信 case）与达标线①②。</li>
+</ul>
+</div>
+
+<!-- ============ 15. 速记卡 ============ -->
+<h2 id="s15">十五、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：权限为什么要做到 Chunk 级而不是 Document 级？</div><div class="a">一份 PDF 里常混着公开与机密段落，Document 级太粗会过度暴露或过度限制。Chunk 级遵循最小授权，角色+部门+用户三维组合。</div></div>
+<div class="qcard"><div class="q">Q：权限过滤放检索层还是应用层？</div><div class="a">必须检索层（预过滤），越权 chunk 根本不进候选。应用层遮罩可被直查向量库绕过，是泄露隐患。</div></div>
+<div class="qcard"><div class="q">Q：用户身份能不能从前端传？</div><div class="a">不能。必须从服务端会话/网关取，否则角色可被伪造，ACL 形同虚设。</div></div>
+<div class="qcard"><div class="q">Q：文档下线用软失效还是硬删除？</div><div class="a">医疗合规优先软失效（status=deprecated，保留审计、可回滚）；仅确认无审计价值才硬删并留日志。</div></div>
+<div class="qcard"><div class="q">Q：为什么检索结果会混入旧版本条款？</div><div class="a">替换非原子或失效后没同步文档→chunk 映射，导致 deprecated chunk 仍被召回。要原子切换+一致性校验。</div></div>
+<div class="qcard"><div class="q">Q：死信队列解决什么问题？</div><div class="a">持久错误重试也没用，无限重试会拖垮管道。DLQ 隔离失败任务+告警+重放，主流程不被脏任务卡死。</div></div>
+<div class="qcard"><div class="q">Q：原文件、解析、向量三者怎么保证一致？</div><div class="a">定期/事件校验：hash 比文件↔解析、chunk 数=向量数、status/version 一致、文档↔chunk 计数一致，不一致进修复队列。</div></div>
+<div class="qcard"><div class="q">Q：LangChain 自查询检索器能决定权限吗？</div><div class="a">不能。它只把自然语言转成 filter 意图，生成的 filter 必须和服务端真实 ACL 取交集，防 prompt 注入越权。</div></div>
+<div class="qcard"><div class="q">Q：ES terms 查询在 ACL 里干嘛用？</div><div class="a">做"集合相交"——用户角色/部门集合与 chunk 的 allowed 集合任一相交即放行，正是授权语义；字段须 keyword 类型。</div></div>
+<div class="qcard"><div class="q">Q：评测集扩到 30 为什么要补负向 case？</div><div class="a">权限类必须含"越权应召回 0"的负向 case，只测正向会漏掉越权漏洞——那是最危险的。</div></div>
+
+<div class="ft">FDE W3D3 学习手册 · 权限和文档治理（面试级）· 配合《FDE-W3D3-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w3d3_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W3D3 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W3D3-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

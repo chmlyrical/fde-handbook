@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W8D1 学习手册 · vLLM 服务化部署与压测（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W8D1 学习手册</span>
+  <a href="#s1">1.核心架构</a><a href="#s2">2.启动API</a><a href="#s3">3.非OpenAI模型</a><a href="#s4">4.量化</a>
+  <span class="sep"></span>
+  <a href="#s5">5.长度</a><a href="#s6">6.并发速率</a><a href="#s7">7.指标</a><a href="#s8">8.Benchmark</a>
+  <span class="sep"></span>
+  <a href="#s9">9.无GPU实测</a><a href="#s10">10.32B估算</a><a href="#s11">11.诚实报告</a><a href="#s12">12.资源</a>
+  <span class="sep"></span>
+  <a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W8D1 学习手册 · vLLM 服务化部署与压测</h1>
+<p class="sub">W8 Day1 · B 级（工程核心）· 5h · 学完能独立部署一个兼容 OpenAI 的推理服务并给出可信的性能结论（无 GPU 也能诚实估算）</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>从"会用 API"跨到"能自己把模型跑成一个服务"。候选人有 Java + 大数据 + 医疗保险背景，冲刺高级/架构/负责人岗——面试官极看重"你能不能把一个开源模型落到生产、并且用数据说话"。本日聚焦 vLLM（非 OpenAI 生态里的主流推理引擎）。<br>
+  <strong>学完能回答：</strong>① vLLM 部署全流程与关键参数（量化/并发/长度）；② TTFT/TPOT/ITL 各衡量什么、无 GPU 怎么诚实估算 32B 模型性能。<br>
+  <strong>使用方法：</strong>先理解 PagedAttention 原理 → 逐参数看（量化/长度/并发）→ 重点背指标定义与面试话术 → 做自测清单 → 配合《FDE-W8D1-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。<strong>无 GPU 读者务必落实 s9/s10 的"小模型实测 + 公式估算"动作，不伪造数据。</strong>
+</div>
+
+<!-- ============ 1. 核心架构 ============ -->
+<h2 id="s1">一、vLLM 核心架构与 PagedAttention</h2>
+<h3>1.1 为什么需要 vLLM</h3>
+<p>大模型自回归生成时，要把历史 token 的 KV Cache 常驻显存。传统方案为每个请求<strong>预分配连续显存</strong>（按 max_length 一次性占满），导致严重碎片化和浪费（实际生成常常远短于 max）。vLLM 的 <strong>PagedAttention</strong> 借鉴操作系统<strong>虚拟内存分页</strong>思想，把 KV Cache 切成固定块（block），按需分配、可非连续拼接，显存利用率从 ~30% 提升到 ~90%+。</p>
+<h3>1.2 关键组件</h3>
+<table>
+<tr><th>组件</th><th>作用</th></tr>
+<tr><td>Scheduler（调度器）</td><td>决定哪些请求进批次、分配多少 KV block、何时抢占/换出</td></tr>
+<tr><td>KVCacheManager</td><td>分页管理 KV 块，处理 block 复用（相同前缀的 prompt 可共享 block）</td></tr>
+<tr><td>Worker / Model Runner</td><td>真正跑 GPU 前向计算，支持 Tensor Parallel（多卡并行）</td></tr>
+<tr><td>Tokenizer / API Server</td><td>提供兼容 OpenAI 的 /v1/chat/completions 等接口</td></tr>
+</table>
+<div class="formula">显存占用 ≈ 模型权重 + (并发请求数 × 已生成 token 数 × 每层 KV 维度 × 2 × 字节数) ÷ 分页利用率</div>
+<div class="eng">分页 KV 带来的直接工程价值：同样一张卡能扛的并发数翻倍。对"医疗保险理赔 Agent"这类有峰值并发的场景，vLLM 能显著压低单请求成本。架构师要会算"一张卡能并发多少"，而不是拍脑袋。</div>
+<div class="iv">vLLM 的核心是 PagedAttention——把 KV Cache 像操作系统虚拟内存一样分页，按需分配、可非连续，显存利用率从约 30% 提到 90%+，同样的卡能扛更多并发。这是它比裸 HuggingFace 推理快又省的根本原因。</div>
+<div class="warn">① 不要说"vLLM 只是快一点"，它的本质是<strong>显存利用率革命</strong>，直接决定单卡并发上限。② PagedAttention 解决的是<strong>显存碎片</strong>，不是算力问题；模型本身 FLOPs 不变。③ 分页会带来极小调度开销，但在高并发下收益远大于代价。</div>
+
+<!-- ============ 2. 启动 API ============ -->
+<h2 id="s2">二、启动兼容 OpenAI 的 API 服务</h2>
+<h3>2.1 一条命令起服务</h3>
+<pre><code># 安装
+pip install vllm
+# 启动（以 Qwen2.5-7B 为例，非 OpenAI 模型）
+python -m vllm.entrypoints.openai.api_server \
+  --model Qwen/Qwen2.5-7B-Instruct \
+  --host 0.0.0.0 --port 8000 \
+  --tensor-parallel-size 1 \
+  --max-model-len 8192 \
+  --gpu-memory-utilization 0.9</code></pre>
+<h3>2.2 接口与 OpenAI 兼容</h3>
+<p>启动后服务暴露与 OpenAI 完全兼容的端点，客户端可无缝替换 base_url：</p>
+<table>
+<tr><th>端点</th><th>用途</th><th>对应 OpenAI</th></tr>
+<tr><td>/v1/chat/completions</td><td>对话补全</td><td>相同</td></tr>
+<tr><td>/v1/completions</td><td>续写</td><td>相同</td></tr>
+<tr><td>/v1/models</td><td>列出已加载模型</td><td>相同</td></tr>
+<tr><td>/v1/embeddings</td><td>向量化（部分版本）</td><td>相同</td></tr>
+</table>
+<pre><code>from openai import OpenAI
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="EMPTY")
+resp = client.chat.completions.create(
+    model="Qwen/Qwen2.5-7B-Instruct",
+    messages=[{"role":"user","content":"特药理赔的免赔额一般怎么算？"}],
+    temperature=0.1, max_tokens=512)
+print(resp.choices[0].message.content)</code></pre>
+<div class="eng">"兼容 OpenAI"的工程含义 = 你现有的 LangChain / RAG 代码把 api_base 指过来就能跑，零改业务代码。对架构/负责人岗，这意味私有部署能平滑替换 SaaS API，且数据不出域（合规卖点）。</div>
+<div class="iv">vLLM 起的 API 和 OpenAI 的端点、参数完全兼容，把客户端的 base_url 指到本地即可，业务代码零改动。私有部署的最大价值是：数据不出公司、成本可控、可定制量化。</div>
+<div class="warn">① <code>api_key="EMPTY"</code> 不是笔误，vLLM 默认不鉴权（生产必须前面套一层网关/鉴权）。② 端口冲突、模型名写错是最常见的启动失败原因，先看日志再看代码。③ 兼容 ≠ 功能对等（如流式、function call 支持程度随版本变化），要实测。</div>
+
+<!-- ============ 3. 非 OpenAI 模型 ============ -->
+<h2 id="s3">三、加载非 OpenAI 模型（Qwen / DeepSeek）</h2>
+<h3>3.1 模型来源</h3>
+<ul>
+  <li><strong>HuggingFace Hub</strong>：<code>--model Qwen/Qwen2.5-7B-Instruct</code>、<code>deepseek-ai/DeepSeek-V2-Lite</code>。</li>
+  <li><strong>本地路径</strong>：<code>--model /data/models/Qwen2.5-7B</code>（离线/内网环境必备）。</li>
+  <li><strong>Ollama 拉取后转权重</strong>：Ollama 的 Qwen3 适合本地 Mac 小模型验证，再上 vLLM 跑生产。</li>
+</ul>
+<h3>3.2 量化与权重格式</h3>
+<p>vLLM 支持 AWQ / GPTQ / FP8 / bitsandbytes 等多种量化格式，<strong>量化方式要在加载时声明</strong>：</p>
+<pre><code>python -m vllm.entrypoints.openai.api_server \
+  --model Qwen/Qwen2.5-7B-Instruct \
+  --quantization awq            # 或 gptq / fp8 / bitsandbytes
+  --dtype half                  # 权重计算精度 fp16/bf16</code></pre>
+<div class="info">无 GPU 的候选人：可用 Ollama 在 Mac 本地跑 <code>ollama run qwen3:8b</code> 验证对话效果与结构化输出能力，再在云端 vLLM 跑同模型的量化版本做性能对比。参见 <a href="https://ollama.com/library/qwen3" target="_blank" rel="noopener">Ollama Qwen3 官方库</a>。</div>
+<div class="eng">"非 OpenAI 模型"在面试里是加分项——它说明你不绑定厂商、能做私有化。医疗/保险客户往往数据敏感，必须用国产或开源模型（Qwen/DeepSeek）做私有部署，这直接对应"数据合规"卖点。</div>
+<div class="iv">vLLM 能直接加载 Qwen、DeepSeek 等开源权重（HuggingFace 或本地路径），并声明量化方式与 dtype。私有部署让你不绑定 OpenAI、数据不出域，特别适合医疗/保险这类强合规场景。</div>
+<div class="warn">① 不同量化格式对显卡架构有要求（如 AWQ/GPTQ 在老卡上可能不加速），要查 vLLM 兼容性矩阵。② <code>--dtype</code> 决定权重精度，bf16 在 A100 上更稳，fp16 在消费卡常见。③ 模型 tokenizer 的 chat template 必须匹配（对话格式错会导致输出怪异）。</div>
+
+<!-- ============ 4. 量化 ============ -->
+<h2 id="s4">四、量化方式：int4 / int8 / fp16 怎么选</h2>
+<h3>4.1 三种量化的本质</h3>
+<table>
+<tr><th>方案</th><th>显存占用</th><th>精度损失</th><th>速度</th><th>适用</th></tr>
+<tr><td>fp16（半精度）</td><td>1×基准</td><td>几乎无损</td><td>快</td><td>显存够、要最佳质量</td></tr>
+<tr><td>int8</td><td>~0.5×</td><td>很小</td><td>略快</td><td>显存中等紧张</td></tr>
+<tr><td>int4（AWQ/GPTQ）</td><td>~0.25×</td><td>可控（AWQ 优）</td><td>最快/最省</td><td>显存紧张、边缘部署</td></tr>
+</table>
+<h3>4.2 选择原则</h3>
+<ul>
+  <li><strong>显存充足（如 A100 80G 跑 7B/14B）</strong>：用 fp16/bf16，质量优先。</li>
+  <li><strong>单卡 24G 想跑 7B</strong>：int8 或 int4 均可，int4 更稳。</li>
+  <li><strong>单卡 24G 想跑 32B</strong>：必须 int4（~20G 权重）+ 限制并发，否则 OOM。</li>
+  <li><strong>精度敏感场景（医疗诊断辅助、金额计算）</strong>：优先 fp16/bf16，量化只做兜底。</li>
+</ul>
+<div class="formula">量化后权重显存 ≈ 参数量 × 每参数字节数（fp16=2B，int8=1B，int4=0.5B）+ KV Cache + 激活开销</div>
+<div class="eng">架构师做技术选型时，量化是"质量 vs 成本"的旋钮。对特药理赔 Agent，<strong>最终给用户的结论不能因量化出错</strong>，所以关键链路用 fp16，旁路摘要/分类可用 int4 降本。这是"分层用模"的思路。</div>
+<div class="iv">量化是显存/质量的权衡：fp16 无损但最占显存，int4 最省但可能有损。选法是——显存够用上 fp16；单卡想跑大模型用 int4；医疗这类精度敏感场景关键链路保 fp16，旁路任务才量化降本。</div>
+<div class="warn">① int4 不是"免费午餐"，在某些知识/推理密集任务上会掉点，<strong>务必在评测集上对比量化前后准确率</strong>。② "int4 一定能省 4 倍"是错的——实际含 KV Cache 和框架开销，省不到 4 倍。③ AWQ 通常优于 GPTQ（保留重要权重），优先选 AWQ。</div>
+
+<!-- ============ 5. 长度 ============ -->
+<h2 id="s5">五、输入/输出长度与 max_model_len</h2>
+<h3>5.1 三个长度参数</h3>
+<table>
+<tr><th>参数</th><th>含义</th><th>设错后果</th></tr>
+<tr><td>--max-model-len</td><td>模型上下文总上限（输入+输出）</td><td>报"序列超长"或 OOM</td></tr>
+<tr><td>max_tokens（请求级）</td><td>单次最多生成多少 token</td><td>输出被截断</td></tr>
+<tr><td>--max-num-batched-tokens</td><td>一个批次内最多 token 数</td><td>影响吞吐</td></tr>
+</table>
+<h3>5.2 怎么定 max_model_len</h3>
+<ul>
+  <li>RAG 问答：输入含长文档+追问，建议 8K~32K。</li>
+  <li>理赔材料摘要：单份材料可能几千字，建议 ≥16K。</li>
+  <li>设太大 → KV Cache 显存占用飙升（与 max_len 成正比），并发骤降。</li>
+</ul>
+<div class="formula">单请求峰值 KV 显存 ≈ 2 × num_layers × hidden_dim × max_model_len × 字节数（per token）</div>
+<div class="eng">长度参数直接锁死显存预算。医疗理赔场景输入文档长，盲目设 128K 会让单卡并发从 32 掉到 4——成本翻 8 倍。架构师要把"长度"当成本旋钮管起来。</div>
+<div class="iv">max_model_len 是输入+输出的总上限，直接决定 KV Cache 显存峰值和单卡并发。设太大显存爆、并发崩；设太小长文截断。RAG/理赔场景按真实文档长度定，别拍脑袋设 128K。</div>
+<div class="warn">① max_model_len 不是越大越好，它和显存、并发是三角约束。② 请求的 max_tokens 超过剩余预算会被静默截断，业务逻辑要检查 <code>finish_reason=="length"</code>。③ 不同模型有原生上下文上限，超过要开 YaRN/ROPE 缩放（vLLM 支持），否则质量下降。</div>
+
+<!-- ============ 6. 并发与速率 ============ -->
+<h2 id="s6">六、并发与请求速率控制</h2>
+<h3>6.1 关键并发参数</h3>
+<table>
+<tr><th>参数</th><th>作用</th></tr>
+<tr><td>--max-num-seqs</td><td>同时处理的最大请求数（并发上限）</td></tr>
+<tr><td>--max-num-batched-tokens</td><td>每批最大 token 数</td></tr>
+<tr><td>--gpu-memory-utilization</td><td>显存利用比例（默认 0.9）</td></tr>
+<tr><td>--enable-prefix-caching</td><td>相同前缀 prompt 复用 KV，提速省显存</td></tr>
+</table>
+<h3>6.2 请求速率（QPS / RPS）</h3>
+<p>压测时控制发请求的速度：<strong>速率太低测不出吞吐上限</strong>，<strong>速率太高会堆积队列</strong>。vLLM 的 benchmark 工具可设 <code>--request-rate</code>（-1 表示不限速，打满）。</p>
+<div class="eng">真实生产是"有波动的并发"，不是匀速。架构师要给出 SLA 下的容量：比如 P99 延迟 ≤ 3s 时系统能扛多少并发。这需要先测出单实例上限，再算副本数与队列丢弃策略。</div>
+<div class="iv">vLLM 用 --max-num-seqs 控制并发上限，用 benchmark 的 --request-rate 控制发压速度。生产要的是"在某个 SLA 下能扛多少并发"，不是裸跑最高速。并发、长度、量化三者共同决定单实例容量。</div>
+<div class="warn">① 把 --max-num-seqs 设得比显存能撑的大，只会触发抢占换出（preemption），反而拖慢。② 压测"不限速打满"得出的吞吐≠用户能体验的吞吐，必须结合延迟指标看。③ 速率和并发是两个维度：限速下并发可能很低但延迟好，限速放开并发飙但 P99 爆。</div>
+
+<!-- ============ 7. 指标 ============ -->
+<h2 id="s7">七、核心指标：TTFT / TPOT / ITL / 吞吐 / 端到端延迟</h2>
+<h3>7.1 五个指标定义（面试必背）</h3>
+<table>
+<tr><th>指标</th><th>全称</th><th>衡量什么</th><th>单位</th></tr>
+<tr><td>TTFT</td><td>Time To First Token</td><td>从发请求到收到<strong>第一个</strong> token 的延迟（含调度+prefill）</td><td>秒</td></tr>
+<tr><td>TPOT</td><td>Time Per Output Token</td><td>两个输出 token 之间的<strong>平均</strong>间隔（解码速度）</td><td>秒/token</td></tr>
+<tr><td>ITL</td><td>Inter-Token Latency</td><td>相邻 token 的<strong>逐次</strong>间隔（比 TPOT 更细，看抖动）</td><td>秒/token</td></tr>
+<tr><td>吞吐</td><td>Throughput</td><td>单位时间生成的 token 总数（或请求数）</td><td>token/s</td></tr>
+<tr><td>端到端延迟</td><td>E2E Latency</td><td>从发请求到收完<strong>整个</strong>回复的总时长</td><td>秒</td></tr>
+</table>
+<div class="formula">端到端延迟 ≈ TTFT + 输出 token 数 × TPOT（近似）　|　TPOT ≈ 单步解码耗时 × 流水线气泡</div>
+<h3>7.2 指标的工程意义</h3>
+<ul>
+  <li><strong>TTFT 高</strong>：prefill 慢（输入长/并发抢占）或排队久 → 用户觉得"卡顿才开始"。</li>
+  <li><strong>TPOT/ITL 高</strong>：解码慢（算力不足/量化反向拖累/批太大）→ 输出"吐字慢"。</li>
+  <li><strong>ITL 抖动大</strong>：批处理里混入长请求被抢占，体验差（流式卡顿）。</li>
+</ul>
+<div class="eng">对理赔 Agent 这种"带流式输出"的产品，<strong>TTFT 决定第一印象，ITL/TPOT 决定阅读流畅度</strong>。架构师定 SLA 时要把这俩分开约束，而不是只看平均延迟。</div>
+<div class="iv">TTFT 是"首字延迟"（含排队+prefill），TPOT 是"每字平均间隔"（解码速度），ITL 是逐字间隔（看抖动更细），吞吐是单位时间总 token，端到端是整段回复总时长。TTFT 管卡顿感，TPOT/ITL 管吐字流畅度，要分开看。</div>
+<div class="warn">① TPOT 是"平均"，会掩盖 ITL 抖动——流式场景下 ITL 的 P99 比 TPOT 均值更反映体感。② TTFT 包含了<strong>排队时间</strong>，所以高并发下 TTFT 升高不一定是模型慢，是排队。③ 吞吐高 ≠ 体验好（可能靠堆并发但每个用户 P99 爆）。</div>
+
+<!-- ============ 8. Benchmark CLI ============ -->
+<h2 id="s8">八、vLLM Benchmark CLI 实操</h2>
+<h3>8.1 两种基准脚本</h3>
+<pre><code># 吞吐/延迟基准（模拟请求）
+python -m vllm.benchmarks.benchmark_throughput \
+  --model Qwen/Qwen2.5-7B-Instruct --dataset-name sharegpt \
+  --num-prompts 100 --request-rate 4
+
+# 面向 Serving 的基准（更接近生产，输出 TTFT/TPOT/ITL）
+python -m vllm.benchmarks.benchmark_serving \
+  --model Qwen/Qwen2.5-7B-Instruct --backend vllm \
+  --dataset-name sharegpt --num-prompts 200 --request-rate 8 \
+  --save-result --result-filename my_bench.json</code></pre>
+<h3>8.2 关键开关</h3>
+<table>
+<tr><th>开关</th><th>含义</th></tr>
+<tr><td>--request-rate</td><td>发压速率，-1 打满</td></tr>
+<tr><td>--num-prompts</td><td>总请求数</td></tr>
+<tr><td>--dataset-name</td><td>sharegpt / random 等，模拟真实 prompt 分布</td></tr>
+<tr><td>--save-result</td><td>落盘，便于写报告</td></tr>
+</table>
+<div class="info">官方文档：<a href="https://docs.vllm.ai" target="_blank" rel="noopener">docs.vllm.ai</a>；Benchmark CLI 详解：<a href="https://docs.vllm.ai/en/stable/benchmarking/cli/" target="_blank" rel="noopener">docs.vllm.ai/en/stable/benchmarking/cli</a>。</div>
+<div class="eng">benchmark_serving 才是"生产视角"——它统计的就是 TTFT/TPOT/ITL 这类用户感知指标。写《容量与成本》报告（Day2）时，这些数字是你成本估算的输入。</div>
+<div class="iv">vLLM 有两个基准脚本：benchmark_throughput 看纯吞吐，benchmark_serving 看 TTFT/TPOT/ITL 这类生产指标。压测要固定 request-rate、num-prompts、dataset，落盘结果写进报告，并标注测试环境（卡型/量化/长度）。</div>
+<div class="warn">① 用 random 数据集压出来的数字会"虚高"（prompt 短、分布不真实），写报告要说清用了哪种数据集。② 不固定环境（卡型、驱动、vLLM 版本）的数字没有可比性。③ 别只报平均，必须给 P50/P90/P99，面试官最在意长尾。</div>
+
+<!-- ============ 9. 无 GPU 实测 ============ -->
+<h2 id="s9">九、无 GPU 实测方案：小模型跑通 + 32B 公式估算</h2>
+<h3>9.1 无 GPU 也要"动手"</h3>
+<p>没有 A100/H100 不代表不能做实验。分两步走，<strong>绝不伪造数据</strong>：</p>
+<ol>
+  <li><strong>小模型实测（真数据）</strong>：在 Mac（Ollama 跑 qwen3:8b）或 Colab 免费 GPU 上，跑通"启动服务→兼容 API→压测→记录 TTFT/吞吐"。这部分是<strong>真实跑出来的，可写进报告</strong>。</li>
+  <li><strong>32B 公式估算（标假设）</strong>：用已知 7B 实测值和算力公式，推算 32B 在目标卡上的量级，并<strong>明确标注"估算、未实测"</strong>。</li>
+</ol>
+<h3>9.2 为什么小模型实测仍有价值</h3>
+<ul>
+  <li>验证部署流程、参数、API 兼容性——这部分与模型大小无关。</li>
+  <li>验证你的压测脚本与指标口径正确。</li>
+  <li>为公式估算提供"基准点"（7B 的真实吞吐）。</li>
+</ul>
+<div class="eng">对 36 岁、有大数据背景的候选人，面试官更看重"方法论可信"——你能清晰说明"哪些是我实测的、哪些是我估算的、假设是什么"，这比一个漂亮但存疑的数字值钱得多。</div>
+<div class="iv">无 GPU 就分两步：① 用 Mac/Colab 小模型（如 qwen3:8b）真实跑通流程、记录真实指标；② 用算力公式从 7B 实测值推算 32B 量级，并明确标注"估算、假设为…"。实测算真值、估算标假设，绝不混为一谈。</div>
+<div class="warn">① 绝不可把 7B 实测数字直接说成 32B 的。② "估算"必须写清假设（卡型、量化、批大小、并发），否则无意义。③ 面试官一追问"这个 32B 数字你实测过吗"，诚实说"按公式估算"反而加分。</div>
+
+<!-- ============ 10. 32B 估算 ============ -->
+<h2 id="s10">十、32B 模型性能公式估算与假设条件</h2>
+<h3>10.1 显存估算（能否装下）</h3>
+<div class="formula">权重显存(int4) ≈ 32e9 × 0.5B ≈ 16 GB；fp16 ≈ 64 GB；再加 KV Cache 与激活</div>
+<ul>
+  <li>int4 + 单卡 24G：权重 16G，剩 8G 给 KV/激活，<strong>仅能极低并发</strong>。</li>
+  <li>fp16 + 单卡 80G（A100）：权重 64G，剩 16G，并发有限，更适合 2×24G 或 1×80G。</li>
+</ul>
+<h3>10.2 吞吐估算（经验缩放）</h3>
+<p>在<strong>相同卡、相同量化、相同批设置</strong>下，解码吞吐近似与<strong>参数量成反比</strong>（计算量更准的是与 FLOPs 成正比）：</p>
+<div class="formula">decode_throughput(32B) ≈ decode_throughput(7B) × (7 / 32)   （同卡同量化近似）</div>
+<p>例：若 7B-int4 在 24G 卡上实测 ~60 token/s/请求，则 32B-int4 约 ~13 token/s/请求（仅作量级参考，需实测校准）。</p>
+<h3>10.3 必须声明的假设</h3>
+<ul>
+  <li>假设卡型、量化、max_model_len、批大小与 7B 实验一致；</li>
+  <li>假设无显著显存换出/抢占；</li>
+  <li>标注"此为公式估算，非实测，生产前需在目标卡实测校准"。</li>
+</ul>
+<div class="eng">架构师给老板/客户报容量，靠的就是这种"先估算量级、再实测校准"的方法。能讲清假设和误差来源，比给一个精确但不可信的数字更有说服力。</div>
+<div class="iv">32B 显存：int4 约 16G、fp16 约 64G，要据此判断几张卡能装。吞吐可用"同卡同量化下与参数量近似反比"从 7B 实测值推算，但必须声明假设（卡型/量化/批/长度），并注明"估算非实测"。</div>
+<div class="warn">① 反比是粗近似，真实还受 KV Cache、批效率、MoE 结构影响（DeepSeek 是 MoE，激活参数远小于总参数，不能简单按 32B 算）。② 千万别把"估算"包装成"实测"。③ 不同架构（Dense vs MoE）算力利用天差地别，估算要先说明模型结构。</div>
+
+<!-- ============ 11. 诚实报告 ============ -->
+<h2 id="s11">十一、诚实报告：不伪造性能数据</h2>
+<h3>11.1 报告里的数据分级</h3>
+<table>
+<tr><th>数据类别</th><th>写法示例</th></tr>
+<tr><td>实测（有环境）</td><td>"在 A100 80G、Qwen2.5-7B-int4、max_len=8K 下，P99 TTFT=1.2s，吞吐=820 tok/s（n=200，官方基准脚本）。"</td></tr>
+<tr><td>估算（标假设）</td><td>"32B-int4 在单卡 24G 的吞吐，按 7B 实测线性推算约 13 tok/s/请求（假设同量化同批，未实测）。"</td></tr>
+<tr><td>未知</td><td>"32B 在目标生产卡的实测待补充，本报告结论以 7B 实测 + 公式估算为准。"</td></tr>
+</table>
+<h3>11.2 反模式（面试/工作都忌）</h3>
+<ul>
+  <li>把别人的 benchmark 数字当自己的结论；</li>
+  <li>混用实测与估算不标注；</li>
+  <li>只报平均不报 P99，掩盖长尾。</li>
+</ul>
+<div class="info">保险/医疗行业对"数据真实性"极度敏感（合规、审计）。作为候选人，诚实标注数据来源与假设，本身就是专业素养的体现，面试官会据此判断你的可信度。</div>
+<div class="iv">报告要把数据分级：实测的写清环境与脚本、估算的标假设、未知的明说待补。绝混用、绝伪造、绝只报平均。诚实标注来源和假设，在医疗/保险这种强合规行业反而是加分项。</div>
+<div class="warn">① 面试里"你的压测数字怎么来的"是高频追问，答不出环境细节=存疑。② 用 random 数据集却声称"生产级结论"=不专业。③ 把估算当实测说，一旦被识破直接不及格——这比"我没卡测不了"严重得多。</div>
+
+<!-- ============ 12. 资源 ============ -->
+<h2 id="s12">十二、学习资源（B站 / 官方文档，中文非 OpenAI）</h2>
+<h3>12.1 官方文档（首选，权威）</h3>
+<ul>
+  <li>vLLM 官方文档：<a href="https://docs.vllm.ai" target="_blank" rel="noopener">docs.vllm.ai</a></li>
+  <li>vLLM Benchmark CLI：<a href="https://docs.vllm.ai/en/stable/benchmarking/cli/" target="_blank" rel="noopener">docs.vllm.ai/en/stable/benchmarking/cli</a></li>
+  <li>Ollama Qwen3 模型库：<a href="https://ollama.com/library/qwen3" target="_blank" rel="noopener">ollama.com/library/qwen3</a></li>
+</ul>
+<h3>12.2 B站中文实战（搜关键词，按需学习）</h3>
+<ul>
+  <li>vLLM 部署教程：<a href="https://search.bilibili.com/all?keyword=vLLM%20部署%20教程" target="_blank" rel="noopener">search.bilibili.com · vLLM 部署教程</a></li>
+  <li>vLLM 压测与性能调优：<a href="https://search.bilibili.com/all?keyword=vLLM%20压测%20性能" target="_blank" rel="noopener">search.bilibili.com · vLLM 压测性能</a></li>
+  <li>Qwen/DeepSeek 私有化推理：<a href="https://search.bilibili.com/all?keyword=Qwen%20DeepSeek%20私有化%20推理" target="_blank" rel="noopener">search.bilibili.com · Qwen DeepSeek 私有化推理</a></li>
+  <li>PagedAttention 原理讲解：<a href="https://search.bilibili.com/all?keyword=PagedAttention%20原理" target="_blank" rel="noopener">search.bilibili.com · PagedAttention 原理</a></li>
+</ul>
+<div class="info">建议学习顺序：先看 1 个部署视频跑通（s2）→ 再跟压测视频出一组真实数字（s8）→ 最后回看 PagedAttention 原理视频（s1）把"为什么快"讲透。无 GPU 用 Ollama 在本地 Mac 先验证对话与结构化输出。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：vLLM 部署流程与关键参数</h2>
+<table>
+<tr><th>环节</th><th>关键动作 / 参数</th><th>要能讲清的点</th></tr>
+<tr><td>安装启动</td><td>pip install vllm + api_server</td><td>一条命令起 OpenAI 兼容服务</td></tr>
+<tr><td>模型加载</td><td>--model（HF 或本地路径）</td><td>Qwen/DeepSeek 等非 OpenAI 权重</td></tr>
+<tr><td>量化</td><td>--quantization awq/gptq/fp8</td><td>int4/int8/fp16 取舍与显存影响</td></tr>
+<tr><td>长度</td><td>--max-model-len</td><td>与 KV Cache/并发的三角约束</td></tr>
+<tr><td>并发</td><td>--max-num-seqs / --gpu-memory-utilization</td><td>并发上限与显存预算</td></tr>
+<tr><td>压测</td><td>benchmark_serving（request-rate）</td><td>TTFT/TPOT/ITL 输出与 P99</td></tr>
+</table>
+<div class="iv">一句话达标：能从头讲"装 vLLM → 指定模型+量化 → 设长度/并发 → 起 OpenAI 兼容 API → 用 benchmark 压测出 TTFT/吞吐并落盘报告"，并把量化/长度/并发三个旋钮对显存和成本的影响讲清楚。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：指标含义 + 无 GPU 诚实估算</h2>
+<div class="formula">
+TTFT=首字延迟（含排队+prefill）｜ TPOT=每字平均间隔（解码）｜ ITL=逐字间隔（看抖动）
+吞吐=单位时间总 token ｜ 端到端=整段回复总时长
+无 GPU：小模型(Mac/Colab)实测真值 + 32B 公式估算(标假设) ，二者严格分级不混用
+</div>
+<ol>
+  <li><strong>TTFT/TPOT/ITL 各衡量什么</strong>：TTFT 管"卡不卡才开始"，TPOT 管"吐字均速"，ITL 管"抖不抖"。</li>
+  <li><strong>无 GPU 怎么诚实估算</strong>：① 小模型实测出真实流程与基准数字；② 用"同卡同量化吞吐≈与参数量反比"推算 32B 量级；③ 标注假设与"未实测"，不伪造。</li>
+  <li><strong>报告怎么写</strong>：实测写环境、估算标假设、未知明说，只报平均不报 P99 是减分项。</li>
+</ol>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W8D1 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能讲清 PagedAttention 是什么、相比传统 KV 预分配解决了什么（显存碎片）。</li>
+<li>能默写"装 vLLM → 起 OpenAI 兼容 API → 客户端 base_url 指向本地"的完整命令与代码。</li>
+<li>能说清 fp16/int8/int4 的显存、精度、速度差异与选型原则（含医疗精度敏感场景）。</li>
+<li>能解释 max_model_len 与 KV Cache 显存、并发的关系，说出设太大的后果。</li>
+<li>能列出 --max-num-seqs / --gpu-memory-utilization / --request-rate 的作用。</li>
+<li>能精确定义 TTFT / TPOT / ITL / 吞吐 / 端到端延迟，并说清各自衡量什么、关注 P99。</li>
+<li>能区分 benchmark_throughput 与 benchmark_serving 的用途差异。</li>
+<li>无 GPU 时，能说出"小模型实测 + 32B 公式估算"的两步法，并举例假设条件。</li>
+<li>能写出 32B-int4 的显存估算（约 16G 权重）与吞吐缩放公式。</li>
+<li>能在报告里把"实测/估算/未知"三类数据分级标注，做到不伪造。</li>
+<li>能讲清 vLLM 私有部署相比 OpenAI API 的核心卖点（数据不出域/成本可控/可定制量化）。</li>
+<li>能回答达标线①（部署全流程+关键参数）与达标线②（指标含义+无 GPU 估算）。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：vLLM 为什么比原生 HuggingFace 推理快又省？</div><div class="a">核心是 PagedAttention，把 KV Cache 分页按需分配、可非连续，显存利用率从约 30% 提到 90%+，同样显存能扛更多并发。</div></div>
+<div class="qcard"><div class="q">Q：怎么把 vLLM 接进现有 RAG 代码？</div><div class="a">它 API 与 OpenAI 完全兼容，把客户的 base_url 指向本地 8000 端口、api_key 设 EMPTY 即可，业务代码零改。</div></div>
+<div class="qcard"><div class="q">Q：选 fp16 还是 int4？</div><div class="a">显存够用上 fp16（无损）；单卡想跑大模型用 int4（最省）；医疗等精度敏感场景关键链路保 fp16，旁路任务才量化降本。</div></div>
+<div class="qcard"><div class="q">Q：TTFT 高说明什么？</div><div class="a">可能是输入长导致 prefill 慢、或并发高在排队。高并发下 TTFT 升高多半是排队而非模型慢，要分开看。</div></div>
+<div class="qcard"><div class="q">Q：TPOT 和 ITL 有何区别？</div><div class="a">TPOT 是每 token 平均间隔，ITL 是相邻 token 逐次间隔；ITL 的 P99 更能反映流式卡顿抖动。</div></div>
+<div class="qcard"><div class="q">Q：没有 GPU 怎么准备性能数据？</div><div class="a">两步法：① Mac/Colab 小模型（如 qwen3:8b）真实跑通流程记数字；② 用"同卡同量化吞吐≈与参数量反比"推算 32B 量级，并标注"估算未实测"。</div></div>
+<div class="qcard"><div class="q">Q：max_model_len 设太大有什么后果？</div><div class="a">KV Cache 显存峰值与长度成正比，设太大→显存爆/单卡并发骤降→成本翻数倍；设太小长文截断。</div></div>
+<div class="qcard"><div class="q">Q：压测报告只给平均延迟为什么不够？</div><div class="a">平均掩盖长尾；面试官/生产最在意 P99——高峰下少数用户卡顿最影响口碑，必须给 P50/P90/P99。</div></div>
+<div class="qcard"><div class="q">Q：私有部署相比 OpenAI API 的核心优势？</div><div class="a">数据不出域（合规）、成本可控（按 GPU 时租而非 token 黑盒）、可自选量化与模型（Qwen/DeepSeek 等）。</div></div>
+<div class="qcard"><div class="q">Q：32B-int4 单卡 24G 能跑吗？</div><div class="a">权重约 16G 能装下，但剩 8G 给 KV/激活，仅能极低并发；若要像样并发需 2×24G 或更大显存，且吞吐按参数量反比估算约 13 tok/s/请求（未实测）。</div></div>
+
+<div class="ft">FDE W8D1 学习手册 · vLLM 服务化部署与压测（面试级）· 配合《FDE-W8D1-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w8d1_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W8D1 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W8D1-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

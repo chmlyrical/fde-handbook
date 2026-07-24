@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W4D4 学习手册 · HITL 与中断恢复（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W4D4 学习手册</span>
+  <a href="#s1">1.HITL本质</a><a href="#s2">2.Checkpointer</a><a href="#s3">3.Interrupt</a><a href="#s4">4.审批触发</a>
+  <span class="sep"></span>
+  <a href="#s5">5.通过/驳回</a><a href="#s6">6.状态回写</a><a href="#s7">7.异常重试</a><a href="#s8">8.幂等键</a>
+  <span class="sep"></span>
+  <a href="#s9">9.最大执行</a><a href="#s10">10.医疗落地</a><a href="#s11">11.可靠性</a><a href="#s12">达标①</a>
+  <span class="sep"></span>
+  <a href="#s13">达标②</a><a href="#s14">自测</a><a href="#s15">速记</a>
+</div>
+
+<h1>FDE W4D4 学习手册 · HITL 与中断恢复</h1>
+<p class="sub">W4 Day4 · A 级（必须掌握，面试核心）· 4h · 学会用 LangGraph 把"人有最终否决权"落到可恢复、可重试、可审计的工程系统里</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>Agent 在真实业务（尤其医疗理赔）里不能"自助决策高风险动作"。本日聚焦 Human-in-the-Loop：用 Checkpointer + Interrupt 让流程在关键节点停下等人拍板，并能从中断点精确恢复。<br>
+  <strong>学完能回答：</strong>① LangGraph 里 HITL 怎么用 Checkpointer+Interrupt 实现；② 中断恢复、幂等键、最大执行时间如何共同保证可靠性。<br>
+  <strong>使用方法：</strong>通读原理 → 重点背「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W4D4-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。<br>
+  <strong>候选人视角：</strong>36 岁，Java + 大数据 + 医疗保险背景。全流程围绕"特药理赔 Agent"——涉及大额赔付、用药合规，必须有人工审批兜底。
+</div>
+
+<!-- ============ 1. HITL 本质 ============ -->
+<h2 id="s1">一、HITL 的本质：为什么 Agent 需要"人兜底"</h2>
+<p>Human-in-the-Loop（人在回路）指<strong>在 Agent 自主执行流程中，把部分高风险决策节点交回给人确认/修改/驳回</strong>，人拥有最终否决权。它和"纯人工流程""纯自动流程"都不同：Agent 跑大部分步骤，只在关键闸门等人。</p>
+<h3>1.1 为什么必须 HITL</h3>
+<ul>
+  <li><strong>高风险动作不可逆</strong>：特药理赔一旦放款，追回成本极高；用药建议错误可能危害生命健康。</li>
+  <li><strong>模型不确定性</strong>：LLM 有幻觉、边界模糊，对"是否合规"这类判断需要人类专家拍板。</li>
+  <li><strong>合规与审计</strong>：医保/保险监管要求"谁决策、谁负责"，必须有可审计的人工节点。</li>
+  <li><strong>异常处理兜底</strong>：低置信度、规则冲突、知识库缺失时转人工，而非硬猜。</li>
+</ul>
+<h3>1.2 HITL 的三种形态</h3>
+<table>
+<tr><th>形态</th><th>触发方式</th><th>典型场景</th></tr>
+<tr><td>审批闸（Approval）</td><td>执行高风险工具前停下等人确认</td><td>放款、调用外部写接口、外发消息</td></tr>
+<tr><td>修改/纠正（Edit）</td><td>人修改 Agent 的中间状态或输出</td><td>人工修正理赔金额、补充材料</td></tr>
+<tr><td>降级转人工（Escalate）</td><td>低置信度/异常时直接转人工坐席</td><td>材料存疑、规则冲突、拒赔争议</td></tr>
+</table>
+<div class="eng">工程上 HITL 不是"让模型问一句'可以吗'"，而是<strong>系统级的暂停-恢复机制</strong>：状态要落库、流程要能从中断点继续、人的决定要可回写。否则"等一下"就变成"从头重跑"，既浪费钱又可能二次出错。</div>
+<div class="iv">HITL 是"Agent 跑流程、人在关键闸门拍板"。它既不同于纯人工（慢），也不同于纯自动（危险）。在医疗理赔里，放款、用药建议这类高风险动作必须由人最终确认，所以 HITL 是刚需而非可选项。</div>
+<div class="warn">① 把 HITL 理解成"模型在聊天里问用户一句"是常见误解——那是交互，不是可恢复的工程化 HITL。② HITL 不等于"所有步骤都等人"，那样就退化成纯人工，丧失 Agent 提效价值。③ 只在<strong>高风险 + 不可逆 + 模型不确定</strong>的节点设闸，否则审批疲劳反而降低质量。</div>
+
+<!-- ============ 2. Checkpointer ============ -->
+<h2 id="s2">二、LangGraph Checkpointer：状态持久化基础</h2>
+<p>LangGraph 的图是有<strong>状态的</strong>（StateGraph），每执行一个节点都会产生状态变更。Checkpointer 就是把这个<strong>状态快照持久化到外部存储</strong>（如 PostgreSQL）的机制，让图可以"暂停、断线、再恢复"。</p>
+<h3>2.1 核心概念</h3>
+<ul>
+  <li><strong>Thread</strong>：一次对话/任务的唯一标识（thread_id），所有状态快照按它组织。</li>
+  <li><strong>Checkpoint</strong>：某一时刻的完整状态快照（包含 messages、自定义 state 字段、待执行节点等）。</li>
+  <li><strong>Checkpointer 后端</strong>：MemorySaver（内存，开发用）、PostgresSaver（生产用）、SqliteSaver 等。</li>
+  <li><strong>pending writes</strong>：中断时"已决定要做、但尚未提交"的写操作，恢复时重放。</li>
+</ul>
+<h3>2.2 为什么 HITL 必须依赖 Checkpointer</h3>
+<div class="formula">
+graph.invoke(input, { thread_id }) → 执行到中断点 → 状态快照落库（含 pending）→ 释放资源 → 人审批 → graph.invoke(None, { thread_id }) → 读快照从中断点继续
+</div>
+<p>没有 Checkpointer，进程一停状态就没了，无法恢复；有了它，中断只是"不继续执行下个节点"，状态已安全落库。</p>
+<div class="info"><strong>PostgreSQL Checkpointer 选型理由：</strong>① 事务 + 持久化，状态不丢；② 与生产业务库同生态，运维成本低；③ 支持并发线程隔离；④ 可作为后续 Trace/审计的数据源。医疗理赔对可靠性要求高，<strong>生产必须用 PostgresSaver，绝不能用 MemorySaver</strong>。</div>
+<div class="iv">Checkpointer 把图的每一步状态快照存到外部（如 PostgreSQL）。它就是 HITL 能"暂停后恢复"的基础：中断时状态已落库，人审批后再用同一个 thread_id 调 invoke，图从快照接着跑。</div>
+<div class="warn">① MemorySaver 只存在进程内存，重启即丢，<strong>只适合本地调试</strong>，生产用它是重大事故。② thread_id 必须稳定且唯一，混淆不同用户/任务的 thread 会导致状态串台。③ Checkpointer 存的是完整状态快照，state 设计过大（如塞整篇 PDF）会拖慢落库与恢复。</div>
+
+<!-- ============ 3. Interrupt ============ -->
+<h2 id="s3">三、Interrupt：精确暂停与恢复</h2>
+<p>LangGraph 提供 <code>interrupt()</code>（配合 <code>@node</code> 使用）让节点在执行到某行时<strong>主动暂停并把控制权交还调用方</strong>，同时保存上下文。恢复时从断点继续，不会重跑已完成的节点。</p>
+<h3>3.1 工作机制</h3>
+<pre><code>from langgraph.types import interrupt, Command
+
+def approval_node(state):
+    # ... 模型已生成建议赔付金额 ...
+    decision = interrupt({
+        "type": "human_approval",
+        "payload": {"claim_id": state["claim_id"],
+                    "amount": state["suggested_amount"],
+                    "reason": state["reason"]}
+    })
+    # 恢复后，decision 就是人返回的结果（通过/驳回/修改）
+    state["approval"] = decision
+    return state</code></pre>
+<h3>3.2 暂停 vs 恢复</h3>
+<table>
+<tr><th>阶段</th><th>调用方式</th><th>行为</th></tr>
+<tr><td>首次运行</td><td><code>graph.invoke(input, {"configurable":{"thread_id":T}})</code></td><td>跑到 interrupt 暂停，返回 interrupt 信息，状态落库</td></tr>
+<tr><td>恢复运行</td><td><code>graph.invoke(Command(resume=human_decision), {"configurable":{"thread_id":T}})</code></td><td>从断点继续，<code>interrupt()</code> 返回 resume 值，后续节点执行</td></tr>
+</table>
+<h3>3.3 与"普通异常"的区别</h3>
+<ul>
+  <li><strong>interrupt</strong>：受控暂停，状态已保存，可恢复，是设计内的流程控制。</li>
+  <li><strong>异常/崩溃</strong>：未受控，状态可能不一致，需靠重试/幂等恢复。</li>
+</ul>
+<div class="eng">interrupt 是 LangGraph 实现 HITL 的核心原语。它的价值在于<strong>状态在暂停点被完整保留</strong>，恢复时不是"重跑整个图"，而是"从断点续跑"，既省 token 又避免重复副作用（如重复查库）。</div>
+<div class="iv">interrupt() 让节点在中途主动暂停，把要人确认的信息交出去，状态自动落库。人审批后，用 Command(resume=决定) + 同一 thread_id 再 invoke，图从断点继续，interrupt() 返回人的决定。</div>
+<div class="warn">① 恢复时必须<strong>传同一个 thread_id</strong>，否则读不到快照，等于新任务从头跑。② interrupt 里返回给模型的 resume 值会在<strong>断点处</strong>作为 interrupt() 的返回值，不要在恢复时又重新调模型生成。③ 不要在 interrupt 之前节点里做"有副作用且不幂等"的事（如已放款），否则暂停前就产生了不可恢复动作。</div>
+
+<!-- ============ 4. 审批触发 ============ -->
+<h2 id="s4">四、人工审批触发：什么时机、什么条件下停下</h2>
+<p>触发人工审批是 HITL 的"闸门设计"，目标是<strong>只在必要且高价值处拦截</strong>，而非无差别拦截。</p>
+<h3>4.1 触发策略（按风险分层）</h3>
+<table>
+<tr><th>层</th><th>条件</th><th>动作</th><th>示例</th></tr>
+<tr><td>免审</td><td>低风险 + 高置信度</td><td>自动通过</td><td>金额≤阈值、规则明确匹配</td></tr>
+<tr><td>预警</td><td>中风险/中置信度</td><td>记录 + 抽样复核</td><td>模型置信度 0.6~0.8</td></tr>
+<tr><td>强审批</td><td>高风险/低置信度</td><td>中断等人</td><td>大额赔付、用药冲突、材料缺失</td></tr>
+</table>
+<h3>4.2 触发信号来源</h3>
+<ul>
+  <li><strong>模型自评置信度</strong>：logits/概率或显式 <code>confidence</code> 字段。</li>
+  <li><strong>规则引擎</strong>：命中"黑名单药品""超额赔付"等业务规则直接拦截。</li>
+  <li><strong>知识库缺失</strong>：RAG 检索无高相关结果，无法支撑结论。</li>
+  <li><strong>工具调用风险等级</strong>：调用"放款""外发"类工具前必拦截。</li>
+</ul>
+<div class="eng">闸门设计是工程权衡：拦截太多→审批疲劳、丧失提效；拦截太少→漏判高风险。医疗理赔建议<strong>以"金额 + 合规风险 + 模型置信度"三维</strong>作为触发条件，并把触发逻辑做成可配置规则，方便策略和监管对齐。</div>
+<div class="iv">审批触发讲究"该拦才拦"。我们用金额阈值、合规规则命中、模型置信度、知识库缺失几个信号综合判断；只有高风险（大额、用药冲突、材料缺失）才真正 interrupt 等人，低风险自动过。</div>
+<div class="warn">① 不要把"所有调用都人工审批"当 HITL 的正确姿势——那是伪自动化。② 触发条件硬编码在节点里难维护，应抽成独立规则/配置。③ 若触发信号本身依赖模型输出（如 confidence），要防模型"自信地错"，规则层不能完全信模型自评。</div>
+
+<!-- ============ 5. 通过/驳回 ============ -->
+<h2 id="s5">五、审批通过与驳回：状态如何回流</h2>
+<p>人给出决定后，通过 <code>Command(resume=...)</code> 把结果送回图，断点节点拿到决定继续。</p>
+<h3>5.1 通过的回流</h3>
+<ul>
+  <li>审批字段写入 state：<code>approval = "approved"</code>、审批人、时间戳。</li>
+  <li>流程继续到"执行动作"节点（如调用赔付接口、生成通知书）。</li>
+  <li>下游节点读取审批结果，确保只在 approved 时产生副作用。</li>
+</ul>
+<h3>5.2 驳回的处理</h3>
+<ul>
+  <li>审批结果 <code>approval = "rejected"</code> + 驳回原因。</li>
+  <li>不走"执行动作"节点，转入<strong>驳回分支</strong>：通知用户、记录原因、可选转人工坐席。</li>
+  <li>不得重复触发同一审批（用幂等键/状态标记防重）。</li>
+</ul>
+<h3>5.3 代码结构示意</h3>
+<pre><code>def execute_node(state):
+    if state["approval"]["decision"] != "approved":
+        return {"status": "rejected", "reason": state["approval"]["reason"]}
+    # 仅在 approved 且幂等键未消费时执行副作用
+    if not ledger.mark_consumed(state["claim_id"], state["idempotency_key"]):
+        return {"status": "already_done"}
+    payout.call(claim_id=state["claim_id"], amount=state["amount"])
+    return {"status": "paid"}</code></pre>
+<div class="eng">通过/驳回本质是<strong>对 state 中审批字段的分支</strong>。关键是：副作用（放款/外发）必须放在"确认 approved 且幂等键未消费"之后执行，从根上避免驳回后误放款或重复放款。</div>
+<div class="iv">人点通过，state 写 approved，流程继续去执行放款；人点驳回，走驳回分支（通知+记录+转人工），绝不执行放款。分支判断紧盯审批字段，保证"没批就不动钱"。</div>
+<div class="warn">① 常见 bug：节点没检查 approval 状态就直接放款，导致驳回后仍执行。② 驳回分支若再次触发审批会形成<strong>死循环</strong>，需设最大轮次/转人工上限。③ 审批结果的"原因"必须落库，既为审计也为后续模型复盘。</div>
+
+<!-- ============ 6. 状态修改 ============ -->
+<h2 id="s6">六、人工状态修改与回写</h2>
+<p>HITL 不只是"同意/拒绝"，人常需<strong>修改中间结果</strong>（如把模型算的赔付额从 8 万改成 5 万，并补充材料）。这要求状态可被安全地"回写后继续"。</p>
+<h3>6.1 修改的两种路径</h3>
+<table>
+<tr><th>路径</th><th>做法</th><th>适用</th></tr>
+<tr><td>resume 直接带新值</td><td><code>Command(resume={"decision":"approved","amount":50000})</code></td><td>一次性修改少量字段</td></tr>
+<tr><td>update_state 显式改</td><td>恢复前调用 <code>graph.update_state(thread_id, {"amount":50000})</code></td><td>需多字段/多次编辑、人工工作台</td></tr>
+</table>
+<h3>6.2 回写后的继续</h3>
+<ul>
+  <li>修改写回 Checkpoint 后，再 invoke 即可从当前状态继续。</li>
+  <li>下游节点应<strong>读取最新 state</strong>，而非缓存旧值。</li>
+  <li>每次修改都应记录"谁、何时、改了什么"，形成审计轨迹。</li>
+</ul>
+<div class="eng">状态回写的可控性是 HITL 比"纯对话问答"高级的地方：人不是给一句自然语言意见，而是<strong>在结构化状态上做确定性修改</strong>，下游确定性地受影响。这对医疗理赔的金额、用药方案这类数值型结论尤为重要。</div>
+<div class="iv">人工不仅能批/拒，还能直接改状态——比如把模型算的赔付额改小，用 update_state 或 resume 带新值写回，图继续跑时下游用最新值。所有修改留痕可审计。</div>
+<div class="warn">① 回写要防止"字段覆盖丢失"：用浅合并而非整对象替换，避免误清其他字段。② 人工改完金额后，若下游依赖"模型原始输出"做对账，需保留 original 与 edited 双版本。③ 回写时机必须在执行副作用之前，否则改了也救不回已放款。</div>
+
+<!-- ============ 7. 异常重试 ============ -->
+<h2 id="s7">七、异常重试与恢复一致性</h2>
+<p>恢复执行时可能发生网络超时、工具失败、模型报错。需要分层重试策略，且<strong>每次重试都基于已落库的状态</strong>，避免状态漂移。</p>
+<h3>7.1 重试分层</h3>
+<table>
+<tr><th>失败点</th><th>策略</th><th>说明</th></tr>
+<tr><td>LLM 调用超时</td><td>指数退避重试 ≤3 次</td><td>临时网络抖动</td></tr>
+<tr><td>工具调用失败</td><td>重试 + 降级（备用接口/转人工）</td><td>外部依赖不稳</td></tr>
+<tr><td>恢复时 checkpoint 损坏</td><td>读最近可用快照 / 告警</td><td>极端情况</td></tr>
+<tr><td>人长时间不审批</td><td>超时转自动驳回/升级</td><td>防止任务挂死</td></tr>
+</table>
+<h3>7.2 一致性要点</h3>
+<ul>
+  <li>重试必须在<strong>同一 thread_id</strong> 下，复用同一快照。</li>
+  <li>所有重试要记 Trace（次数、原因），用于成本归因。</li>
+  <li>重试不能放大副作用——靠幂等键保证"重试 N 次也只生效一次"。</li>
+</ul>
+<div class="eng">重试的核心是"可重入"：无论失败在第几步，重新执行都应收敛到同一结果。Checkpointer 提供状态锚点，幂等键保证副作用只发生一次，二者配合才谈得上"可靠恢复"。</div>
+<div class="iv">恢复执行也可能失败（超时/工具挂）。我们按失败点分层重试：LLM 退避重试、工具重试+降级、人不审批则超时升级。所有重试都基于同一个落库状态，靠幂等键保证不重复产生副作用。</div>
+<div class="warn">① 重试若不带 thread_id，会新起任务、状态错乱。② 退避重试要设上限，否则雪崩。③ 重试仍失败必须<strong>降级而非卡死</strong>，医疗场景"挂起不处理"本身也是事故。</div>
+
+<!-- ============ 8. 幂等键 ============ -->
+<h2 id="s8">八、幂等键：保证副作用"只发生一次"</h2>
+<p>幂等（Idempotency）指<strong>同一操作执行一次和多次效果相同</strong>。在 HITL 恢复里，放款、外发、写库这类副作用必须幂等，否则"重试/重复恢复"会导致二次放款。</p>
+<h3>8.1 幂等键设计</h3>
+<pre><code># 每次"提交审批结果 + 执行动作"用全局唯一 idempotency_key
+key = f"{claim_id}:{approval_id}"   # 或由客户端/审批系统生成
+if ledger.mark_consumed(claim_id, key):
+    payout.call(claim_id, amount)   # 首次：执行
+else:
+    return {"status": "already_done"}  # 重复：直接返回成功，不重复执行</code></pre>
+<h3>8.2 关键点</h3>
+<ul>
+  <li><strong>键的粒度</strong>：到"一次具体动作"（如某次审批对应的放款），而非整个任务，避免误吞合法二次操作。</li>
+  <li><strong>存储</strong>：幂等表用唯一索引（claim_id, key），并发抢注，只一个成功。</li>
+  <li><strong>有效期</strong>：键可设 TTL，过期允许重新发起（但需谨慎，避免绕过审批）。</li>
+</ul>
+<div class="eng">幂等键是金融/医疗系统的生命线。它把"恢复重试"从"危险操作"变成"安全操作"：即使因网络/崩溃重试多次，放款只发生一次。这是面试官最爱追问的可靠性细节。</div>
+<div class="iv">幂等键保证同一动作重复执行只生效一次。我们给每次审批+执行生成唯一键，落幂等表用唯一索引抢注；只有首次执行放款，重复调用直接返回成功。这样中断恢复、网络重试都不会二次放款。</div>
+<div class="warn">① 不要用"随机每次都新的 key"——那就失去幂等意义；key 必须能标识"同一个动作"。② 幂等检查与执行要在<strong>同一事务</strong>，否则并发下仍有竞态。③ 只做"去重"不做"状态校验"不够——还要确认上次是成功还是失败，避免把失败的当成功跳过。</div>
+
+<!-- ============ 9. 最大执行时间 ============ -->
+<h2 id="s9">九、最大执行时间：防止挂起与失控</h2>
+<p>Agent 可能因循环、等待人工过久、工具卡死而"永远跑不完"。最大执行时间（超时/步数上限）是兜底安全网。</p>
+<h3>9.1 多个时间维度</h3>
+<table>
+<tr><th>维度</th><th>含义</th><th>典型值</th></tr>
+<tr><td>单步 LLM 超时</td><td>一次模型调用的最长等待</td><td>30~60s</td></tr>
+<tr><td>单步工具超时</td><td>一次工具调用的最长等待</td><td>10~30s</td></tr>
+<tr><td>单轮 Agent 步数上限</td><td>防止无限循环（max steps）</td><td>10~20 步</td></tr>
+<tr><td>人工审批超时</td><td>等人拍板的最长时限</td><td>数小时/可配置</td></tr>
+<tr><td>整体任务 SLA</td><td>端到端最长耗时</td><td>按业务定</td></tr>
+</table>
+<h3>9.2 超时的处理</h3>
+<ul>
+  <li>单步超时 → 退避重试或降级。</li>
+  <li>步数超限 → 判定异常，转人工/告警，记录原因。</li>
+  <li>审批超时 → 自动驳回或升级到更高权限/值班人。</li>
+</ul>
+<div class="eng">最大执行时间是对"失控"的最后防线。它的设计哲学是：宁可<strong>失败得可控</strong>（超时转人工/告警），也不要"永远挂着"造成业务阻塞。在理赔 SLA 里，挂起比拒赔更糟糕。</div>
+<div class="iv">我们设多层超时：单步 LLM/工具超时、Agent 总步数上限防循环、人工审批超时（超时自动升级或驳回）。原则是把"失控"变成"可控的失败"，而不是让任务永远挂着。</div>
+<div class="warn">① 只设一个全局超时不够，要分层；单步卡死和整体 SLA 是不同问题。② 步数上限设太小会误杀正常长流程，设太大又防不住循环，需按真实 case 标定。③ 审批超时若"默认通过"是重大合规风险，医疗场景一般默认<strong>驳回或升级</strong>而非放行。</div>
+
+<!-- ============ 10. 医疗落地 ============ -->
+<h2 id="s10">十、特药理赔 Agent 的 HITL 落地示例</h2>
+<div class="info"><strong>场景：</strong>用户提交特药（如某抗癌药）理赔申请，Agent 负责材料审核、用药合规性判断、赔付金额计算，最终放款需人工审批。</div>
+<h3>10.1 流程图（关键节点）</h3>
+<pre><code>接收申请 → 材料抽取(LLM) → 知识库校验(用药合规/医保目录)
+   → 规则引擎(金额/黑名单) → [高风险?] --是--> interrupt(人工审批)
+                                      --否--> 自动通过
+   人工审批: 通过/驳回/修改金额
+   → 执行放款(幂等键保护) → 生成通知书 → 结束</code></pre>
+<h3>10.2 一次完整 HITL 会话</h3>
+<ol>
+  <li>thread_id=<code>claim_10086</code> 首次 invoke，跑到"人工审批"节点 interrupt，返回待审信息（金额 8 万、用药合规、置信度 0.92）。</li>
+  <li>状态快照落 PostgreSQL，释放计算资源。</li>
+  <li>理赔专家在后台看到待审，把金额改为 5 万（超出目录限额部分不赔）并点"通过"。</li>
+  <li>系统用 <code>Command(resume={"decision":"approved","amount":50000})</code> + 同 thread_id 恢复。</li>
+  <li>执行节点校验幂等键 <code>claim_10086:approval_77</code> 未消费 → 放款 5 万 → 标记已消费。</li>
+  <li>若此时因网络重试了一次恢复调用，幂等键已消费，直接返回"已处理"，<strong>不会二次放款</strong>。</li>
+</ol>
+<div class="eng">这个示例把当天所有概念串起来了：Checkpointer 落库保证可恢复、interrupt 实现受控暂停、人工修改回写状态、幂等键防重复放款、超时/步数上限防失控。这是面试时最该能"讲成一段故事"的例子。</div>
+<div class="iv">特药理赔 Agent：材料抽取→合规校验→规则判断，高风险就 interrupt 等人审批，人可改金额再批。恢复用同 thread_id，放款前校验幂等键，重复调用也不会二次放款。这段完整故事就是 HITL 的答卷。</div>
+
+<!-- ============ 11. 可靠性 ============ -->
+<h2 id="s11">十一、可靠性保证四件套总结</h2>
+<div class="formula">
+Checkpointer(状态不丢) + Interrupt(受控暂停) + 幂等键(副作用一次) + 最大执行时间(失控可控)
+</div>
+<table>
+<tr><th>风险</th><th>对应机制</th><th>失效后果</th></tr>
+<tr><td>进程崩溃状态丢失</td><td>Checkpointer 落库</td><td>任务从头重跑、重复副作用</td></tr>
+<tr><td>高风险动作无人确认</td><td>Interrupt + HITL</td><td>误放款/误建议</td></tr>
+<tr><td>重试/重复恢复放大副作用</td><td>幂等键</td><td>二次放款、重复外发</td></tr>
+<tr><td>循环/挂起/久等</td><td>最大执行时间</td><td>任务失控、SLA 违约</td></tr>
+</table>
+<div class="iv">保证可靠性就四件事：状态用 Checkpointer 落库不丢；高风险用 Interrupt 暂停等人；副作用用幂等键保证只一次；用最大执行时间兜底失控。四者缺一个，医疗理赔场景都可能出事故。</div>
+
+<!-- ============ 12. 达标线① ============ -->
+<h2 id="s12">十二、面试达标线①：HITL 在 LangGraph 里怎么用 Checkpointer + Interrupt 实现</h2>
+<table>
+<tr><th>步骤</th><th>动作</th><th>关键代码/概念</th></tr>
+<tr><td>1. 配 Checkpointer</td><td>用 PostgresSaver 给图挂持久化</td><td><code>graph = builder.compile(checkpointer=PostgresSaver(...))</code></td></tr>
+<tr><td>2. 设计 state</td><td>把待确认信息放进 state</td><td>messages + claim 字段</td></tr>
+<tr><td>3. 中断节点</td><td>在关键闸门调用 interrupt()</td><td>返回待审 payload</td></tr>
+<tr><td>4. 首次运行</td><td>带 thread_id invoke，跑到中断点暂停落库</td><td>返回 interrupt 信息</td></tr>
+<tr><td>5. 人审批</td><td>人看信息，做通过/驳回/修改</td><td>前端/工作台</td></tr>
+<tr><td>6. 恢复</td><td>Command(resume=决定) + 同 thread_id invoke</td><td>从断点续跑</td></tr>
+</table>
+<div class="iv">一句话：给图挂 PostgresSaver，在关键节点 interrupt() 暂停并把待确认信息交出去；人审批后用 Command(resume=结果) 配合同一 thread_id 恢复，图从断点继续。Checkpointer 负责把状态落库，Interrupt 负责受控暂停。</div>
+
+<!-- ============ 13. 达标线② ============ -->
+<h2 id="s13">十三、面试达标线②：中断恢复 / 幂等键 / 最大执行时间如何保证可靠性</h2>
+<ol>
+  <li><strong>中断恢复</strong>：Checkpointer 把状态快照落库，interrupt 在断点暂停；恢复时读快照从断点续跑，不重跑已完成节点，省 token 且避免重复副作用。</li>
+  <li><strong>幂等键</strong>：每次"审批+执行"用唯一键，落幂等表唯一索引抢注；只有首次执行放款，重复恢复/重试直接返回已处理，杜绝二次放款。</li>
+  <li><strong>最大执行时间</strong>：分层超时（单步 LLM/工具、总步数上限、审批超时），把"失控"转为"可控失败（转人工/告警/升级）"，防循环与挂起。</li>
+  <li><strong>三者配合</strong>：Checkpointer 给状态锚点，Interrupt 给流程控制，幂等键给副作用安全，超时给兜底，共同构成医疗级可靠 Agent。</li>
+</ol>
+<div class="iv">可靠性=中断恢复(状态可续)+幂等键(副作用只一次)+最大执行时间(失控可控)。中断恢复靠 Checkpointer+Interrupt，幂等键防重复放款，超时把失控变可控失败。三者缺一不可。</div>
+
+<!-- ============ 14. 自测清单 ============ -->
+<h2 id="s14">十四、W4D4 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清 HITL 三种形态（审批/修改/转人工）及医疗理赔为何必须 HITL。</li>
+<li>能解释 Checkpointer 的作用、thread_id 与 checkpoint 的关系，以及为何生产必须用 PostgresSaver 而非 MemorySaver。</li>
+<li>能讲清 interrupt() 的暂停-恢复机制，以及 resume 值如何在断点返回。</li>
+<li>能区分 interrupt（受控暂停）与异常崩溃（未受控）。</li>
+<li>能设计审批触发策略（金额/规则/置信度/知识缺失三维）。</li>
+<li>能说清审批通过/驳回时状态如何回流，副作用为何要放在 approved 校验之后。</li>
+<li>能解释人工状态修改的两种回写路径（resume 带值 vs update_state）。</li>
+<li>能讲清异常重试的分层策略与"同一 thread_id 复用快照"原则。</li>
+<li>能设计幂等键（粒度、唯一索引、事务、失效处理），说清它如何防二次放款。</li>
+<li>能列出最大执行时间的多个维度，并说明超时为何要"可控失败"而非挂起。</li>
+<li>能把"特药理赔 Agent"的 HITL 完整流程讲成一段故事（达标线①②）。</li>
+</ul>
+</div>
+
+<!-- ============ 15. 速记卡 ============ -->
+<h2 id="s15">十五、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：LangGraph 里 HITL 靠什么实现？</div><div class="a">Checkpointer（状态落库，如 PostgresSaver）+ interrupt()（受控暂停）。人审批后用 Command(resume=决定)+同 thread_id 恢复，从断点续跑。</div></div>
+<div class="qcard"><div class="q">Q：为什么生产不能用 MemorySaver？</div><div class="a">它只在进程内存，重启即丢状态，无法恢复。医疗/金融必须用 PostgresSaver 持久化。</div></div>
+<div class="qcard"><div class="q">Q：恢复时必须传什么？</div><div class="a">同一个 thread_id，否则读不到快照，等于新任务从头跑。</div></div>
+<div class="qcard"><div class="q">Q：幂等键解决什么问题？</div><div class="a">保证副作用（放款/外发）只发生一次。重复恢复或网络重试都不会二次放款。</div></div>
+<div class="qcard"><div class="q">Q：驳回后为什么不能再次触发审批？</div><div class="a">会形成死循环且无意义，应设最大轮次/转人工上限，且用状态标记防重。</div></div>
+<div class="qcard"><div class="q">Q：人工修改状态用哪两种方式？</div><div class="a">resume 直接带新值（一次性少量字段）；恢复前 update_state（多字段/工作台编辑）。</div></div>
+<div class="qcard"><div class="q">Q：最大执行时间为什么要分层？</div><div class="a">单步卡死和整体 SLA 是不同问题；分层（LLM/工具/步数/审批超时）才能精准兜底。</div></div>
+<div class="qcard"><div class="q">Q：审批超时默认通过安全吗？</div><div class="a">不安全，医疗场景一般默认驳回或升级，绝不能"超时自动放行"。</div></div>
+<div class="qcard"><div class="q">Q：Interrupt 和异常崩溃区别？</div><div class="a">interrupt 是设计内受控暂停、状态已落库、可恢复；崩溃是未受控、状态可能不一致。</div></div>
+<div class="qcard"><div class="q">Q：特药理赔 HITL 流程一句话？</div><div class="a">材料抽取→合规校验→规则判断，高风险 interrupt 等人审批（可改额），恢复后幂等键保护放款。</div></div>
+
+<div class="ft">FDE W4D4 学习手册 · HITL 与中断恢复（面试级）· 配合《FDE-W4D4-评测题.md》自测</div>
+
+<div class="info" style="margin-top:18px;">
+<strong>延伸学习资源（中文 / 非 OpenAI）：</strong><br>
+① B站 LangGraph 系列 · Checkpoint / Interrupt / HITL 章节（BV1zKx4zWEZP）——建议倍速看 interrupt 实战那集。<br>
+② LangGraph Interrupts 官方文档：<code>docs.langchain.com/oss/python/langgraph/interrupts</code>——官方对 interrupt/resume 的机制说明与多轮审批示例。<br>
+③ LangGraph Checkpointer 文档（PostgresSaver）：<code>docs.langchain.com/oss/python/langgraph/persistence</code>——生产级持久化配置。
+</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w4d4_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W4D4 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W4D4-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

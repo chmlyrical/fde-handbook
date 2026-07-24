@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W5D7 学习手册 · 整合与边界（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W5D7 学习手册</span>
+  <a href="#s1">1.W5回顾</a><a href="#s2">2.整合目标</a><a href="#s3">3.整体架构</a><a href="#s4">4.裁剪</a><a href="#s5">5.ToolRuntime</a>
+  <span class="sep"></span>
+  <a href="#s6">6.预算</a><a href="#s7">7.审计</a><a href="#s8">8.路由</a><a href="#s9">9.不实现Temporal</a><a href="#s10">10.不实现多Agent</a>
+  <span class="sep"></span>
+  <a href="#s11">11.A2A边界</a><a href="#s12">达标①</a><a href="#s13">达标②</a><a href="#s14">自测</a><a href="#s15">速记</a>
+</div>
+
+<h1>FDE W5 Day 7 学习手册 · 整合与边界（Temporal / 多 Agent / A2A 只理解边界）</h1>
+<p class="sub">W5 Day7 · A 级（必须掌握，面试核心）· 3h · 学完能讲透"W5 如何把 Agent 原型升级为企业 Harness，以及什么暂不实作、为什么"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W5 收官日。前 6 天积累了 Agent Loop（W1）、Tool Runtime（W2）、RAG（W3）、规划（W4）、Text2SQL（D5）、三路路由（D6）。Day7 把这些能力<strong>整合</strong>进特药理赔 Agent，并划清<strong>边界</strong>：Temporal（用简单重试补偿代替）、多 Agent 编排、A2A 协议——本期只理解概念和边界，不实现。你是 36 岁、Java+大数据+医疗保险背景的候选人。<br>
+  <strong>学完能回答：</strong>① W5 整体产出如何把 Agent 原型升级为企业 Harness；② 为什么 Temporal/多 Agent 暂不实作、边界和适用场景是什么。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「工程含义」「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W5D7-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. W5 回顾 ============ -->
+<h2 id="s1">一、W5 周回顾：Harness 能力清单</h2>
+<p>W5 围绕"企业 Agent Harness"工程化，已沉淀的能力：</p>
+<table>
+<tr><th>来源</th><th>能力</th><th>工程价值</th></tr>
+<tr><td>W1</td><td>Agent Loop（感知-思考-行动循环）</td><td>主控循环骨架</td></tr>
+<tr><td>W2</td><td>Tool Runtime（工具执行隔离/权限）</td><td>安全调工具</td></tr>
+<tr><td>W3</td><td>RAG（检索增强生成）</td><td>知识类问答有出处</td></tr>
+<tr><td>W4</td><td>规划（任务分解/反思）</td><td>多步任务可控</td></tr>
+<tr><td>D5</td><td>Text2SQL（只读+白名单+安全校验）</td><td>结构化查询安全落地</td></tr>
+<tr><td>D6</td><td>三路数据路由（RAG/SQL/API 编排）</td><td>问题动态分发</td></tr>
+</table>
+<div class="eng">W5 的核心不是"又加了一个模型能力"，而是把零散的 Agent 能力<strong>工程化、可管控化</strong>：每一路都有安全、有预算、有审计。这是从"能跑的 Demo"到"能上生产的 Harness"的关键跃迁。</div>
+<div class="info"><strong>📚 延伸资源（中文/官方，非 OpenAI）：</strong>① Temporal Java SDK（仅了解，本期不实作）<code>docs.temporal.io/develop/java</code>；② B站 李宏毅 Agent 原理讲解 <code>BV1aiADewEBC</code>；③ Awesome-Text2SQL <code>github.com/eosphoros-ai/awesome-text2sql</code>。</div>
+
+<!-- ============ 2. 整合目标 ============ -->
+<h2 id="s2">二、特药理赔 Agent 现状与整合目标</h2>
+<p>整合前，特药理赔 Agent 可能只是个"原型"：单轮问答、直接调模型、无预算无审计、SQL/API 裸调。整合目标——把它升级成<strong>企业 Harness</strong>：</p>
+<ul>
+  <li><strong>裁剪</strong>：从原型里删掉玩具代码，保留生产必需的编排与安全。</li>
+  <li><strong>Runtime</strong>：工具执行有隔离、有权限、有超时（W2）。</li>
+  <li><strong>预算</strong>：Token/成本/调用次数有上限，超预算降级（不裸奔）。</li>
+  <li><strong>审计</strong>：每次决策/工具调用/结果都留 Trace（合规刚需）。</li>
+  <li><strong>路由</strong>：问题动态分发到 RAG/SQL/API（D6）。</li>
+</ul>
+<div class="eng">整合的本质是"给原型套上一层工程外壳"：不是重写模型逻辑，而是加上裁剪、Runtime、预算、审计、路由这五件事，让它从"演示能用"变成"生产可控"。这正好对应你做 Java 服务时从 Demo 到上线的那套工程化动作。</div>
+<div class="iv">整合目标：把特药理赔 Agent 原型升级为企业 Harness——裁剪玩具代码、Tool Runtime 隔离权限、预算上限、审计 Trace、三路路由。不是重写模型，而是套工程外壳。</div>
+
+<!-- ============ 3. 整体架构 ============ -->
+<h2 id="s3">三、企业 Agent Harness 整体架构</h2>
+<div class="formula">
+┌────────────────────────── 企业 Agent Harness ──────────────────────────┐
+│  用户输入                                                                  │
+│     │                                                                     │
+│     ▼                                                                     │
+│  [ 路由 Router ]── 判定 RAG / SQL / API（D6，含置信度门控）                │
+│     ├─ RAG ──► W3 检索+生成                                               │
+│     ├─ SQL ──► D5 Text2SQL + 安全校验五关                                  │
+│     └─ API ──► W2 Tool Runtime（隔离/权限/超时/审计）                       │
+│     │                                                                     │
+│  [ Agent Loop ]（W1 主控：感知-思考-行动，W4 规划/反思）                    │
+│     │                                                                     │
+│  [ 预算 Budget ] ◄── Token/成本/次数上限，超则降级                         │
+│  [ 审计 Audit  ] ◄── 全链路 Trace + 日志（合规）                           │
+└──────────────────────────────────────────────────────────────────────┘
+</div>
+<ul>
+  <li><strong>Agent Loop</strong>：主控循环，串起思考与行动（W1 + W4 规划）。</li>
+  <li><strong>Tool Runtime</strong>：工具执行沙箱，权限/超时/隔离（W2）。</li>
+  <li><strong>路由</strong>：上层编排，分发到三路能力（D6）。</li>
+  <li><strong>预算</strong>：全局闸口，防止失控成本与无限循环。</li>
+  <li><strong>审计</strong>：贯穿全链路的可观测与留痕。</li>
+</ul>
+<div class="eng">这个架构图是面试"压轴题"——能把 W1/W2/W3/W4/D5/D6 在图里讲清楚位置与数据流，说明你真正建立了企业 Agent 的整体架构观，而不是只会单点。注意：路由、Runtime、预算、审计是"横切"的，所有能力都要过它们。</div>
+<div class="iv">整体架构=Agent Loop(主控)+Tool Runtime(执行沙箱)+路由(分发三路)+预算(闸口)+审计(留痕)。路由/Runtime/预算/审计是横切层，所有能力都要过。能画出并讲清这张图是面试压轴。</div>
+
+<!-- ============ 4. 裁剪 ============ -->
+<h2 id="s4">四、裁剪：原型 → 生产的取舍</h2>
+<p>原型里常有的"玩具成分"要裁掉，生产必需的要保留：</p>
+<table>
+<tr><th>原型（裁掉/改造）</th><th>生产（保留/强化）</th></tr>
+<tr><td>裸 SQL / 裸 API 直调</td><td>过安全校验 + Tool Runtime + 审计</td></tr>
+<tr><td>无限循环 Agent Loop</td><td>有最大步数 + 预算上限</td></tr>
+<tr><td>无错误处理的快乐路径</td><td>重试补偿 + 降级 + 转人工</td></tr>
+<tr><td>无日志</td><td>全链路 Trace（问题/路由/工具/结果）</td></tr>
+</table>
+<div class="eng">裁剪体现"生产优先于演示"的工程价值观。原型追求"看起来能跑"，生产追求"失控也能兜住"。你们做 Java 上线最懂：Demo 和生产的差距，全在这些"横切保障"上。</div>
+<div class="warn">① 裁剪不是"删功能"，是把<strong>不安全/不可控</strong>的部分换成可控实现（如裸 SQL→带校验的 SQL 路）。② 别为"架构完美"过度设计——本期明确不引入 Temporal/多 Agent，见后文。③ 裁剪后要回归测试，确保保留的能力不被误删。</div>
+<div class="iv">裁剪=把裸调换成可控实现（裸SQL→带校验SQL路），不是删功能。生产优先于演示，差距全在横切保障上。别过度设计，本期不引入 Temporal/多Agent。</div>
+
+<!-- ============ 5. Tool Runtime ============ -->
+<h2 id="s5">五、Tool Runtime：工具执行隔离与权限（联动 W2）</h2>
+<p>所有工具（含业务 API、SQL 执行）都在 Tool Runtime 里跑，保证：</p>
+<ul>
+  <li><strong>隔离</strong>：工具在受控环境执行，不能访问未授权资源。</li>
+  <li><strong>权限</strong>：每个工具带最小权限（如 SQL 路只读账号、API 路带用户级鉴权）。</li>
+  <li><strong>超时</strong>：单工具调用有语句/请求级超时，防挂死。</li>
+  <li><strong>审计</strong>：工具入参/出参/耗时/结果全部留痕。</li>
+</ul>
+<div class="eng">Tool Runtime 是"所有动作的统一出口"——无论 RAG/SQL/API 哪路，最终执行都过它。这把 Day5 的"安全校验"和 W2 的"工具隔离"在工程上收敛到一个点，便于统一管控与审计。你们 Java 背景可类比"统一网关/拦截器"。</div>
+<div class="iv">Tool Runtime 是所有工具的统一出口：隔离+权限+超时+审计。RAG/SQL/API 最终执行都过它，把安全校验和工具隔离收敛到一个点统一管控。类比 Java 统一网关/拦截器。</div>
+
+<!-- ============ 6. 预算 ============ -->
+<h2 id="s6">六、预算：Token / 成本 / 次数预算</h2>
+<p>Agent 有"失控"风险：规划出长循环、反复调贵模型、SQL 反复重试烧 token。预算是全局闸口：</p>
+<ul>
+  <li><strong>Token 预算</strong>：单次会话/单次任务最大 token，超则停止并降级。</li>
+  <li><strong>成本预算</strong>：按模型单价估算金额上限，防贵模型滥调。</li>
+  <li><strong>次数预算</strong>：最大工具调用次数 / Agent Loop 步数，防无限循环。</li>
+  <li><strong>超时预算</strong>：整体任务最长时间，超则返回部分结果或转人工。</li>
+</ul>
+<div class="eng">预算是"防止 AI 失控烧钱/死循环"的硬保障，也是 SLA 的一部分。你们做过高并发 Java 服务，对"限流/配额/熔断"不陌生——预算本质就是 Agent 的配额与熔断。生产没有预算的 Agent，等于没有限流的后端，迟早出事。</div>
+<div class="warn">① 预算<strong>不能只卡模型 token</strong>，工具调用（SQL/API）的成本与次数也要算。② 超预算要<strong>优雅降级</strong>（返回已完成部分/转人工），不是直接报错崩溃。③ 预算值要可配置，不同用户/场景给不同档位。</div>
+<div class="iv">预算=Token/成本/次数/超时四道闸口，防 Agent 失控烧钱或死循环（类比后端限流熔断）。超预算要优雅降级，不是崩溃。工具调用成本也要算进预算。</div>
+
+<!-- ============ 7. 审计 ============ -->
+<h2 id="s7">七、审计：Trace 与日志（合规刚需）</h2>
+<p>保险场景，审计不是"可选项"而是合规刚需。Harness 要记录：</p>
+<ul>
+  <li>原始问题、路由类别与 confidence、是否回退；</li>
+  <li>每一步 Agent Loop 的思考摘要、工具调用入参/出参/耗时；</li>
+  <li>SQL 原文（校验后）、API 请求/响应（脱敏）、最终结果；</li>
+  <li>越权/拒答事件（如 D5 Q13 的导出敏感数据请求）。</li>
+</ul>
+<div class="eng">审计让 Agent <strong>可复盘、可问责、可合规</strong>。出了问题（如错误赔付建议）能回溯"当时为什么走这条路、调了什么、模型怎么答的"。你们做金融/保险系统最懂：没有审计日志的系统，上线即违规。Trace 也是前面所有评测指标（路由准确率等）的数据来源。</div>
+<div class="warn">① 审计日志要<strong>脱敏</strong>——记 SQL/API 但不能明文存身份证号/银行卡号（反而制造泄密）。② 审计和性能要平衡，全量 Trace 有成本，可按重要程度分级采样。③ 审计要防篡改（存独立日志系统），否则失去问责价值。</div>
+<div class="iv">审计=全链路 Trace（问题/路由/工具/结果/拒答事件），保险合规刚需。让 Agent 可复盘可问责。日志要脱敏、防篡改，且是各评测指标的数据源。</div>
+
+<!-- ============ 8. 路由 ============ -->
+<h2 id="s8">八、路由：上层编排（联动 D6）</h2>
+<p>在 Harness 里，路由是横切的"第一道闸门"：所有用户输入先过路由，再分发到 RAG/SQL/API。它与预算、审计协作：</p>
+<ul>
+  <li>路由决策本身记 Trace（问题/类别/conf/是否回退）；</li>
+  <li>路由低置信→回退（多路/反问/人工），不消耗额外预算盲执行；</li>
+  <li>路由把请求导向对应 Tool Runtime 能力，由 Runtime 统一执行与审计。</li>
+</ul>
+<div class="eng">路由 + Runtime + 预算 + 审计，四者是 Harness 的"横切保障层"，所有能力都要过。理解这点，面试时能清晰说明 W5 各模块不是孤岛，而是被这几层编织成一个可控整体。</div>
+<div class="iv">路由是横切第一闸门，与预算/审计协作：决策记 Trace、低置信回退不盲执行、导向 Tool Runtime 统一执行。路由+Runtime+预算+审计=横切保障层，所有能力都过。</div>
+
+<!-- ============ 9. 不实现 Temporal ============ -->
+<h2 id="s9">九、为什么暂不实现 Temporal：用简单重试补偿代替</h2>
+<p><strong>Temporal</strong> 是 workflow 编排引擎，提供"持久化执行、自动重试、状态恢复"的分布式工作流能力（Java SDK 可用）。听起来很香，但本期<strong>不引入</strong>：</p>
+<ul>
+  <li><strong>复杂度代价</strong>：引入 Temporal 要部署/运维一套 workflow 集群，学习曲线陡，对当前规模是过度工程。</li>
+  <li><strong>当前需求够用</strong>：特药理赔 Agent 的"失败处理"用<strong>应用层简单重试 + 补偿</strong>即可（如 SQL 超时重试一次、API 失败转人工、幂等防重）。</li>
+  <li><strong>边界清晰</strong>：理解 Temporal 的"持久化工作流、exactly-once、状态恢复"概念即可，知道它适用于"长流程、多步骤、需跨服务可靠编排"的场景（如跨系统理赔审批流）。</li>
+</ul>
+<div class="info"><strong>概念边界（面试够用）：</strong>Temporal 用"Workflow + Activity"模型，Workflow 状态持久化、崩溃可恢复，Activity 失败自动按策略重试。适用于跨多个微服务、需保证最终一致性的长事务。当前 Agent 的重试用"循环+退避+补偿"足矣。</div>
+<div class="eng">工程判断力体现在"知道什么现在不做"。Temporal 解决的是"分布式长事务可靠性"，而我们当前是单 Agent 内的失败处理，用重试+补偿+转人工完全覆盖，且运维成本极低。等真出现跨服务长流程可靠性需求时再引入——这是"按需演进"而非"提前过度设计"。</div>
+<div class="warn">① 不实现 ≠ 不知道。面试要能说清 Temporal <strong>是什么、解决什么、为什么现在不合适</strong>。② 简单重试要带<strong>退避与上限</strong>，否则"重试风暴"反而压垮下游。③ 补偿要<strong>幂等</strong>：重复触发（如用户刷新）不能重复提交理赔。</div>
+<div class="iv">暂不实现 Temporal：它是分布式长事务编排引擎（Workflow+Activity、持久化、自动重试），对当前规模是过度工程。我们用应用层重试+退避+补偿+转人工就够。但要懂它适用"跨服务长流程可靠编排"的边界。</div>
+
+<!-- ============ 10. 不实现多 Agent ============ -->
+<h2 id="s10">十、为什么暂不实作多 Agent 编排：边界与适用</h2>
+<p><strong>多 Agent 编排</strong>指多个专职 Agent（如"理赔审核 Agent""药品知识 Agent""额度计算 Agent"）互相协作、委派任务。本期<strong>不实作</strong>：</p>
+<ul>
+  <li><strong>当前是单 Agent + 工具</strong>：特药理赔 Agent 用"一个主控 Loop + 多工具（RAG/SQL/API）"已能覆盖，无需多 Agent 互相委派。</li>
+  <li><strong>复杂度与可观测性</strong>：多 Agent 带来 Agent 间通信、状态同步、责任归属难题，调试与审计更难。</li>
+  <li><strong>边界</strong>：多 Agent 适用于"子任务差异极大、需不同专长大模型/不同上下文隔离"的场景（如"研究 Agent +  coding Agent"）。我们当前子任务差异可用"单 Agent + 路由 + 工具"表达。</li>
+</ul>
+<div class="info"><strong>概念边界：</strong>多 Agent 常见模式有 Supervisor（主管派活）、Delegation（委派）、黑板（共享状态）。它在"任务可自然拆分为独立专长"时有价值，但要付出通信与可观测成本。我们当前用"路由分发到工具"已等价覆盖大部分价值。</div>
+<div class="eng">同样体现"按需演进"：多 Agent 不是更先进就一定要用。单 Agent + 路由 + 工具 + 横切保障，在当前规模下更可控、更好审计、更快上线。等子任务确实需要强隔离/不同模型专长、且单 Agent 上下文撑不住时，再考虑拆多 Agent。</div>
+<div class="warn">① 别把"单 Agent 调多个工具"和"多 Agent 编排"混为一谈——前者是工具调用，后者是 Agent 间协作委派。② 多 Agent 的"责任归属"在审计上更复杂，保险合规场景要谨慎。③ 不实现但要能讲清边界与适用场景，这是面试考察点。</div>
+<div class="iv">暂不实作多 Agent 编排：当前用"单 Agent Loop + 路由 + 工具"已覆盖，多 Agent 带来通信/状态/审计复杂度。它适用"子任务差异极大、需不同专长/上下文隔离"的场景。边界要懂，但本期不做。</div>
+
+<!-- ============ 11. A2A 边界 ============ -->
+<h2 id="s11">十一、A2A 协议：概念与边界（仅理解）</h2>
+<p><strong>A2A（Agent-to-Agent）</strong>指 Agent 之间的标准化通信协议，让不同厂商/系统的 Agent 能互相发现、委派、交换结果。本期仅理解边界：</p>
+<ul>
+  <li><strong>它解决什么</strong>：跨组织/跨系统的 Agent 互操作（如保险 Agent 与医院 Agent 对接核验）。</li>
+  <li><strong>当前不做</strong>：我们的特药理赔 Agent 是单域内闭环，工具都是内部能力，没有跨 Agent 通信需求。</li>
+  <li><strong>边界</strong>：A2A 涉及协议标准、身份鉴权、跨域信任——这是平台/生态层的事，不是单 Agent 工程化的事。</li>
+</ul>
+<div class="info"><strong>概念边界：</strong>A2A 类似"Agent 的 HTTP 协议"——定义 Agent 卡片（能力描述）、任务协议、消息格式，让 Agent 可被发现与协作。理解它即可，本期不落地，避免把"单 Agent 内部工具调用"误当成"跨 Agent 协议通信"。</div>
+<div class="eng">划清 A2A 边界很重要：很多人把"Agent 调工具"和"Agent 间用 A2A 协议通信"混为一谈。前者是内部函数调用（我们已做），后者是跨系统协议（生态层）。当前阶段关注内部 Harness 可控性，比追 A2A 协议务实得多。</div>
+<div class="iv">A2A=Agent 间标准化通信协议（类似 Agent 的 HTTP），解决跨组织 Agent 互操作。当前单域闭环、内部工具即可，无跨 Agent 需求，故仅理解边界不做。别把"调工具"误当"跨 Agent 协议"。</div>
+
+<!-- ============ 12. 达标线① ============ -->
+<h2 id="s12">十二、面试达标线①：W5 如何把 Agent 原型升级为企业 Harness</h2>
+<div class="formula">
+原型(单轮/裸调/无保障) ──整合──► 企业 Harness = Agent Loop + Tool Runtime(隔离/权限/超时/审计) + 路由(分发三路) + 预算(Token/成本/次数/超时) + 审计(Trace)
+</div>
+<ol>
+  <li><strong>裁剪</strong>：裸 SQL/API 换成带安全校验与 Runtime 的可控实现，加最大步数/预算。</li>
+  <li><strong>Runtime</strong>：所有工具统一出口，隔离+权限+超时+审计（W2+Day5）。</li>
+  <li><strong>路由</strong>：上层编排分发 RAG/SQL/API（D6），横切第一闸门。</li>
+  <li><strong>预算</strong>：Token/成本/次数/超时四闸口，防失控（类比限流熔断）。</li>
+  <li><strong>审计</strong>：全链路 Trace，合规刚需（W5 各评测指标的数据源）。</li>
+</ol>
+<div class="iv">达标核心：能讲清 W5 用"裁剪+Runtime+路由+预算+审计"五件事，把原型（裸调/无保障）升级成可控的企业 Harness，并能在架构图里标出 W1/W2/W3/W4/D5/D6 的位置与数据流。</div>
+
+<!-- ============ 13. 达标线② ============ -->
+<h2 id="s13">十三、面试达标线②：为什么 Temporal/多 Agent 暂不实作、边界与适用场景</h2>
+<div class="info"><strong>暂不实现 Temporal：</strong>它是分布式长事务 workflow 引擎（Workflow+Activity、持久化、自动重试），解决"跨服务长流程可靠编排"。当前单 Agent 内失败处理用"重试+退避+补偿+转人工"已够，引入是过度工程。但要懂概念与适用边界。</div>
+<div class="info"><strong>暂不实作多 Agent 编排：</strong>当前"单 Agent Loop + 路由 + 工具"已覆盖，多 Agent 带来通信/状态/审计复杂度。它适用"子任务差异极大、需不同专长/上下文隔离"场景。当前用路由分发到工具等价覆盖大部分价值。</div>
+<div class="info"><strong>A2A 仅理解边界：</strong>Agent 间标准化通信协议（跨组织互操作），当前单域闭环无需求。别把"调内部工具"误当"跨 Agent 协议通信"。</div>
+<div class="iv">达标核心：能讲清"不实现 ≠ 不知道"——Temporal 解决分布式长事务可靠性（现在用重试补偿）；多 Agent 适用强隔离/不同专长（现在单 Agent+工具够）；A2A 是跨域协议（现在单域闭环）。重点是按需演进、划清边界。</div>
+
+<!-- ============ 14. 自测清单 ============ -->
+<h2 id="s14">十四、Day 7 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能列出 W5 各天沉淀的 Harness 能力（Loop/Tool/RAG/规划/SQL/路由）。</li>
+<li>能说清整合目标：把原型升级为企业 Harness（裁剪/Runtime/预算/审计/路由）。</li>
+<li>能在架构图里标出 Agent Loop / Tool Runtime / 路由 / 预算 / 审计 的位置与关系。</li>
+<li>能讲清路由/Runtime/预算/审计是"横切保障层"，所有能力都要过。</li>
+<li>能说清裁剪是"把裸调换成可控实现"，不是删功能。</li>
+<li>能讲清 Tool Runtime 的四件事（隔离/权限/超时/审计）及与 W2 联动。</li>
+<li>能列出预算的四道闸口（Token/成本/次数/超时）及"优雅降级"原则。</li>
+<li>能讲清审计为什么是保险合规刚需，以及脱敏/防篡改要点。</li>
+<li>能解释为什么暂不实现 Temporal（过度工程，用重试补偿代替），并说清 Temporal 概念与适用边界。</li>
+<li>能解释为什么暂不实作多 Agent 编排，并说清多 Agent 适用场景与代价。</li>
+<li>能讲清 A2A 是什么、为什么当前只理解边界（单域闭环无跨 Agent 需求）。</li>
+<li>能讲清"不实现 ≠ 不知道"，体现按需演进的工程判断力（达标线②）。</li>
+</ul>
+</div>
+
+<!-- ============ 15. 速记卡 ============ -->
+<h2 id="s15">十五、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：W5 怎么把 Agent 原型升级成企业 Harness？</div><div class="a">五件事：裁剪（裸调换可控实现）、Tool Runtime（隔离/权限/超时/审计）、路由（分发三路）、预算（四闸口）、审计（Trace）。给原型套工程外壳，不是重写模型。</div></div>
+<div class="qcard"><div class="q">Q：架构图里路由/Runtime/预算/审计是什么关系？</div><div class="a">它们是横切保障层，所有能力（RAG/SQL/API）都要过。Agent Loop 是主控，路由是第一闸门，Runtime 是统一执行出口，预算是闸口，审计贯穿全链路。</div></div>
+<div class="qcard"><div class="q">Q：为什么暂不实现 Temporal？</div><div class="a">它是分布式长事务 workflow 引擎，对当前单 Agent 规模是过度工程。失败处理用应用层重试+退避+补偿+转人工已够。但要懂它解决"跨服务长流程可靠编排"。</div></div>
+<div class="qcard"><div class="q">Q：Temporal 适用什么场景？</div><div class="a">跨多个微服务、需保证最终一致性、可持久化恢复的长事务（如跨系统理赔审批流）。当前没有这种需求，故不引入。</div></div>
+<div class="qcard"><div class="q">Q：为什么暂不实作多 Agent 编排？</div><div class="a">当前"单 Agent Loop+路由+工具"已覆盖；多 Agent 带来通信/状态/审计复杂度。它适用子任务差异极大、需不同专长/上下文隔离的场景。</div></div>
+<div class="qcard"><div class="q">Q：多 Agent 和"单 Agent 调多个工具"区别？</div><div class="a">前者是 Agent 间协作委派（独立 Loop/上下文），后者是单 Loop 内函数调用。我们做的是后者，别混淆。</div></div>
+<div class="qcard"><div class="q">Q：A2A 是什么，为什么只理解边界？</div><div class="a">A2A 是 Agent 间标准化通信协议（跨组织互操作），类似 Agent 的 HTTP。当前单域闭环、内部工具即可，无跨 Agent 需求，故仅理解边界不做。</div></div>
+<div class="qcard"><div class="q">Q：预算有哪些闸口？超预算怎么办？</div><div class="a">Token/成本/次数/超时四道闸口（类比后端限流熔断）。超预算要优雅降级（返回部分结果/转人工），不是崩溃；工具调用成本也要算进预算。</div></div>
+<div class="qcard"><div class="q">Q：审计为什么是保险合规刚需？</div><div class="a">让 Agent 可复盘/可问责/可合规：出错能回溯路由与工具调用。日志要脱敏、防篡改，也是各评测指标的数据源。</div></div>
+<div class="qcard"><div class="q">Q：不实现这些技术，面试怎么体现水平？</div><div class="a">讲清"不实现 ≠ 不知道"——说清每项是什么、解决什么、为什么现在不合适、适用边界。体现按需演进、划清边界的工程判断力。</div></div>
+
+<div class="ft">FDE W5D7 学习手册 · 整合与边界（面试级）· 配合《FDE-W5D7-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w5d7_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE Day2 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'Day2-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

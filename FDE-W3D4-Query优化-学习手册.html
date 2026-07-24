@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W3D4 学习手册 · Query 优化（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W3D4 学习手册</span>
+  <a href="#s1">1.总览</a><a href="#s2">2.Rewrite</a><a href="#s3">3.Multi-Query</a><a href="#s4">4.Decomp</a><a href="#s5">5.压缩</a>
+  <span class="sep"></span>
+  <a href="#s6">6.对比</a><a href="#s7">7.拒答</a><a href="#s8">8.引用</a><a href="#s9">9.落地</a><a href="#s10">10.评测</a>
+  <span class="sep"></span>
+  <a href="#s11">11.实战</a><a href="#s12">12.坑</a><a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W3D4 学习手册 · Query 优化</h1>
+<p class="sub">W3 Day4 · A 级（必须掌握，面试核心）· 4h · 学完能讲透"用户原始问句如何被改写成更适合检索/生成的形式、无答案如何拒答、引用如何保真"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>前面已讲检索与生成，W3D4 聚焦"进检索前的 Query 优化"和"出答案时的可靠性（拒答 + 引用）"。这是 RAG 工程里性价比最高、面试最常被深挖的一块。<br>
+  <strong>学完能回答：</strong>① Query Rewrite / Multi-Query / Decomposition 各自解决什么问题、什么时候用；② 引用准确性怎么保证、无答案时怎么拒答。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W3D4-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。<br>
+  <strong>参考资源：</strong>LangChain Query 改写（python.langchain.com/docs/how_to/query_transformer）、LangChain RAG 进阶教程；中文可搜 B站「LangChain RAG 查询改写 / Multi-Query」实操。
+</div>
+
+<!-- ============ 1. 总览 ============ -->
+<h2 id="s1">一、Query 优化总览：为什么要改用户的问句</h2>
+<p>用户原始问句（original query）往往<strong>不适合直接检索</strong>：措辞口语化、缺上下文、含指代（"它""这个"）、与知识库文档用词不一致、或问题过大需要拆分。Query 优化就是在"检索前"对问句做变换，让召回更准、答案更稳。</p>
+<div class="formula">
+原始 Query → 改写/扩展/分解/压缩 → 优化后的 Query(们) → 检索 → 生成
+</div>
+<table>
+<tr><th>手段</th><th>核心动作</th><th>解决的核心问题</th></tr>
+<tr><td>Query Rewrite</td><td>重写一句话，纠正/补全/对齐术语</td><td>措辞不匹配、缺上下文、口语化</td></tr>
+<tr><td>Multi-Query</td><td>生成多个不同角度的问句并行检索</td><td>单问句召回不足、视角单一</td></tr>
+<tr><td>Query Decomposition</td><td>拆成多个子问题逐个/依赖回答</td><td>复杂复合问题、需要多跳推理</td></tr>
+<tr><td>Context Compression</td><td>压缩召回上下文或压缩历史</td><td>上下文过长、噪声多、超 token</td></tr>
+</table>
+<div class="iv">Query 优化 = "在检索前把用户问题变得更好检索"。本质是用一次（或几次）LLM 调用，提升后续检索/生成的质量——属于"以算力换召回"的工程权衡。</div>
+<div class="eng">在医疗保险知识库里，用户常问"我那个特药能不能报"——"那个特药"缺指代、术语不对齐。Rewrite 把它变成"投保人在 XX 保单下申请奥希替尼（肺癌靶向药）的特药理赔，是否符合报销范围"，检索命中率立刻提升。</div>
+
+<!-- ============ 2. Query Rewrite ============ -->
+<h2 id="s2">二、Query Rewrite（查询改写）</h2>
+<h3>2.1 原理</h3>
+<p>用 LLM 把原始 query 重写为一个<strong>语义等价但更适合检索</strong>的问句。典型做法：</p>
+<ul>
+  <li><strong>术语对齐</strong>：把口语换成知识库标准词（"报不报"→"是否符合理赔/报销条件"）。</li>
+  <li><strong>补全上下文</strong>：结合用户画像（保单类型、城市、险种）把隐含信息补进 query。</li>
+  <li><strong>消歧/纠错</strong>：纠正错别字、明确指代。</li>
+  <li><strong>意图澄清</strong>：把模糊问题落到具体子意图。</li>
+</ul>
+<h3>2.2 实现（LangChain MultiQueryRetriever / query_transformer 思路）</h3>
+<pre><code># 简化示意：用 LLM 做 query rewrite
+rewrite_prompt = """你是保险知识库检索助手。把用户问题改写成一句
+术语标准、信息完整、适合在保险条款库中检索的问题。
+只输出改写后的问题，不要解释。
+用户问题：{question}
+投保人画像：{profile}"""
+better_q = llm.invoke(rewrite_prompt.format(question=q, profile=profile))</code></pre>
+<h3>2.3 什么时候用</h3>
+<ul>
+  <li>用户措辞口语化、与文档术语不一致（最常见）。</li>
+  <li>query 依赖会话上下文（多轮对话里的指代）。</li>
+  <li>需要把用户意图对齐到知识库的组织方式（FAQ 标题、条款章节名）。</li>
+</ul>
+<div class="iv">Query Rewrite = "用 LLM 把一句话改写得更会检索"。重点是术语对齐 + 补全上下文 + 消歧。适合口语化、术语不匹配、多轮指代场景。</div>
+<div class="warn">① Rewrite 可能"改坏"——改写后语义漂移或引入幻觉事实，所以改写结果要<strong>只用于检索，不直接当答案</strong>，且最好保留原始 query 做兜底召回。② 改写会增加一次 LLM 调用（延迟+成本），高频场景要考虑缓存（相同/相似 query 复用改写结果）。③ 别让模型在改写时"偷偷回答"问题，要约束它只输出改写问句。</div>
+
+<!-- ============ 3. Multi-Query ============ -->
+<h2 id="s3">三、Multi-Query（多查询并行检索）</h2>
+<h3>3.1 原理</h3>
+<p>一个问题往往可以从多个角度表述。Multi-Query 让 LLM 生成 <strong>N 个不同表述/不同侧重点</strong>的 query，分别检索，再把各路召回的文档<strong>去重合并</strong>后喂给生成模型。核心收益是<strong>提高召回覆盖率</strong>。</p>
+<div class="formula">
+original query → LLM 生成 {q1, q2, q3} → 分别检索 → 文档去重合并 → 生成
+</div>
+<h3>3.2 适合场景</h3>
+<ul>
+  <li>语义宽泛的问题（"怎么理赔"可从流程/材料/时效多角度）。</li>
+  <li>知识库内答案分散在多处（需要广撒网）。</li>
+  <li>单 query 召回 topK 不足或质量不稳定。</li>
+</ul>
+<h3>3.3 代价与注意</h3>
+<ul>
+  <li>N 越大延迟/成本越高，常取 3~5。</li>
+  <li>多路召回合并后要做<strong>去重</strong>（按 chunk_id/doc_id），否则重复内容挤占上下文。</li>
+  <li>合并后建议走一次 <strong>Rerank</strong> 重新排序，避免某一路劣质召回拉低质量。</li>
+</ul>
+<div class="iv">Multi-Query = "一个问题生成多个角度问句，分别检索后合并去重"。解决"单问句召回不够全"。代价是 N 倍检索成本，合并后要去重 + 最好 Rerank。</div>
+<div class="eng">医疗保险案例：用户问"异地就医怎么报"。可生成：①"异地转诊备案流程" ②"异地就医报销比例与起付线" ③"异地就医材料清单" 三路检索合并，覆盖流程/比例/材料三个侧面，单问句很难一次召回全。</div>
+<div class="warn">① Multi-Query 不等于"多路召回一定更好"——若生成的 query 彼此高度相似，只是浪费算力。要控制多样性（prompt 里要求"不同角度、不要同义复述"）。② 合并去重不当会导致上下文里有大量重复条款，挤掉真正有用的内容。③ 多路召回会让"引用准确性"更难（多源混杂），需要记录每片 chunk 来自哪一路。</div>
+
+<!-- ============ 4. Query Decomposition ============ -->
+<h2 id="s4">四、Query Decomposition（查询分解 / 子问题）</h2>
+<h3>4.1 原理</h3>
+<p>对<strong>复杂复合问题</strong>，先让 LLM 拆成若干<strong>子问题</strong>，再分别检索回答，最后汇总。分两类：</p>
+<ul>
+  <li><strong>独立子问题（Parallel）</strong>：子问题彼此无关，可并行检索。</li>
+  <li><strong>依赖子问题（Sequential）</strong>：后一个依赖前一个的答案（多跳推理），需顺序执行。</li>
+</ul>
+<div class="formula">
+复杂问题 → 分解 → [子问题1, 子问题2, ...] → 逐个检索+回答 → 汇总最终答案
+</div>
+<h3>4.2 什么时候用</h3>
+<ul>
+  <li>问题需要<strong>多跳推理</strong>（"A 药报销吗？如果不报销，B 药在哪种保单下能报？"）。</li>
+  <li>答案依赖多个条件/文档，单问句无法覆盖。</li>
+  <li>需要"先定位再细查"（先找条款章节，再查具体金额）。</li>
+</ul>
+<h3>4.3 工程要点</h3>
+<ul>
+  <li>要保留子问题与答案的<strong>依赖图</strong>，便于溯源和评测。</li>
+  <li>控制分解深度，避免无限递归（设最大层数）。</li>
+  <li>每个子问题可单独应用 Rewrite/Multi-Query。</li>
+</ul>
+<div class="iv">Query Decomposition = "把复杂问题拆成子问题，分别检索回答再汇总"。适合多跳/复合问题。分独立并行与依赖顺序两类，要保留依赖图便于溯源。</div>
+<div class="eng">保险案例：「投保人同时有重疾险和百万医疗，确诊肺癌做靶向治疗，两份保单各自能报多少、有没有先后顺序？」→ 拆成：①重疾险对肺癌的给付责任 ②百万医疗对靶向治疗的报销责任 ③两份保单的补偿/给付关系（是否重复报销）。三个子问题分别检索后汇总，单问句无法答全。</div>
+<div class="warn">① 不是所有"长问题"都要分解——简单并列问题直接 Multi-Query 或单检索即可，过度分解增加延迟。② 依赖型分解易出错：前置子问题答错会<strong>连锁污染</strong>后续。要有早停/校验。③ 汇总阶段如果忘记"哪些子问题其实没检索到答案"，容易编造，需把"无答案子问题"显式带入最终拒答逻辑。</div>
+
+<!-- ============ 5. Context Compression ============ -->
+<h2 id="s5">五、Context Compression（上下文压缩）</h2>
+<h3>5.1 原理</h3>
+<p>检索回来一堆 chunk 后，其中很多与问题无关。Context Compression 通过<strong>压缩/过滤</strong>只保留与 query 相关的片段，降低噪声、节省 token、提升生成质量。两类做法：</p>
+<ul>
+  <li><strong>检索后压缩（Contextual Compression Retriever）</strong>：先用基础检索拿回较大候选集，再用一个 LLM/小模型对每片做"是否相关 + 抽取相关句子"的压缩。</li>
+  <li><strong>历史压缩</strong>：多轮对话里把早期无关历史压缩成摘要，控制上下文长度。</li>
+</ul>
+<div class="eng">在保险场景，检索回 10 片条款，但真正相关的可能只有 2 片里的 3 句话。压缩后只把"与报销比例相关的句子"送入生成，既省 token 又减少模型被无关条款带偏的概率。</div>
+<h3>5.2 与 Rewrite/Decomposition 的区别</h3>
+<table>
+<tr><th>手段</th><th>作用阶段</th><th>目标</th></tr>
+<tr><td>Rewrite / Multi-Query / Decomp</td><td>检索前（优化 query）</td><td>让召回更准更全</td></tr>
+<tr><td>Context Compression</td><td>检索后（优化 context）</td><td>让送入生成的上下文更干净</td></tr>
+</table>
+<div class="iv">Context Compression = "检索后把无关 chunk 过滤/抽句，只留相关片段"。作用在检索后，和检索前的 Rewrite 互补。降低噪声、省 token、提质量。</div>
+<div class="warn">① 压缩本身也可能丢信息（把关键一句误判为无关），对<strong>拒答判断</strong>尤其危险——压缩掉"无此条款"的证据会导致模型硬答。压缩要保留"否定/缺失"类信号。② 用 LLM 做压缩又多一次调用，简单场景用 Rerank + 截断 topK 即可，不必上压缩。③ 压缩后的片段要保留来源标记，否则引用失真。</div>
+
+<!-- ============ 6. 三种策略对比 ============ -->
+<h2 id="s6">六、三种 Query 策略对比与选型</h2>
+<table>
+<tr><th>维度</th><th>Query Rewrite</th><th>Multi-Query</th><th>Query Decomposition</th></tr>
+<tr><td>输出</td><td>1 个改写问句</td><td>N 个并列问句</td><td>若干子问题（可有依赖）</td></tr>
+<tr><td>解决</td><td>措辞/术语不匹配、缺上下文</td><td>单问句召回不全</td><td>复杂/多跳复合问题</td></tr>
+<tr><td>成本</td><td>1 次 LLM 调用</td><td>N 次检索（1 次改写）</td><td>多次检索+多次 LLM</td></tr>
+<tr><td>风险</td><td>改写语义漂移</td><td>query 同质化浪费</td><td>依赖链错误连锁</td></tr>
+<tr><td>典型组合</td><td>几乎必做</td><td>+ Rewrite 后再扩</td><td>+ 每子问题再用 Rewrite</td></tr>
+</table>
+<div class="info"><strong>工程建议（组合拳）：</strong>Rewrite 是地基（几乎每次都做）；召回不稳上 Multi-Query；问题复杂上 Decomposition；召回噪声大再上 Context Compression。不要一上来全开，按问题难度分级路由。</div>
+<div class="iv">三者是不同维度：Rewrite 改"一句话的表达"，Multi-Query 扩"多视角"，Decomposition 拆"多子问题"。生产里按问题难度分级：简单→Rewrite，召回不足→+Multi-Query，复杂多跳→+Decomposition。</div>
+
+<!-- ============ 7. 无答案拒答 ============ -->
+<h2 id="s7">七、无答案拒答（Refusal）</h2>
+<h3>7.1 为什么必须拒答</h3>
+<p>企业知识库（保险条款、特药目录）里没有的信息，模型<strong>绝不能硬编</strong>——错误理赔结论会造成真实经济损失与合规风险。无答案时应<strong>明确拒答并引导</strong>。</p>
+<h3>7.2 实现方式</h3>
+<ul>
+  <li><strong>Prompt 约束</strong>：明确"仅依据给定材料回答，材料无相关依据时输出 should_refuse=true 并说明"。</li>
+  <li><strong>结构化输出</strong>：答案 JSON 含 <code>should_refuse</code> 布尔字段 + <code>refusal_reason</code>。</li>
+  <li><strong>检索信号</strong>：若 topK 相关分都低于阈值（Rerank 分数 &lt; 门槛），直接判无答案，无需进生成。</li>
+  <li><strong>置信度兜底</strong>：生成后若答案里没有可引用来源，强制拒答。</li>
+</ul>
+<h3>7.3 拒答不等于"甩锅"</h3>
+<p>好的拒答要<strong>给出口</strong>：说明缺什么信息、建议联系谁/查哪个渠道（如"未在知识库找到该城市异地就医细则，建议联系保单客服确认"），而不是冷冰冰"不知道"。</p>
+<div class="iv">拒答 = "知识库没有就承认没有，绝不硬编"。用 should_refuse 字段 + 检索分数阈值双保险；且拒答要给出口（缺什么、找谁），不是冷拒。</div>
+<div class="warn">① 别只靠关键词检测"我不知道"——模型可能说"未查询到相关条款""暂无对应规定"，要<strong>靠字段 + 语义</strong>判定。② 检索分数阈值设太高是"该答却拒"（漏答），太低是"乱答"（幻觉），阈值要靠评测集校准。③ 拒答要进评测（拒答准确率），否则模型倾向"自信地编"以讨好用户。</div>
+
+<!-- ============ 8. 引用准确性 ============ -->
+<h2 id="s8">八、引用准确性（Citation Accuracy）</h2>
+<h3>8.1 为什么重要</h3>
+<p>保险场景，答案若没有可核查来源，无法审计、无法追责。引用准确性 = <strong>答案里每条结论都能精确对应到知识库中的具体 chunk / 文档段落</strong>，且不能"张冠李戴"。</p>
+<h3>8.2 保证手段</h3>
+<ul>
+  <li><strong>检索即绑定</strong>：每片召回 chunk 带 <code>doc_id / chunk_id / 页码</code>，生成时强制"引用只能从这些 id 中选"。</li>
+  <li><strong>结构化引用输出</strong>：答案 JSON 含 <code>citations: [{claim, doc_id, chunk_id}]</code>，每句结论挂来源。</li>
+  <li><strong>生成约束</strong>：prompt 要求"每个关键结论后标注 [chunk_id]"，且禁止编造 id。</li>
+  <li><strong>引用校验</strong>：后处理检查引用 id 是否真实存在、该 chunk 是否真的支持该 claim（可再做一次 LLM 判定"此 chunk 是否支持此句"）。</li>
+  <li><strong>高亮回溯</strong>：前端点击引用跳转到原文段落，可人工复核。</li>
+</ul>
+<h3>8.3 常见失真</h3>
+<ul>
+  <li><strong>张冠李戴</strong>：结论正确但引用了不相关的 chunk。</li>
+  <li><strong>虚构引用</strong>：引用了不存在的 chunk_id。</li>
+  <li><strong>过度泛化</strong>：一个 chunk 被引去支撑它本不支持的宽结论。</li>
+</ul>
+<div class="iv">引用准确性 = "每条结论都能精确对应真实存在的 chunk，且不张冠李戴"。靠检索即绑定 id + 结构化引用输出 + 引用校验。保险场景关系到合规审计，必须可回溯。</div>
+<div class="warn">① Multi-Query / Decomposition 多路召回后，如果不记录每片来源，引用极易混乱——<strong>去重合并时必须保留来源标记</strong>。② 模型爱"凑引用"，把不相关的 chunk 标上显得有依据，要校验"该 chunk 是否真支持该 claim"。③ 引用粒度要合适：引到 chunk 比引到整篇文档更可核查。</div>
+
+<!-- ============ 9. 工程落地 ============ -->
+<h2 id="s9">九、工程落地：改写模型与提示设计</h2>
+<h3>9.1 改写用"小模型"还是"大模型"</h3>
+<ul>
+  <li><strong>轻量改写</strong>（只消歧/术语对齐）：可用小模型或规则，省成本。</li>
+  <li><strong>复杂改写/分解</strong>：需要推理能力，用主力模型，但可降温度（T=0.2~0.3）保稳定。</li>
+  <li><strong>缓存命中</strong>：对完全相同的原始 query 直接复用历史改写结果（Redis/本地缓存）。</li>
+</ul>
+<h3>9.2 提示设计要点</h3>
+<ul>
+  <li>明确输出格式（只输出改写问句 / JSON），避免模型啰嗦。</li>
+  <li>给出知识库术语表/同义词表（few-shot），提升对齐准确率。</li>
+  <li>Multi-Query 要强调"不同角度、避免同义复述"。</li>
+  <li>Decomposition 要输出结构化子问题列表 + 依赖关系。</li>
+</ul>
+<h3>9.3 评测闭环</h3>
+<p>改写/拒答/引用都要进评测集（见 W3D5）：改写看是否提升召回；拒答看拒答准确率；引用看引用准确率与幻觉率。</p>
+<div class="eng">工程上 Query 优化是一层"可观测、可降级"的服务：改写失败可 fallback 用原 query 检索；多路召回失败可降级单路；拒答判定失败可默认"进生成但题目没有就拒"。所有分支都要有降级，不能让整条链路卡死。</div>
+
+<!-- ============ 10. 评测方法 ============ -->
+<h2 id="s10">十、怎么评测 Query 优化与可靠性</h2>
+<table>
+<tr><th>对象</th><th>评测指标</th><th>怎么做</th></tr>
+<tr><td>Rewrite</td><td>改写后召回提升</td><td>同一批问题，对比"原 query"与"改写 query"的 Hit Rate@K / nDCG</td></tr>
+<tr><td>Multi-Query</td><td>召回覆盖率</td><td>对比单 query vs 多 query 合并后的 Recall@K</td></tr>
+<tr><td>Decomposition</td><td>子问题准确率</td><td>人工/LLM 判定分解是否合理、是否覆盖必要子问题</td></tr>
+<tr><td>拒答</td><td>拒答准确率</td><td>should_refuse 集上测 precision/recall（详见 W3D5）</td></tr>
+<tr><td>引用</td><td>引用准确率</td><td>人工/LLM 判定每句结论的引用是否正确且真实存在</td></tr>
+</table>
+<div class="iv">评测 Query 优化要"对照实验"：Rewrite 比原 query 召回高多少；拒答/引用靠专门标注集测准确率。没有对照就不知道优化有没有用。</div>
+
+<!-- ============ 11. 医疗保险实战 ============ -->
+<h2 id="s11">十一、医疗保险实战案例：特药理赔问答</h2>
+<p><strong>场景：</strong>投保人问"我去年买的百万医疗，现在确诊肺癌要吃奥希替尼，这个药能报吗？还有报销比例多少？"</p>
+<ol>
+  <li><strong>Rewrite</strong>：补全画像 → "持有 XX 百万医疗险的投保人，确诊肺癌需使用奥希替尼（靶向药），该药品是否在特药目录内、报销比例及自付要求为何？"</li>
+  <li><strong>Multi-Query</strong>：生成 ①"奥希替尼 特药目录 纳入情况" ②"百万医疗 靶向药 报销比例" ③"肺癌 靶向治疗 免赔额/自付比例"。</li>
+  <li><strong>Decomposition</strong>（若问题含"先报重疾还是先报医疗"）：拆成重疾给付责任、医疗报销责任、补偿关系三子问题。</li>
+  <li><strong>拒答</strong>：若知识库无"奥希替尼具体比例"，输出 should_refuse=true，引导"以保单批单/客服确认为准"。</li>
+  <li><strong>引用</strong>：答案每条挂 chunk_id（特药目录条目、报销比例条款），前端可点开复核。</li>
+</ol>
+<div class="eng">真实系统里这层 Query 优化是"用户无感但效果显著"的部分：同一句口语，优化后把召回命中率从 60% 提到 90%+，且拒答更准、引用可审计，这正是面试时能讲出"业务价值"的点。</div>
+
+<!-- ============ 12. 常见坑 ============ -->
+<h2 id="s12">十二、常见坑与排查清单</h2>
+<div class="checklist">
+<ul>
+<li>改写后语义漂移 → 加"只改写表达，不得添加新事实"约束，并保留原 query 兜底召回。</li>
+<li>Multi-Query 同质化 → prompt 强调不同角度；监控各路召回去重率。</li>
+<li>Decomposition 无限递归 → 设最大层数 + 早停。</li>
+<li>压缩丢关键否定证据 → 压缩保留"无/不/未"类信号，拒答判定在压缩前做。</li>
+<li>拒答阈值拍脑袋 → 用评测集校准阈值，平衡漏答与幻觉。</li>
+<li>引用张冠李戴 → 多路召回保留来源标记 + 引用校验（chunk 是否支持 claim）。</li>
+<li>改写结果不缓存 → 高频 query 重复调用浪费，加缓存。</li>
+</ul>
+</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：三种 Query 策略各解决什么、何时用</h2>
+<table>
+<tr><th>策略</th><th>解决的核心问题</th><th>什么时候用</th></tr>
+<tr><td>Query Rewrite</td><td>口语化/术语不匹配/缺上下文/指代</td><td>几乎每次都做（地基）；多轮对话、术语不对齐</td></tr>
+<tr><td>Multi-Query</td><td>单问句召回不全、视角单一</td><td>语义宽泛、答案分散多处、单检索 topK 不稳</td></tr>
+<tr><td>Query Decomposition</td><td>复杂复合 / 多跳推理问题</td><td>问题需多步推理、依赖多个条件或文档</td></tr>
+<tr><td>Context Compression</td><td>检索后噪声多、上下文过长</td><td>召回噪声大、超 token、需提生成质量</td></tr>
+</table>
+<div class="iv">核心话术：Rewrite 改"表达"（地基必做），Multi-Query 扩"视角"（解决召回不全），Decomposition 拆"子问题"（解决多跳复杂）。三者作用在不同维度，可组合，但按问题难度分级路由，不盲目全开。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：引用准确性怎么保证、无答案怎么拒答</h2>
+<h3>14.1 引用准确性保证</h3>
+<div class="formula">
+检索即绑定 id → 结构化引用输出(claim↔chunk_id) → 引用校验(该chunk是否真支持该claim) → 前端回溯高亮
+</div>
+<ol>
+  <li>每片 chunk 带 <code>doc_id/chunk_id</code>，生成时只允许从这些 id 引用。</li>
+  <li>答案 JSON 要求 <code>citations:[{claim, chunk_id}]</code>，每句结论挂来源。</li>
+  <li>后处理校验：引用 id 真实存在 + 该 chunk 确实支持该 claim（可做二次 LLM 判定）。</li>
+  <li>多路召回合并时<strong>必须保留来源标记</strong>，否则引用混乱。</li>
+</ol>
+<h3>14.2 无答案拒答</h3>
+<ol>
+  <li>检索分数阈值：topK 相关分都低于门槛 → 直接判无答案。</li>
+  <li>结构化 <code>should_refuse</code> 字段 + 生成时 prompt 约束"无依据就拒"。</li>
+  <li>拒答要给出口（缺什么信息、建议联系谁），不是冷拒。</li>
+  <li>拒答进评测集测拒答准确率，防止模型"自信硬编"。</li>
+</ol>
+<div class="iv">引用靠"检索即绑定 + 结构化输出 + 引用校验"三位一体；拒答靠"检索分数阈值 + should_refuse 字段 + 评测闭环"双保险。两者都是企业 RAG 可靠性的核心，保险场景尤甚（可审计、防幻觉）。</div>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W3D4 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清 Query 优化的整体链路（改写/多查询/分解/压缩分别在哪一步、解决什么）。</li>
+<li>能讲清 Query Rewrite 的原理、典型动作（术语对齐/补全上下文/消歧）和适用场景。</li>
+<li>能讲清 Multi-Query 的原理（多视角并行检索 + 合并去重）与代价。</li>
+<li>能区分独立分解与依赖分解，讲清 Decomposition 的适用场景与风险。</li>
+<li>能说清 Context Compression 与检索前优化的区别、以及丢关键证据的风险。</li>
+<li>能画出三种策略对比表（输出/解决/成本/风险）。</li>
+<li>能讲清无答案拒答的多种实现（阈值 + should_refuse + 置信度）与"给出口"原则。</li>
+<li>能讲清引用准确性的保证手段（绑定 id / 结构化 / 校验）与常见失真（张冠李戴/虚构）。</li>
+<li>能结合医疗保险（特药理赔）讲一个完整的 Query 优化 + 拒答 + 引用例子。</li>
+<li>能讲清达标线①（三种策略选型）与达标线②（引用 + 拒答）。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：Query Rewrite 和 Multi-Query 有什么区别？</div><div class="a">Rewrite 是把"一句话改写表达更好"（输出 1 句）；Multi-Query 是把"一个问题扩成多视角问句并行检索"（输出 N 句）。前者改表达，后者扩视角。</div></div>
+<div class="qcard"><div class="q">Q：什么时候用 Query Decomposition？</div><div class="a">问题复杂、需要多跳推理或依赖多个文档/条件时。拆成子问题分别检索回答再汇总；分独立并行与依赖顺序两类。</div></div>
+<div class="qcard"><div class="q">Q：Multi-Query 合并后为什么要去重和 Rerank？</div><div class="a">多路召回有重复 chunk 会挤占上下文；且不同路质量不一，Rerank 重新排序避免劣币驱逐良币。</div></div>
+<div class="qcard"><div class="q">Q：怎么保证引用准确性？</div><div class="a">检索即绑定 chunk_id；答案结构化引用(claim↔chunk_id)；后处理校验"该 chunk 是否真支持该 claim"；多路召回保留来源标记；前端可回溯。</div></div>
+<div class="qcard"><div class="q">Q：无答案时怎么拒答？</div><div class="a">检索分数阈值 + should_refuse 字段 + prompt 约束；拒答要给出口（缺什么、找谁），并进入评测集测拒答准确率。</div></div>
+<div class="qcard"><div class="q">Q：Rewrite 有什么风险？</div><div class="a">改写语义漂移、引入幻觉事实；增加延迟成本。应对：约束只改表达不加事实、保留原 query 兜底、对高频 query 缓存。</div></div>
+<div class="qcard"><div class="q">Q：Context Compression 在检索前还是检索后？</div><div class="a">检索后。对召回 chunk 过滤/抽句，降低噪声省 token；与检索前的 Rewrite 互补。注意别压掉"无此条款"的否定证据。</div></div>
+<div class="qcard"><div class="q">Q：为什么拒答比硬答更重要（保险场景）？</div><div class="a">错误理赔结论造成真实经济损失和合规风险；拒答可审计、可引导，硬编会误导决策。拒答准确率是 RAG 核心评测指标。</div></div>
+<div class="qcard"><div class="q">Q：Query 优化这几种策略要全开吗？</div><div class="a">不要。按问题难度分级路由：简单→Rewrite，召回不足→+Multi-Query，复杂多跳→+Decomposition，噪声大→+Compression。</div></div>
+<div class="qcard"><div class="q">Q：Decomposition 的依赖链错误有什么危害？</div><div class="a">前置子问题答错会连锁污染后续子问题，最终汇总全错。要设最大层数、早停、对子问题结果做校验。</div></div>
+
+<div class="ft">FDE W3D4 学习手册 · Query 优化（面试级）· 配合《FDE-W3D4-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w3d4_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W3D4 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W3D4-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W4D2 学习手册 · LangGraph（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W4D2 学习手册</span>
+  <a href="#s1">1.动机</a><a href="#s2">2.State</a><a href="#s3">3.Node</a><a href="#s4">4.Edge</a><a href="#s5">5.组图</a><a href="#s6">6.ToolNode</a>
+  <span class="sep"></span>
+  <a href="#s7">7.Checkpointer</a><a href="#s8">8.Interrupt</a><a href="#s9">9.HITL</a><a href="#s10">10.实战</a><a href="#s11">11.易错</a><a href="#s12">12.资源</a>
+  <span class="sep"></span>
+  <a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W4D2 学习手册 · LangGraph</h1>
+<p class="sub">W4 Week1 Day2 · A 级（必须掌握，面试核心）· 4h · 学完能讲清 LangGraph 如何用 State/Node/Edge/Conditional Edge 组成图，以及 Checkpointer/Interrupt 在 HITL 中的作用</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>Day1 讲了 Agent Loop 的"朴素本质"（while 循环）。Day2 升级到<strong>工业级编排框架 LangGraph</strong>：用"图"（StateGraph）把节点、边、条件分支、工具调用、断点续跑、人工介入组织起来。这是把 Day1 的循环变成"可持久化、可中断、可审计"的生产系统的关键。<br>
+  <strong>学完能回答：</strong>① State/Node/Edge/Conditional Edge 怎么组成一张图；② ToolNode 如何把工具挂进图；③ Checkpointer 与 Interrupt 在"人在回路（HITL）"里分别起什么作用；④ 结合特药理赔 Agent 说明哪里用条件边、哪里要断点等人审批。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「面试话术」「易错点」→ 跑一遍 s10 的 StateGraph 代码 → 做自测清单 → 配合《FDE-W4D2-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 动机 ============ -->
+<h2 id="s1">一、为什么需要 LangGraph（图编排动机）</h2>
+<h3>1.1 朴素 Loop 的局限</h3>
+<p>Day1 的手写 Agent Loop 在"玩具场景"够用，但生产里会遇到：循环状态怎么持久化（进程崩了怎么办）？中途要"等人审批"怎么暂停又恢复？多分支怎么表达？这些手写很痛苦。</p>
+<h3>1.2 LangGraph 的解法</h3>
+<p>LangGraph 把 Agent 抽象成一张<strong>有向图（StateGraph）</strong>：</p>
+<ul>
+  <li><strong>Node（节点）</strong>：一个计算步骤（调模型 / 调工具 / 校验）。</li>
+  <li><strong>Edge（边）</strong>：节点间的流转，普通边是固定走向，条件边按 State 动态选分支。</li>
+  <li><strong>State（状态）</strong>：贯穿整张图的共享数据结构，每个节点读写它。</li>
+  <li><strong>Checkpointer / Interrupt</strong>：让图能"存盘、暂停、恢复"，支撑持久化与人工介入。</li>
+</ul>
+<div class="eng">LangGraph 不是"又一个 Agent 框架"，而是"把控制流显式变成一张图"。它的价值在于：① 流程可可视化、可审计（每笔理赔就是图里一条执行轨迹）；② 原生支持持久化（Checkpointer）和中断恢复（Interrupt），这是企业上 Agent 的硬需求；③ 用 Conditional Edge 表达复杂分支，比手写 if/else 清爽且可控——本质是 Day1 循环的"工程化升级"。</div>
+<div class="iv">LangGraph 把 Agent 画成一张图：节点=步骤，边=流转，状态=共享数据。它解决了手写循环的三大痛点：状态持久化、中途暂停等人、复杂分支。是 Day1 循环的工业级升级。</div>
+<div class="warn">① LangGraph 不是"比手写 Loop 更牛"，而是"更可控、可持久化"——小脚本用手写 Loop 也行，企业系统才需要它。② 别把 LangGraph 和 LangChain 混为一谈：LangChain 是"组件库"，LangGraph 是"编排框架"，两者互补。③ 图≠一定更灵活，图是<strong>开发者编排的确定性骨架</strong>，配合条件边才让模型参与分支决策。</div>
+
+<!-- ============ 2. State ============ -->
+<h2 id="s2">二、State（状态）</h2>
+<h3>2.1 原理</h3>
+<p>State 是一份贯穿整张图的共享数据。每个节点执行后<strong>返回对 State 的更新</strong>，LangGraph 按<strong>Reducer（归约函数）</strong>合并到全局 State。最常见的是 <code>messages</code> 字段，用"追加（append）"作为 reducer——这就是 Day1 里那个不断增长的 messages 列表。</p>
+<pre><code>from typing import TypedDict, Annotated
+from langgraph.graph import StateGraph, START, END
+
+class ClaimState(TypedDict):
+    messages: Annotated[list, add_messages]   # 追加式 reducer
+    policy_no: str
+    risk_level: str
+    need_human: bool</code></pre>
+<h3>2.2 Reducer 的关键</h3>
+<ul>
+  <li><strong>append（如 messages）</strong>：返回的新值<strong>追加</strong>到旧值后面（不直接覆盖）。</li>
+  <li><strong>replace（默认）</strong>：返回的字段<strong>覆盖</strong>旧值。</li>
+</ul>
+<div class="eng">State 的设计决定"节点之间怎么传数据"。生产里把"会变长、要累积"的东西（对话、工具结果）用 append reducer；把"单值结论"（risk_level、need_human）用 replace。特药理赔里 <code>messages</code> 累积每轮对话，<code>risk_level</code> 是最终结论覆盖即可。Reducer 选错（本该 append 用了 replace）会丢历史，是经典 bug。</div>
+<div class="iv">State 是图的共享数据，节点返回更新、按 reducer 合并。messages 用 append（累积），结论字段用 replace（覆盖）。Reducer 选错会丢历史。</div>
+<div class="warn">① append reducer 是 LangGraph 的"魔法点"，新手常以为节点返回会整体覆盖 State，其实 append 字段是累加——若想覆盖要显式返回新列表或用 replace。② State 字段越多越重，每步都序列化，太大的字段（如 50KB OCR 原文）会拖慢且占存储，应只存 id/摘要。③ TypedDict 只是静态类型提示，运行时靠 reducer 决定合并方式，两者要一致。</div>
+
+<!-- ============ 3. Node ============ -->
+<h2 id="s3">三、Node（节点）</h2>
+<h3>3.1 定义</h3>
+<p>Node 是一个 Python 函数（或 Runnable），签名 <code>(state) -> 部分更新</code>。它读 State、做计算、返回要合并进 State 的字段。</p>
+<pre><code>def call_model(state: ClaimState):
+    resp = model.invoke(state["messages"])
+    return {"messages": [resp]}          # append 到 messages
+
+def check_completeness(state: ClaimState):
+    ok = bool(state.get("policy_no"))
+    return {"need_human": not ok}        # replace 覆盖</code></pre>
+<h3>3.2 节点类型</h3>
+<table>
+<tr><th>节点</th><th>作用</th></tr>
+<tr><td>LLM 节点</td><td>调模型决策 / 生成</td></tr>
+<tr><td>Tool 节点</td><td>执行工具（常配合 ToolNode）</td></tr>
+<tr><td>逻辑/校验节点</td><td>纯函数：完整性检查、规则校验</td></tr>
+<tr><td>人工节点（human node）</td><td>中断点，等人输入（配合 Interrupt）</td></tr>
+</table>
+<div class="iv">Node 就是一个 (state)→更新 的函数。图里可以有 LLM 节点、工具节点、校验节点、人工节点。每个节点只干一件事，职责清晰。</div>
+
+<!-- ============ 4. Edge ============ -->
+<h2 id="s4">四、Edge（边）与 Conditional Edge（条件边）</h2>
+<h3>4.1 普通 Edge</h3>
+<p>固定从一个节点走到另一个节点：<code>graph.add_edge("node_a", "node_b")</code>。对应"必然的下一步"。</p>
+<h3>4.2 Conditional Edge（条件边）</h3>
+<p>根据 State 动态选择下一个节点：<code>add_conditional_edges("node_a", 路由函数, {"分支1":"node_b","分支2":"node_c"})</code>。路由函数读 State，返回分支名。</p>
+<pre><code>def route_after_model(state):
+    last = state["messages"][-1]
+    if last.tool_calls:        # 模型要调工具
+        return "tools"
+    return "risk_check"        # 否则去风险校验
+
+builder.add_conditional_edges("call_model", route_after_model,
+    {"tools":"call_tools", "risk_check":"risk_check"})</code></pre>
+<h3>4.3 为什么重要</h3>
+<p>条件边是"让模型参与控制流"的机制：模型输出决定走哪条边，这正是 Day1 说的"模型动态决策下一步"在图里的表达。普通边=确定性 Workflow，条件边=把决策点交给模型=Agentic Workflow。</p>
+<div class="eng">普通边是"写死的流程"（Workflow），条件边是"按 State 选分支"（让模型/逻辑决策）。特药理赔里：<code>call_model</code> 后用量边——要工具走 tools，否则走 risk_check；<code>check_completeness</code> 后按 <code>need_human</code> 决定走人工节点还是继续。条件边让图既可控又灵活。</div>
+<div class="iv">普通边固定走向（Workflow 部分）；条件边按 State 动态选分支（Agent 部分，模型决策体现在路由函数的依据上）。图 = 普通边(骨架) + 条件边(决策点)。</div>
+<div class="warn">① 条件边路由函数必须返回在映射表里声明的分支名，返回未注册的分支会报错。② 路由函数应是<strong>纯函数、可重放</strong>（中断恢复时会再跑一次），不能有副作用（别在里面发短信）。③ 条件边不等于"模型直接选节点"——是"函数读 State（含模型输出）来选"，模型间接驱动，这点面试要讲清。</div>
+
+<!-- ============ 5. StateGraph 组图 ============ -->
+<h2 id="s5">五、StateGraph 如何组成一张图</h2>
+<h3>5.1 拼装步骤</h3>
+<div class="formula">
+定义 State → 建 StateGraph(State) → add_node 加节点 → add_edge / add_conditional_edges 连边 → add_edge(START, 首节点) / add_edge(末节点, END) → compile(checkpointer=...) 得到可运行图
+</div>
+<pre><code>builder = StateGraph(ClaimState)
+builder.add_node("call_model", call_model)
+builder.add_node("call_tools", ToolNode(tools))
+builder.add_node("risk_check", risk_check)
+builder.add_node("human_approve", human_node)
+
+builder.add_edge(START, "call_model")
+builder.add_conditional_edges("call_model", route_after_model,
+    {"tools":"call_tools", "risk_check":"risk_check"})
+builder.add_edge("call_tools", "call_model")        # 工具结果回填后再决策
+builder.add_conditional_edges("risk_check", route_after_risk,
+    {"human":"human_approve", "done":"END"})
+builder.add_edge("human_approve", "risk_check")
+
+graph = builder.compile(checkpointer=memory)        # 持久化</code></pre>
+<div class="iv">组图四步：① 定义 State；② add_node 加节点；③ add_edge/add_conditional_edges 连边（含 START/END）；④ compile 时挂 checkpointer。一张图就成形了。</div>
+
+<!-- ============ 6. ToolNode ============ -->
+<h2 id="s6">六、ToolNode（工具节点）</h2>
+<h3>6.1 作用</h3>
+<p><code>ToolNode</code> 是 LangGraph 内置节点，自动：读取 State 里最后一条 assistant 消息的 <code>tool_calls</code> → 逐个分发到对应工具函数 → 把结果包装成 <code>tool</code 消息 append 回 messages。它把你 Day1 手写的"解析 tool_calls + 执行 + 回填"封装好了。</p>
+<h3>6.2 工具从哪来</h3>
+<p>工具通常是 LangChain 的 <code>@tool</code> 装饰函数，或 OpenAI 风格的 function schema。你的 Java 微服务可以包成一个 <code>@tool</code> 函数（内部 HTTP 调你的服务）。</p>
+<pre><code>from langchain_core.tools import tool
+
+@tool
+def ocr_scan(file_url: str) -> str:
+    """识别理赔材料图片，返回结构化字段"""
+    return requests.post("http://your-java-svc/ocr", json={"url":file_url}).text
+
+tools = [ocr_scan, query_policy]
+tool_node = ToolNode(tools)</code></pre>
+<div class="eng">ToolNode 让"复用你已有工具"变得自然：Java 微服务、规则引擎包成 <code>@tool</code>，直接挂进图，不用重写。这正是 W4D3 特药理赔 Agent 的基石——编排而非重写。</div>
+<div class="iv">ToolNode 自动解析 tool_calls、执行工具、回填结果（append 到 messages），省去手写回填。你的 Java 服务包成 @tool 就能挂进去。</div>
+<div class="warn">① ToolNode 执行失败默认会抛异常中断图——生产要配合 try/except 或 <code>handle_tool_errors</code> 把错误当 tool 消息回填（对应 Day1 的"错误也回填"铁律）。② 工具必须幂等（Day1 考点），因为图可能重放。③ 工具里不要做"人工审批"这类需要暂停的事，那要用 Interrupt，不是 ToolNode。</div>
+
+<!-- ============ 7. Checkpointer ============ -->
+<h2 id="s7">七、Checkpointer（检查点 / 持久化）</h2>
+<h3>7.1 原理</h3>
+<p>Checkpointer 是图的"存档器"：每执行一步，把当前 State 快照按 <code>thread_id</code> 存起来。这样：</p>
+<ul>
+  <li><strong>崩溃恢复</strong>：进程挂了，用同一 thread_id 重跑可从断点继续，不重头来。</li>
+  <li><strong>多轮对话</strong>：同一 thread_id 的多次 <code>invoke</code> 共享 State（不丢上下文）。</li>
+  <li><strong>中断恢复</strong>：配合 Interrupt 实现"暂停等人、再继续"。</li>
+</ul>
+<h3>7.2 使用</h3>
+<pre><code>graph = builder.compile(checkpointer=MemorySaver())   # 或 Sqlite/Postgres
+cfg = {"configurable": {"thread_id": "claim_12345"}}
+graph.invoke({"messages":[("user","审核这张单")]}, cfg)  # 同 thread_id 共享状态</code></pre>
+<div class="eng">Checkpointer 是企业敢用 Agent 的底座：① 理赔这种长流程，中途服务重启不能重跑 10 步；② 一笔理赔一个 thread_id，全程状态可追溯、可审计；③ 它是 Interrupt/HITL 的前提。生产用 Postgres/Redis 后端，别用 MemorySaver（重启即丢）。</div>
+<div class="iv">Checkpointer 按 thread_id 给图"存档"。作用：崩溃断点续跑、同线程多轮共享状态、支撑中断恢复。生产用持久化后端（Postgres/Redis）。</div>
+<div class="warn">① 不传 checkpointer，图也能跑但不能中断/恢复；要 HITL 必须传。② MemorySaver 仅测试用，生产用 PostgresSaver 等，否则重启丢全部进度。③ thread_id 要业务唯一（如理赔单号），混用会串状态。</div>
+
+<!-- ============ 8. Interrupt ============ -->
+<h2 id="s8">八、Interrupt（中断）与 Command（命令）</h2>
+<h3>8.1 原理</h3>
+<p><code>interrupt()</code> 在节点里调用，会让图<strong>暂停执行并把控制权交回调用方</strong>，当前 State 已被 Checkpointer 存下。等人工/外部输入后，用 <code>Command(resume=...)</code> 带着输入"唤醒"图，从断点继续。</p>
+<pre><code>def human_approve(state):
+    decision = interrupt({"question":"是否批准该特药理赔？", "risk":state["risk_level"]})
+    # 图在此暂停；外部调用 graph.invoke(Command(resume="approved"), cfg) 后继续
+    return {"approved": decision == "approved"}
+
+graph.invoke(Command(resume=user_input), cfg)   # 带输入恢复</code></pre>
+<h3>8.2 与 Checkpointer 的关系</h3>
+<p>Interrupt 负责"暂停"，Checkpointer 负责"把暂停前的状态存好"，二者配合才能实现 HITL。没有 Checkpointer，Interrupt 一暂停状态就没了，恢复不了。</p>
+<div class="eng">Interrupt 是"人工审批"的技术实现：高风险的特药理赔不能让模型自己拍板，要在人工节点 <code>interrupt()</code> 暂停、把案件推给审核员，审核员在系统点"批准/驳回"后，前端用 <code>Command(resume=...)</code> 唤醒图继续。整个过程中 Checkpointer 保证状态不丢、可审计。</div>
+<div class="iv">Interrupt 让图暂停等人（断点），Command(resume=...) 带人工输入唤醒图继续。它必须配 Checkpointer 才能存住暂停前的状态。这是 HITL 的实现方式。</div>
+<div class="warn">① Interrupt 必须在<strong>节点函数里</strong>调用，不是在边里；② 恢复时必须用<strong>同一个 thread_id</strong> 和 <code>Command(resume=...)</code>，否则从不了断点；③ 路由函数/节点会被<strong>重放</strong>，Interrupt 前的节点可能再执行一次，所以节点要幂等、不能有副作用；④ 别把"人工输入"塞进 ToolNode，那不是暂停，是同步等返回值。</div>
+
+<!-- ============ 9. HITL 工程含义 ============ -->
+<h2 id="s9">九、HITL（人在回路）的工程含义</h2>
+<div class="eng">
+<ul>
+  <li><strong>为什么需要</strong>：特药理赔涉及真金白银和医保合规，高金额/高风险案件必须由人拍板；模型只做初审与信息整理。</li>
+  <li><strong>怎么实现</strong>：在风险判断后加条件边，<code>risk=="high"</code> 走 human_approve 节点（interrupt 暂停）；低风险的自动过。</li>
+  <li><strong>可审计</strong>：每次中断/恢复都留 Checkpointer 轨迹，谁在何时批的、批了什么，全链路可查——合规刚需。</li>
+  <li><strong>超时与升级</strong>：人工节点可设超时，超时未批自动升级到上级或转工单系统。</li>
+  <li><strong>降级</strong>：审核员不在线时，可先挂起（不丢状态）或转应急通道，绝不卡死流程。</li>
+</ul>
+</div>
+<div class="iv">HITL = 高风险节点让人工拍板。LangGraph 用"条件边路由到 human 节点 + interrupt 暂停 + Checkpointer 存状态 + Command 恢复"实现，且全程可审计，满足医保合规。</div>
+
+<!-- ============ 10. 实战 ============ -->
+<h2 id="s10">十、实战：构建特药理赔 Agent 的 LangGraph</h2>
+<p>把 Day1 的 Agent Loop 升级为图，含工具调用、条件分支、人工审批中断。</p>
+<pre><code>from langgraph.graph import StateGraph, START, END
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.prebuilt import ToolNode, tools_condition
+
+builder = StateGraph(ClaimState)
+builder.add_node("call_model", call_model)
+builder.add_node("tools", ToolNode(tools))
+builder.add_node("risk_check", risk_check)
+builder.add_node("human_approve", human_approve)
+
+builder.add_edge(START, "call_model")
+builder.add_conditional_edges("call_model", tools_condition)  # 内置：有tool_calls→tools
+builder.add_edge("tools", "call_model")
+builder.add_conditional_edges("risk_check", route_after_risk,
+    {"human":"human_approve", "done":END})
+builder.add_edge("human_approve", "risk_check")
+
+graph = builder.compile(checkpointer=MemorySaver())
+
+# 运行
+cfg = {"configurable": {"thread_id": "claim_8848"}}
+graph.invoke({"messages":[("user","审核 /tmp/claim.png，保单 P123")]}, cfg)
+# 若中断在 human_approve，前端拿审核员输入后：
+# graph.invoke(Command(resume="approved"), cfg)</code></pre>
+<div class="info"><strong>对照 Day1：</strong>这里的 <code>call_model→tools→call_model</code> 循环正是 Day1 的 Tool Calling Loop；<code>tools_condition</code> 是内置条件边（对应你的 route_after_model）；<code>human_approve + interrupt</code> 是 Day1 "降级转人工"的工程化实现。图把这些"显式表达"了。</div>
+
+<!-- ============ 11. 易错点 ============ -->
+<h2 id="s11">十一、LangGraph 高频易错点</h2>
+<div class="warn">① <strong>Reducer 选错</strong>：messages 本该 append 却用 replace，历史被覆盖。② <strong>条件边返回未注册分支</strong>：路由函数返回值不在映射表，运行时报错。③ <strong>路由函数有副作用</strong>：图会重放节点，在里面发短信会重复发送。④ <strong>ToolNode 错误不回填</strong>：工具异常直接中断图，应配 handle_tool_errors。⑤ <strong>Interrupt 没配 Checkpointer</strong>：暂停即丢状态，无法恢复。⑥ <strong>恢复用错 thread_id</strong>：Command(resume) 必须同一 thread_id。⑦ <strong>节点不幂等</strong>：重放时重复副作用。⑧ <strong>把人工审批塞进 ToolNode</strong>：那不是暂停 HITL，要用 interrupt。</div>
+
+<!-- ============ 12. 资源 ============ -->
+<h2 id="s12">十二、学习资源（中文 / 非 OpenAI）</h2>
+<div class="info">
+<ul>
+  <li><strong>B站 · LangGraph 构建智能 AI 应用（StateGraph / 条件边 / Tool Node 实战）</strong>：手把手实现图与工具调用。<br><a href="https://www.bilibili.com/video/BV1zKx4zWEZP" target="_blank">https://www.bilibili.com/video/BV1zKx4zWEZP</a></li>
+  <li><strong>LangGraph 中文官方教程（Quick Start）</strong>：从 StateGraph 到 Checkpointer 的官方示例。<br><a href="https://langgraph.com.cn/tutorials/get-started" target="_blank">https://langgraph.com.cn/tutorials/get-started</a></li>
+  <li><strong>LangGraph GitHub（langchain-ai/langgraph）</strong>：源码与 examples，查 API 细节的权威来源。<br><a href="https://github.com/langchain-ai/langgraph" target="_blank">https://github.com/langchain-ai/langgraph</a></li>
+</ul>
+</div>
+<div class="iv">先看 B站视频建立"图"的直觉，再用官方 Quick Start 跑通最小例子，最后翻 GitHub 查 Checkpointer/Interrupt 的精确 API。三件套覆盖本日面试。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：State / Node / Edge / Conditional Edge 如何组成图</h2>
+<table>
+<tr><th>组件</th><th>作用</th><th>在理赔图中举例</th></tr>
+<tr><td>State</td><td>共享数据，按 reducer 合并</td><td>messages(append) / risk_level(replace)</td></tr>
+<tr><td>Node</td><td>一个计算步骤 (state)→更新</td><td>call_model / tools / risk_check</td></tr>
+<tr><td>Edge</td><td>固定流转</td><td>START→call_model；tools→call_model</td></tr>
+<tr><td>Conditional Edge</td><td>按 State 动态选分支</td><td>call_model 后：有 tool_calls→tools，否则→risk_check</td></tr>
+</table>
+<div class="formula">
+State(共享数据) + Node(步骤) + Edge(固定走向) + Conditional Edge(动态分支) → compile(checkpointer) → 可运行图
+</div>
+<div class="iv">达标线①核心：能讲清"State 是共享数据（reducer 合并）、Node 是步骤、Edge 固定走向、Conditional Edge 按 State 选分支"，并用一句"四者 compile 成图"收尾，最好结合理赔图举例。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：Checkpointer 与 Interrupt 在 HITL 中的作用</h2>
+<table>
+<tr><th>机制</th><th>角色</th><th>在 HITL 里的作用</th></tr>
+<tr><td>Checkpointer</td><td>存档器</td><td>按 thread_id 存每步 State 快照，支撑断点续跑、状态共享、可审计</td></tr>
+<tr><td>Interrupt</td><td>暂停器</td><td>在 human 节点暂停，把控制权交回调用方，等人工输入</td></tr>
+<tr><td>Command(resume)</td><td>唤醒器</td><td>带人工输入恢复图，从断点继续</td></tr>
+</table>
+<div class="formula">
+human 节点调用 interrupt() → 图暂停 + Checkpointer 存状态 → 审核员输入 → Command(resume=决策) 同 thread_id 唤醒 → 图从断点继续
+</div>
+<div class="eng">三者关系一句话：Interrupt 负责"暂停"，Checkpointer 负责"把暂停前的状态存好"，Command 负责"带输入唤醒"。没有 Checkpointer，Interrupt 一暂停状态就没了，HITL 无法实现。特药理赔用它在高风险节点让审核员拍板，且全程留痕可审计。</div>
+<div class="iv">达标线②核心：能说清"Interrupt 暂停、Checkpointer 存状态、Command 带输入恢复"三者协作，并指出"Checkpointer 是 Interrupt 能恢复的前提"，结合理赔人工审批举例。</div>
+
+<!-- ============ 15. 自测清单 ============ -->
+<h2 id="s15">十五、W4D2 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说清为什么需要 LangGraph（手写 Loop 的三大痛点：持久化、暂停、分支）。</li>
+<li>能区分 LangGraph 与 LangChain（编排框架 vs 组件库）。</li>
+<li>能讲清 State 的作用与 Reducer（append / replace）的区别及选错后果。</li>
+<li>能定义 Node 是 (state)→更新的函数，并说出常见节点类型。</li>
+<li>能区分普通 Edge（固定走向）与 Conditional Edge（按 State 选分支）。</li>
+<li>能讲清 Conditional Edge 是"模型间接参与控制流"的机制（Agentic Workflow）。</li>
+<li>能口述 StateGraph 组图四步（定义 State→add_node→加边→compile 挂 checkpointer）。</li>
+<li>能说明 ToolNode 自动做的事（解析 tool_calls→执行→回填），及工具要幂等。</li>
+<li>能讲清 Checkpointer 的三种作用（崩溃恢复 / 多轮共享 / 支撑中断）。</li>
+<li>能讲清 Interrupt + Command(resume) 实现 HITL 的流程，及必须配 Checkpointer。</li>
+<li>能说清 HITL 在特药理赔里的工程含义（高风险人工拍板、可审计、超时升级）。</li>
+<li>能列出 LangGraph 高频易错点（reducer 选错 / 分支未注册 / 路由副作用 / 没配 checkpointer 等）。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记卡 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：LangGraph 的 State 是什么？</div><div class="a">贯穿整张图的共享数据，节点返回更新、按 reducer 合并。messages 用 append（累积），结论字段用 replace（覆盖）。</div></div>
+<div class="qcard"><div class="q">Q：普通 Edge 和 Conditional Edge 区别？</div><div class="a">普通边固定走向（Workflow）；条件边按 State 动态选分支（模型间接驱动，Agent 部分）。图=普通边骨架+条件边决策点。</div></div>
+<div class="qcard"><div class="q">Q：ToolNode 帮你做了什么？</div><div class="a">自动解析最后一条 assistant 消息的 tool_calls、逐个执行工具、把结果 append 回 messages。省去手写回填，你的 Java 服务包成 @tool 即可挂载。</div></div>
+<div class="qcard"><div class="q">Q：Checkpointer 有什么用？</div><div class="a">按 thread_id 存每步 State 快照：崩溃断点续跑、同线程多轮共享状态、支撑 Interrupt 中断恢复。生产用 Postgres/Redis，别用 MemorySaver。</div></div>
+<div class="qcard"><div class="q">Q：Interrupt 和 Checkpointer 什么关系？</div><div class="a">Interrupt 负责暂停把控制权交回调用方，Checkpointer 负责把暂停前状态存好；没 Checkpointer 就恢复不了。两者配合实现 HITL。</div></div>
+<div class="qcard"><div class="q">Q：怎么实现人工审批（HITL）？</div><div class="a">高风险节点用条件边路由到 human 节点，节点内 interrupt() 暂停，审核员输入后用 Command(resume=决策) 同一 thread_id 唤醒继续。</div></div>
+<div class="qcard"><div class="q">Q：为什么路由函数不能有副作用？</div><div class="a">图会重放节点，路由函数可能再执行一次，里面发短信会重复发送。路由要纯函数。</div></div>
+<div class="qcard"><div class="q">Q：LangGraph 和手写 Agent Loop 比有何优势？</div><div class="a">显式图可可视化/可审计、原生持久化（Checkpointer）、中断恢复（Interrupt），适合企业长流程（如理赔）而非玩具脚本。</div></div>
+<div class="qcard"><div class="q">Q：工具在图里要注意什么？</div><div class="a">必须幂等（图会重放）；ToolNode 错误要配置回填而非中断；别把"人工审批"塞进工具，那要用 interrupt。</div></div>
+<div class="qcard"><div class="q">Q：reducer 选错会怎样？</div><div class="a">本该 append 的 messages 用了 replace 会被整体覆盖，丢历史；结论字段反之会不断累积。按"是否累积"选 reducer。</div></div>
+
+<div class="ft">FDE W4D2 学习手册 · LangGraph（面试级）· 配合《FDE-W4D2-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w4d2_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE W4D2 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'W4D2-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>

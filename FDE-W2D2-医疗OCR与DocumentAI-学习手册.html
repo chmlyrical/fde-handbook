@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE W2D2 学习手册 · 医疗 OCR Tool 与 Document AI（面试级）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f6; color: #1a1a1a; line-height: 1.85; font-size: 15px; padding: 24px; max-width: 920px; margin: 0 auto; }
+  [id] { scroll-margin-top: 64px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 8px; }
+  .meta { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: 13px; }
+  .meta strong { color: #185FA5; }
+  h2 { font-size: 19px; margin-top: 38px; margin-bottom: 14px; padding: 9px 14px; background: #E6F1FB; border-left: 4px solid #185FA5; border-radius: 4px; font-weight: 600; }
+  h3 { font-size: 16px; margin-top: 22px; margin-bottom: 8px; color: #0C447C; font-weight: 600; }
+  h4 { font-size: 14px; margin-top: 14px; margin-bottom: 6px; color: #185FA5; font-weight: 600; }
+  p { margin-bottom: 11px; }
+  ul, ol { margin: 0 0 12px 22px; }
+  li { margin-bottom: 4px; }
+  strong { color: #0C447C; }
+  code { background: #f1efe8; padding: 1px 6px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #993556; }
+  pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; padding: 0; color: #1a1a1a; }
+  .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .info strong { color: #185FA5; }
+  .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .warn strong { color: #854F0B; }
+  .warn::before { content: "⚠ 易错点　"; font-weight: 700; color: #BA7517; }
+  .iv { background: #E1F5EE; border-left: 4px solid #0F6E56; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .iv strong { color: #0F6E56; }
+  .iv::before { content: "🎤 面试话术　"; font-weight: 700; color: #0F6E56; }
+  .eng { background: #FBEAF0; border-left: 4px solid #993556; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
+  .eng strong { color: #993556; }
+  .eng::before { content: "🔧 工程含义　"; font-weight: 700; color: #993556; }
+  .topnav { position: sticky; top: 0; z-index: 50; background: rgba(250,249,246,.97); backdrop-filter: blur(6px); border-bottom: 1px solid #e5e3dd; margin: -24px -24px 16px -24px; padding: 8px 24px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .topnav .brand { font-weight: 700; color: #185FA5; font-size: 13px; margin-right: 6px; }
+  .topnav a { font-size: 12px; color: #185FA5; text-decoration: none; padding: 3px 8px; border-radius: 12px; background: #E6F1FB; }
+  .topnav a:hover { background: #185FA5; color: #fff; }
+  .topnav .sep { width: 1px; height: 16px; background: #ddd; margin: 0 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; background: #fff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e3dd; text-align: left; vertical-align: top; }
+  th { background: #f1efe8; font-weight: 600; }
+  .checklist { background: #fff; border: 1px solid #e5e3dd; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .checklist li { list-style: none; margin-left: -6px; padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: #185FA5; font-size: 16px; }
+  .qcard { background: #fff; border: 1px solid #e5e3dd; border-left: 4px solid #185FA5; border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .qcard .q { font-weight: 600; color: #1a1a1a; }
+  .qcard .a { color: #0F6E56; font-size: 13.5px; margin-top: 4px; }
+  .qcard .a::before { content: "一句话答："; font-weight: 700; color: #0F6E56; }
+  .ft { text-align: center; color: #888; font-size: 12px; margin-top: 40px; padding-top: 18px; border-top: 1px solid #e5e3dd; }
+
+  /* ===== 标注功能 ===== */
+  mark.anno { background: #FFF3B0; border-bottom: 2px solid #E0A800; padding: 0 1px; border-radius: 2px; cursor: pointer; color: inherit; }
+  mark.anno:hover { background: #FFE066; }
+  mark.anno.flash { animation: annoFlash 1.2s ease; }
+  @keyframes annoFlash { 0%,100%{background:#FFF3B0;} 50%{background:#FFD43B;} }
+  #annoToggleLeft, #annoToggleRight { position: fixed; bottom: 18px; width: 50px; height: 50px; border-radius: 50%; color: #fff; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,.25); z-index: 99; display: flex; align-items: center; justify-content: center; }
+  #annoToggleLeft { left: 18px; background: #993556; }
+  #annoToggleLeft:hover { background: #72243E; }
+  #annoToggleRight { right: 18px; background: #185FA5; }
+  #annoToggleRight:hover { background: #0C447C; }
+  #annoToggleLeft .badge, #annoToggleRight .badge { position: absolute; top: -4px; right: -4px; background: #fff; font-size: 11px; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 4px; font-weight: 700; border: 1.5px solid currentColor; }
+  .anno-panel { position: fixed; top: 0; bottom: 0; width: 340px; max-width: 92vw; background: #fff; box-shadow: 0 0 14px rgba(0,0,0,.08); z-index: 100; display: flex; flex-direction: column; transition: transform .25s ease; }
+  #annoPanelLeft { left: 0; border-right: 1px solid #e5e3dd; transform: translateX(-100%); }
+  #annoPanelRight { right: 0; border-left: 1px solid #e5e3dd; transform: translateX(100%); }
+  #annoPanelLeft.open, #annoPanelRight.open { transform: translateX(0); }
+  .anno-panel .ap-head { padding: 12px 14px; border-bottom: 1px solid #e5e3dd; display: flex; align-items: center; justify-content: space-between; }
+  #annoPanelLeft .ap-head { background: #F4C0D1; color: #72243E; }
+  #annoPanelRight .ap-head { background: #FFF3B0; color: #854F0B; }
+  .anno-panel .ap-head .title { font-weight: 700; font-size: 15px; }
+  .anno-panel .ap-head .count { font-size: 12px; margin-top: 2px; opacity: .85; }
+  .anno-panel .ap-head .ap-close { background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  #annoPanelLeft .ap-close { color: #72243E; }
+  #annoPanelRight .ap-close { color: #854F0B; }
+  .anno-panel .ap-close:hover { opacity: .7; }
+  .anno-panel .ap-body { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .anno-panel .col-empty { color: #bbb; font-size: 12px; text-align: center; padding: 28px 8px; line-height: 1.7; }
+  .anno-item { background: #faf9f6; border: 1px solid #e5e3dd; border-left: 3px solid #E0A800; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .anno-item.imp { border-left-color: #993556; }
+  .anno-item .ai-text { font-size: 13px; color: #1a1a1a; font-weight: 500; cursor: pointer; word-break: break-all; line-height: 1.5; }
+  .anno-item .ai-text:hover { color: #185FA5; }
+  .anno-item .ai-text .miss { color: #993556; font-size: 11px; font-weight: 400; }
+  .anno-item textarea { width: 100%; margin-top: 6px; border: 1px solid #e5e3dd; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; font-family: inherit; resize: vertical; min-height: 46px; background: #fff; color: #1a1a1a; }
+  .anno-item textarea:focus { outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24,95,165,.12); }
+  .anno-item .ai-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .anno-item .ai-time { font-size: 10px; color: #aaa; }
+  .anno-item .ai-del { background: none; border: none; color: #993556; font-size: 11px; cursor: pointer; padding: 2px 4px; }
+  .anno-item .ai-del:hover { text-decoration: underline; }
+  .anno-panel .ap-foot { padding: 8px 12px; border-top: 1px solid #e5e3dd; display: flex; gap: 6px; background: #faf9f6; }
+  .anno-panel .ap-foot button { flex: 1; padding: 7px; font-size: 12px; border: 1px solid #e5e3dd; background: #fff; border-radius: 4px; cursor: pointer; color: #444; }
+  .anno-panel .ap-foot button:hover { background: #f1efe8; }
+  #annoBubble { position: absolute; background: #fff; padding: 4px; display: none; flex-direction: row; gap: 2px; border: 1px solid #d3d1c7; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 1000; user-select: none; }
+  #annoBubble .abtn { padding: 5px 11px; border-radius: 5px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  #annoBubble .abtn.q { background: #FFF3B0; color: #854F0B; }
+  #annoBubble .abtn.q:hover { background: #FFE066; }
+  #annoBubble .abtn.i { background: #F4C0D1; color: #72243E; }
+  #annoBubble .abtn.i:hover { background: #ED93B1; }
+  mark.anno.imp { background: #F4C0D1; border-bottom-color: #993556; }
+  mark.anno.imp:hover { background: #ED93B1; }
+  mark.anno.imp.flash { animation: annoFlashImp 1.2s ease; }
+  @keyframes annoFlashImp { 0%,100%{background:#F4C0D1;} 50%{background:#ED93B1;} }
+  #annoTip { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #0C447C; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; z-index: 1001; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #annoTip.show { opacity: 1; }
+  @media (max-width: 760px) { .anno-panel { width: 46vw; min-width: 220px; } }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">W2D2 学习手册</span>
+  <a href="#s1">1.定位</a><a href="#s2">2.OCR原理</a><a href="#s3">3.坐标</a><a href="#s4">4.字段抽取</a>
+  <span class="sep"></span>
+  <a href="#s5">5.置信度</a><a href="#s6">6.人工复核</a><a href="#s7">7.坐标关联</a><a href="#s8">8.字符准确率</a>
+  <span class="sep"></span>
+  <a href="#s9">9.字段P/R/F1</a><a href="#s10">10.修改率</a><a href="#s11">11.复杂场景</a><a href="#s12">12.资源</a>
+  <span class="sep"></span>
+  <a href="#s13">达标①</a><a href="#s14">达标②</a><a href="#s15">自测</a><a href="#s16">速记</a>
+</div>
+
+<h1>FDE W2D2 学习手册 · 医疗 OCR Tool 与 Document AI</h1>
+<p class="sub">W2 Week2 Day2 · A+B 级（必须掌握 + 设计能力）· 5h · 学完能讲透"报销发票/病历如何从图片变成可校验的结构化字段"</p>
+
+<div class="meta">
+  <strong>本日定位：</strong>W2D1 讲了"工具怎么调"，今天落地一类最典型的工具——医疗 OCR / Document AI。它是保险理赔自动化的入口：把用户拍的发票、病历、诊断证明变成结构化数据。<br>
+  <strong>学完能回答：</strong>① OCR→字段抽取→置信度→人工复核 的完整链路；② 字符准确率 / 字段 P-R-F1 / 人工修改率 怎么算、为什么需要低置信度复核。<br>
+  <strong>使用方法：</strong>通读原理 → 重点看「面试话术」「易错点」→ 做自测清单 → 配合《FDE-W2D2-评测题.md》。选中不熟的词可标注（左下★重要 / 右下📌待查）。
+</div>
+
+<!-- ============ 1. 定位 ============ -->
+<h2 id="s1">一、Document AI 与 OCR 在保险场景的定位</h2>
+<p>医疗保险理赔里，用户提交的材料绝大多数是<strong>非结构化图片/PDF</strong>：增值税发票、门诊病历、费用清单、诊断证明、特药处方。OCR / Document AI 工具的作用，就是把这些材料变成下游（规则引擎、数据库、LLM）能消费的<strong>结构化字段</strong>。</p>
+<div class="info"><strong>典型链路：</strong>用户上传发票图片 → OCR 识别文字 + 坐标 → 字段抽取（金额/项目/医院）→ 置信度评估 → 低置信度转人工 → 高置信度自动入流程。</div>
+<div class="iv">OCR/Document AI 是理赔自动化的"入口工具"：把图片发票、病历变成结构化字段。它不直接做决策，只是把"看不懂的图片"变成"下游能用的数据"。</div>
+<div class="eng">在 FDE 视角下，OCR 工具是一个被 Agent 调用的 Tool（见 W2D1）：模型说"识别这张发票"，工具返回结构化字段。它的质量直接决定后续理赔算得准不准—— garbage in, garbage out。</div>
+
+<!-- ============ 2. OCR原理 ============ -->
+<h2 id="s2">二、OCR 文本识别原理与流程</h2>
+<h3>2.1 基本流程</h3>
+<div class="formula">
+图像预处理（去噪/二值化/纠偏）→ 版面分析（检测文本块/行）→ 文本识别（CNN+CTC 或 Transformer 解码为字符）→ 后处理（词典校正/格式规整）
+</div>
+<ul>
+  <li><strong>文本检测（Detection）</strong>：定位图中哪里有文字（文本框 / 像素级掩码）。</li>
+  <li><strong>文本识别（Recognition）</strong>：把每个文本框的像素变成字符序列。</li>
+  <li><strong>版面分析（Layout）</strong>：理解标题、表格、段落的位置关系，辅助字段对齐。</li>
+</ul>
+<h3>2.2 开源方案</h3>
+<p><strong>PaddleOCR</strong>（百度）是中文场景最常用、效果最好的开源 OCR 之一，支持中英文、表格识别、PP-Structure 版面分析。官方文档：<code>paddlepaddle.github.io/paddleocr</code>，代码：<code>github.com/PaddlePaddle/PaddleOCR</code>。</p>
+<div class="iv">OCR = 检测（在哪有字）+ 识别（字是什么）+ 版面分析（字的关系）。中文医疗票据首选 PaddleOCR，它有专门的表格和版面分析能力。</div>
+<div class="warn">① OCR 不是"100% 准确"，尤其发票章、浅色小字、折叠阴影容易错。② 别把 OCR 当"全文搜索"用——要的是<strong>字段级</strong>抽取，不是一堆散文本。③ 扫描件 dpi 太低会大幅下降准确率，预处理（纠偏/放大）很关键。</div>
+
+<!-- ============ 3. 坐标 ============ -->
+<h2 id="s3">三、坐标返回与版面分析</h2>
+<p>成熟的 OCR 不只返回文字，还返回每个词/字段的<strong>包围框坐标</strong>（通常是四点或两点 bbox，相对图片宽高比 0~1 或绝对像素）。</p>
+<pre><code>{
+  "text": "价税合计 ¥1,280.00",
+  "bbox": [[120, 330], [420, 332], [420, 358], [120, 356]],  // 四点
+  "score": 0.97,
+  "line_id": 3
+}</code></pre>
+<h3>3.1 坐标的用途</h3>
+<ul>
+  <li><strong>字段定位</strong>：知道"金额"在图的哪个位置，便于高亮、复核。</li>
+  <li><strong>版面还原</strong>：用坐标把零散词拼回"行/列/表格"，支撑字段抽取。</li>
+  <li><strong>校验</strong>：相邻字段的相对位置（"金额"在"价税合计"右侧）可辅助判断是否抽错。</li>
+</ul>
+<div class="eng">坐标是连接"识别结果"和"原图"的桥梁。没有坐标，你无法做截图高亮，也无法在人工复核时让审核员一眼看到模型抽的是哪块。</div>
+<div class="iv">OCR 返回文字时一并返回 bbox 坐标。坐标用于字段定位、版面还原和人工复核高亮——是"让机器结果可被人类验证"的关键。</div>
+
+<!-- ============ 4. 字段抽取 ============ -->
+<h2 id="s4">四、字段结构化抽取</h2>
+<p>光有 OCR 文本还不够，要从中抽出<strong>业务字段</strong>：发票代码、金额、医院名称、项目明细、开票日期等。</p>
+<h3>4.1 抽取方式</h3>
+<table>
+<tr><th>方式</th><th>做法</th><th>优劣</th></tr>
+<tr><td>规则/正则</td><td>按"价税合计：xxx"模板匹配</td><td>快、可控，但模板一变就崩</td></tr>
+<tr><td>键值对模型（KIE）</td><td>专门训练"字段-值"定位模型</td><td>对固定版式发票准，泛化一般</td></tr>
+<tr><td>LLM 多模态</td><td>把图片+prompt 给多模态模型直接抽 JSON</td><td>泛化好、省规则，成本较高</td></tr>
+</table>
+<div class="info">LangChain 提供多模态文档处理（<code>python.langchain.com/docs/how_to/multimodal_prompts</code>），可把图片直接喂给视觉模型抽取结构化字段，适合版式多变的病历/处方。</div>
+<h3>4.2 统一输出</h3>
+<pre><code>{
+  "invoice_code": "044001800211",
+  "amount": 1280.00,
+  "hospital": "XX市第一人民医院",
+  "items": [{"name": "奥希替尼", "qty": 1, "fee": 1280.00}],
+  "date": "2026-03-12",
+  "confidence": {"amount": 0.98, "hospital": 0.91}
+}</code></pre>
+<div class="iv">字段抽取是把 OCR 文本变成业务字段（金额/医院/项目），可用正则、KIE 模型或多模态 LLM。输出要统一成结构化对象，每个字段带独立置信度。</div>
+<div class="warn">① 金额字段最关键也最易错，务必单独高置信校验（如"价税合计"和"金额大写"交叉验证）。② 多模态 LLM 抽字段方便，但可能"编造"图上没有的值，必须配坐标/原文回溯。③ 单位、币种、小数点要归一化（"1,280.00"→1280.00）。</div>
+
+<!-- ============ 5. 置信度 ============ -->
+<h2 id="s5">五、OCR 置信度与字段置信度</h2>
+<h3>5.1 两层置信度</h3>
+<ul>
+  <li><strong>字符级置信度</strong>：OCR 对每个识别出的字符给一个 0~1 概率（整体是平均或最小）。</li>
+  <li><strong>字段级置信度</strong>：对"抽出的某个字段"给的置信度，可能综合字符分 + 版面位置 + 语义合理性。</li>
+</ul>
+<div class="formula">
+字段置信度 = f(字符识别分, 版面位置分, 语义校验分)  ∈ [0, 1]
+</div>
+<h3>5.2 为什么字段级更重要</h3>
+<p>一张发票整体识别率 99%，但"金额"那个字恰好模糊，字段置信度就低——而金额恰恰是理赔最敏感的字段。所以<strong>按字段而非整图</strong>评估置信度更有业务意义。</p>
+<div class="iv">置信度分两层：字符级（每个字的概率）和字段级（每个业务字段的可信度）。理赔里金额字段的置信度比整图平均更有意义，要按字段评估。</div>
+<div class="eng">字段置信度是"人机协同"的开关：高置信自动过，低置信转人工。它能把有限的审核人力集中在真正不确定的地方，这是 OCR 系统能上生产的核心设计。</div>
+
+<!-- ============ 6. 复核 ============ -->
+<h2 id="s6">六、低置信度人工复核</h2>
+<h3>6.1 复核策略</h3>
+<table>
+<tr><th>字段置信度</th><th>处理</th></tr>
+<tr><td>≥ 0.95</td><td>自动通过，进入流程</td></tr>
+<tr><td>0.80 ~ 0.95</td><td>自动通过，但打标"需关注"，留痕</td></tr>
+<tr><td>&lt; 0.80</td><td>转人工复核（高亮该字段原图位置）</td></tr>
+</table>
+<h3>6.2 人工复核体验设计</h3>
+<ul>
+  <li>把低置信字段在原图上的<strong> bbox 高亮</strong>，审核员一眼看到"机器抽的是这坨"。</li>
+  <li>预填 OCR 结果，审核员只需确认/修改，降低操作成本。</li>
+  <li>记录"人工修改了哪些字段"，反哺评测（人工修改率，见 s10）。</li>
+</ul>
+<div class="iv">置信度是自动/人工的分流阀：高置信自动过，低置信（如&lt;0.8）转人工并高亮原图位置。这样把审核员精力留给真正不确定的字段。</div>
+<div class="eng">低置信度复核是"准确率 vs 成本"的平衡点。完全自动准确率不够，全人工成本太高；按字段置信度分流，是生产系统的标配。</div>
+<div class="warn">① 阈值不是固定的，要按字段敏感度调（金额阈值应比"医院名"高）。② 转人工后<strong>必须保留原图证据</strong>，否则争议时无法溯源。③ 别因为"整图置信度高"就跳过单字段低置信——局部错更危险。</div>
+
+<!-- ============ 7. 坐标关联 ============ -->
+<h2 id="s7">七、页面原图与字段坐标关联（截图高亮）</h2>
+<h3>7.1 关联的价值</h3>
+<p>把"结构化字段"和"原图 bbox"绑定，能做到：</p>
+<ul>
+  <li><strong>可追溯</strong>：点击某字段，跳到原图对应区域。</li>
+  <li><strong>可复核</strong>：人工审核时高亮展示机器抽的是哪块。</li>
+  <li><strong>可解释</strong>：向用户/监管证明"这笔金额是从发票这行来的"。</li>
+</ul>
+<h3>7.2 实现方式</h3>
+<pre><code># 用坐标从原图裁剪出字段截图
+from PIL import Image
+im = Image.open("invoice.jpg")
+x1,y1,x2,y2 = norm_to_px(bbox, im.size)   # 归一化坐标转像素
+crop = im.crop((x1,y1,x2,y2))
+crop.save(f"field_{field_name}.png")        # 用于前端高亮/复核展示</code></pre>
+<div class="iv">把字段和它的 bbox 绑定，就能"点字段看原图、低置信高亮"。这是 OCR 结果可解释、可复核、可溯源的基础，也是监管看重的。</div>
+<div class="eng">坐标关联是"让 AI 结果可被信任"的工程细节。没有它，OCR 抽错你也发现不了；有了它，错误被高亮、被人类一眼抓出。</div>
+
+<!-- ============ 8. 字符准确率 ============ -->
+<h2 id="s8">八、评测指标①：字符准确率（Character Accuracy）</h2>
+<h3>8.1 定义</h3>
+<div class="formula">
+字符准确率 = (识别正确的字符数) / (标准答案字符总数)  × 100%
+</div>
+<p>也可用编辑距离（Levenshtein）衡量：<code>准确率 = 1 - 编辑距离 / 答案长度</code>。字符准确率是 OCR 最基础的指标，衡量"字认得对不对"。</p>
+<h3>8.2 局限</h3>
+<ul>
+  <li>只看字符，<strong>不看字段语义</strong>——"1,280"认成"1,282"字符错 1 个，但金额就错了。</li>
+  <li>对空格、标点敏感，需约定归一化规则（是否忽略空格）。</li>
+</ul>
+<div class="iv">字符准确率 = 认对的字符数 / 总字符数，是最基础的 OCR 指标，但只看"字对不对"，不关心"字段对不对"，所以还要看字段级指标。</div>
+
+<!-- ============ 9. 字段P/R/F1 ============ -->
+<h2 id="s9">九、评测指标②：字段 Precision / Recall / F1</h2>
+<h3>9.1 为什么需要字段级</h3>
+<p>业务关心的是"字段抽没抽对"，不是单字。把每个字段当作一个"抽取目标"，用信息抽取（IE）的标准指标：</p>
+<div class="formula">
+Precision = 抽对的字段 / 抽出的字段总数<br>
+Recall = 抽对的字段 / 标准答案字段总数<br>
+F1 = 2·P·R / (P + R)
+</div>
+<h3>9.2 举例（发票字段抽取）</h3>
+<table>
+<tr><th>字段</th><th>标准答案</th><th>模型抽出</th><th>判定</th></tr>
+<tr><td>invoice_code</td><td>044001800211</td><td>044001800211</td><td>TP（对）</td></tr>
+<tr><td>amount</td><td>1280.00</td><td>1280.00</td><td>TP</td></tr>
+<tr><td>hospital</td><td>市一医院</td><td>市第一医院</td><td>FP（错抽）</td></tr>
+<tr><td>date</td><td>2026-03-12</td><td>（漏抽）</td><td>FN（漏抽）</td></tr>
+</table>
+<p>本例 Precision = 2/3，Recall = 2/3，F1 ≈ 0.67。注意字段"值要完全匹配"才算对，金额差一分都算错。</p>
+<div class="iv">字段级 P/R/F1 把每个字段当抽取目标：P=抽对的/抽出的，R=抽对的/该抽的，F1 是调和平均。比字符准确率更贴近业务——关心"字段对不对"。</div>
+<div class="eng">字段 F1 是评价 OCR/Document AI 工具<strong>可用性</strong>的核心。生产上线要有"字段 F1 达标线"（如关键字段 ≥0.95），否则下游规则引擎拿到的是脏数据。</div>
+<div class="warn">① 字段匹配是<strong>完全匹配</strong>还是<strong>模糊匹配</strong>要先约定（金额差 0.01 算错吗？）。② 别只看 F1 平均，要<strong>分字段</strong>看——金额 F1 比医院名 F1 重要得多。③ Recall 低说明漏抽（危险，金额漏了直接少赔），Precision 低说明抽错（多赔/欺诈风险）。</div>
+
+<!-- ============ 10. 修改率 ============ -->
+<h2 id="s10">十、评测指标③：人工修改率（Human Correction Rate）</h2>
+<h3>10.1 定义</h3>
+<div class="formula">
+人工修改率 = (被人工修改/补录的字段数) / (总字段数)  × 100%
+</div>
+<p>这是<strong>生产真实数据</strong>上最诚实的指标：OCR 自动抽的字段，有多少被人工改过或补过。它综合反映了准确率和置信度阈值的效果。</p>
+<h3>10.2 和置信度的关系</h3>
+<ul>
+  <li>阈值设太高 → 太多字段转人工 → 修改率高、成本高。</li>
+  <li>阈值设太低 → 错误字段自动过 → 修改率低但<strong>错误流入下游</strong>，更危险。</li>
+  <li>理想：低修改率 + 低漏错率，靠"高置信自动过 + 真低置信才转人工"。</li>
+</ul>
+<div class="iv">人工修改率 = 被人工改过的字段 / 总字段，是生产上最诚实的指标。它和置信度阈值博弈：阈值高改得多成本高，阈值低错得流入下游更危险。</div>
+<div class="eng">人工修改率直接对应<strong>运营成本</strong>。FDE 要能说清：不是"修改率越低越好"，而是"在可接受的错误率下，把修改率压到最低"——这是产品化思维。</div>
+
+<!-- ============ 11. 复杂场景 ============ -->
+<h2 id="s11">十一、复杂场景设计（跨页 / 复杂表格 / 手写体）</h2>
+<p>这部分<strong>本次只做设计</strong>，不要求跑通，但要能讲清思路和难点。</p>
+<table>
+<tr><th>场景</th><th>难点</th><th>设计思路</th></tr>
+<tr><td>跨页字段</td><td>一张发票/病历跨多页，字段被截断</td><td>按文档 ID 聚合多页结果；跨页拼接逻辑（如"合计"在末页）；页间坐标映射</td></tr>
+<tr><td>复杂表格</td><td>费用清单多行多列、合并单元格</td><td>用表格识别（PaddleOCR PP-Structure / 多模态大模型）；行列关系建模；支持单元格级坐标</td></tr>
+<tr><td>手写体</td><td>医生手写处方识别率骤降</td><td>手写专用模型/采样增强；置信度普遍偏低→默认转人工；关键字段（药名/剂量）强制复核</td></tr>
+</table>
+<div class="iv">跨页/复杂表格/手写体是 OCR 三大难题，本次只设计不跑通：跨页要聚合多页+坐标映射，复杂表格用表格识别模型，手写体置信度低应默认转人工。</div>
+<div class="eng">复杂场景的设计原则是"<strong>识别不了的就诚实地转人工</strong>"，而不是硬撑自动。FDE 评估的是你"知道边界在哪、怎么兜底"，不是炫技全自动化。</div>
+
+<!-- ============ 12. 资源 ============ -->
+<h2 id="s12">十二、资源与工具</h2>
+<ul>
+  <li><strong>PaddleOCR 官方文档</strong>：paddlepaddle.github.io/paddleocr —— 中文 OCR、表格、版面分析。</li>
+  <li><strong>PaddleOCR GitHub</strong>：github.com/PaddlePaddle/PaddleOCR —— 可直接部署的推理代码与模型。</li>
+  <li><strong>LangChain 多模态文档</strong>：python.langchain.com/docs/how_to/multimodal_prompts —— 用多模态模型直接抽图片字段。</li>
+  <li><strong>医疗票据模板库</strong>：各地税务局发票版式、医保结算单版式（内部沉淀）。</li>
+</ul>
+<div class="info">实战建议：先用 PaddleOCR 跑通"标准增值税电子发票"这类<strong>固定版式</strong>材料，字段抽取用正则+坐标结合；版式多变的病历/处方用多模态 LLM 抽，低置信转人工。</div>
+<div class="iv">资源：PaddleOCR（中文 OCR 首选，含表格/版面）、LangChain 多模态（版式多变材料抽字段）。先攻固定版式发票，再啃复杂病历。</div>
+
+<!-- ============ 13. 达标线① ============ -->
+<h2 id="s13">十三、面试达标线①：讲清 OCR→抽取→置信度→复核 完整链路</h2>
+<div class="formula">
+图片上传 → 预处理(纠偏/放大) → OCR 识别文字+坐标 → 字段结构化抽取(正则/KIE/多模态) → 计算字段置信度 → 高置信自动过 / 低置信转人工(高亮原图bbox) → 人工确认或修改 → 结构化字段入下游流程
+</div>
+<ol>
+  <li><strong>OCR</strong>：检测+识别+版面分析，输出文字与 bbox 坐标。</li>
+  <li><strong>字段抽取</strong>：从文本/图片抽业务字段（金额/医院/项目），统一结构化输出。</li>
+  <li><strong>置信度</strong>：对每个字段算字段级置信度（综合字符分+版面+语义）。</li>
+  <li><strong>分流</strong>：高置信自动过；低置信（按字段敏感度设阈值）转人工复核，并高亮原图位置。</li>
+  <li><strong>闭环</strong>：人工修改记录反哺评测（人工修改率），与原图坐标绑定保证可追溯。</li>
+</ol>
+<div class="iv">一句话：图片→OCR出字和坐标→抽字段→算字段置信度→高置信自动过、低置信转人工并高亮原图→人工改完入流程。关键是字段级置信度做自动/人工分流阀。</div>
+
+<!-- ============ 14. 达标线② ============ -->
+<h2 id="s14">十四、面试达标线②：OCR 评测指标怎么算、为何要低置信复核</h2>
+<table>
+<tr><th>指标</th><th>公式</th><th>衡量什么</th></tr>
+<tr><td>字符准确率</td><td>认对字符数 / 总字符数</td><td>字认得对不对（基础）</td></tr>
+<tr><td>字段 Precision</td><td>抽对字段 / 抽出字段</td><td>抽出的准不准（少抽错）</td></tr>
+<tr><td>字段 Recall</td><td>抽对字段 / 应抽字段</td><td>漏没漏（金额漏抽最危险）</td></tr>
+<tr><td>字段 F1</td><td>2PR/(P+R)</td><td>综合可用性（分字段看）</td></tr>
+<tr><td>人工修改率</td><td>被改字段 / 总字段</td><td>真实运营成本</td></tr>
+</table>
+<ul>
+  <li><strong>为什么需要低置信度复核</strong>：OCR 不是 100% 准，尤其发票章、浅字、折叠阴影；金额等关键字段错一个字就赔错钱。字段级置信度让"不确定的才转人工"，把有限审核人力用在刀刃上，平衡准确率与成本。</li>
+  <li><strong>指标间关系</strong>：字符准确率看"字"，字段 F1 看"业务"，人工修改率看"真实成本"。三者都要看，且字段 F1 要分字段评估（金额权重最高）。</li>
+</ul>
+<div class="iv">字符准确率看字对不对，字段P/R/F1看业务抽得准不准（要分字段、金额最重），人工修改率看真实成本。低置信复核是因为OCR会错、且错在金额上代价巨大，按字段置信度分流能省成本又控风险。</div>
+
+<!-- ============ 15. 自测 ============ -->
+<h2 id="s15">十五、W2D2 自测清单</h2>
+<div class="checklist">
+<ul>
+<li>能说出 OCR 三段流程：检测 → 识别 → 版面分析，并知道 PaddleOCR 是中文首选。</li>
+<li>能解释 bbox 坐标是干什么用的（定位/版面还原/高亮复核）。</li>
+<li>能区分三种字段抽取方式：正则、KIE 模型、多模态 LLM，说出各自优劣。</li>
+<li>能说清字符级 vs 字段级置信度，为什么字段级对理赔更重要。</li>
+<li>能讲清低置信度人工复核的阈值策略和体验设计（高亮原图）。</li>
+<li>能解释坐标关联如何支撑可追溯、可复核、可解释。</li>
+<li>能写出字符准确率公式，并说出它的局限。</li>
+<li>能写出字段 P/R/F1 公式，并用发票例子算一遍。</li>
+<li>能解释人工修改率的定义，以及它和置信度阈值的博弈关系。</li>
+<li>能讲清跨页/复杂表格/手写体三大复杂场景的设计思路（只设计不跑通）。</li>
+<li>能讲清达标线①（OCR→抽取→置信度→复核完整链路）。</li>
+<li>能讲清达标线②（四类评测指标 + 为何需要低置信复核）。</li>
+</ul>
+</div>
+
+<!-- ============ 16. 速记 ============ -->
+<h2 id="s16">十六、高频面试题速记卡</h2>
+<div class="qcard"><div class="q">Q：OCR 能 100% 准确吗？为什么还要人工复核？</div><div class="a">不能，发票章/浅字/阴影易错。金额错一个字就赔错钱，所以用字段置信度把不确定的转人工，平衡准确率与成本。</div></div>
+<div class="qcard"><div class="q">Q：字符准确率和字段 F1 有什么区别？</div><div class="a">字符准确率看"字认对没"，字段 F1 看"业务字段抽对没"。理赔关心后者，且要分字段评估（金额最重）。</div></div>
+<div class="qcard"><div class="q">Q：什么是字段级置信度？</div><div class="a">对每个抽出的业务字段（如金额）单独算可信度，综合字符分+版面+语义。比整图平均分更有业务意义。</div></div>
+<div class="qcard"><div class="q">Q：人工修改率越低越好吗？</div><div class="a">不是。阈值太低错误会流入下游更危险；要在可接受错误率下把修改率压最低，是成本与风险的平衡。</div></div>
+<div class="qcard"><div class="q">Q：bbox 坐标有什么用？</div><div class="a">定位字段在原图位置，支撑版面还原、人工复核高亮、可追溯可解释。是连接识别结果和原图的桥梁。</div></div>
+<div class="qcard"><div class="q">Q：字段 F1 的 Precision 和 Recall 哪个低更危险？</div><div class="a">Recall 低更危险——代表漏抽（金额没抽到直接少赔）；Precision 低是抽错（多赔/欺诈风险）。</div></div>
+<div class="qcard"><div class="q">Q：手写体处方怎么处理？</div><div class="a">本次只设计：手写识别率骤降，默认转人工，药名/剂量等关键字段强制复核，不硬撑自动。</div></div>
+<div class="qcard"><div class="q">Q：多模态 LLM 抽字段有什么坑？</div><div class="a">可能编造图上没有的值，必须配坐标/原文回溯校验，且成本比规则高。适合版式多变材料。</div></div>
+<div class="qcard"><div class="q">Q：复杂表格/跨页怎么设计？</div><div class="a">表格用表格识别模型+单元格坐标；跨页按文档ID聚合多页、做页间坐标映射和合计拼接。</div></div>
+<div class="qcard"><div class="q">Q：PaddleOCR 在链路里干什么？</div><div class="a">做中文 OCR 检测+识别+版面/表格分析，输出文字与坐标，是固定版式发票的首选开源方案。</div></div>
+
+<div class="ft">FDE W2D2 学习手册 · 医疗 OCR Tool 与 Document AI（面试级）· 配合《FDE-W2D2-评测题.md》自测</div>
+
+<div id="annoBubble"><span class="abtn q" data-type="query">📌 待查</span><span class="abtn i" data-type="important">★ 重要</span></div>
+<button id="annoToggleLeft" title="重要标注（贴浏览器左侧）">★<span class="badge">0</span></button>
+<button id="annoToggleRight" title="待查标注（贴浏览器右侧）">📌<span class="badge">0</span></button>
+<aside id="annoPanelLeft" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">★ 重要标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listImp"></div>
+  <div class="ap-foot">
+    <button data-export="important">导出重要</button>
+    <button data-clear="important">清空重要</button>
+  </div>
+</aside>
+<aside id="annoPanelRight" class="anno-panel">
+  <div class="ap-head">
+    <div><div class="title">📌 待查标注</div><div class="count">0 条</div></div>
+    <button class="ap-close" title="收起">✕</button>
+  </div>
+  <div class="ap-body" id="listQuery"></div>
+  <div class="ap-foot">
+    <button data-export="query">导出待查</button>
+    <button data-clear="query">清空待查</button>
+  </div>
+</aside>
+<div id="annoTip"></div>
+
+<script>
+(function(){
+  var STORAGE = 'fde_w2d2_annotations';
+  var PANEL_L = document.getElementById('annoPanelLeft');
+  var PANEL_R = document.getElementById('annoPanelRight');
+  var LIST_IMP = document.getElementById('listImp');
+  var LIST_QRY = document.getElementById('listQuery');
+  var TOGGLE_L = document.getElementById('annoToggleLeft');
+  var TOGGLE_R = document.getElementById('annoToggleRight');
+  var BADGE_L = TOGGLE_L.querySelector('.badge');
+  var BADGE_R = TOGGLE_R.querySelector('.badge');
+  var COUNT_L = PANEL_L.querySelector('.count');
+  var COUNT_R = PANEL_R.querySelector('.count');
+  var BUBBLE = document.getElementById('annoBubble');
+  var TIP = document.getElementById('annoTip');
+  var annos = load();
+  var pendingRange = null;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(STORAGE) || '[]'); } catch(e){ return []; } }
+  function save(){ try { localStorage.setItem(STORAGE, JSON.stringify(annos)); } catch(e){} }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function showTip(msg){ TIP.textContent = msg; TIP.classList.add('show'); setTimeout(function(){ TIP.classList.remove('show'); }, 1600); }
+  function typeOf(a){ return a && a.type === 'important' ? 'important' : 'query'; }
+  function panelOf(type){ return type === 'important' ? PANEL_L : PANEL_R; }
+
+  function inExcludedZone(node){
+    var p = (node.nodeType === 3) ? node.parentNode : node;
+    if(!p || !p.closest) return false;
+    return !!(p.closest('#annoPanelLeft') || p.closest('#annoPanelRight') || p.closest('#annoBubble') || p.closest('#annoToggleLeft') || p.closest('#annoToggleRight') || p.closest('.topnav') || p.closest('#annoTip'));
+  }
+  function isAnnotableText(node){
+    if(!node || node.nodeType !== 3 || !node.nodeValue) return false;
+    var p = node.parentNode;
+    if(!p) return false;
+    if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
+    if(p.classList && p.classList.contains('anno')) return false;
+    if(inExcludedZone(node)) return false;
+    return true;
+  }
+  function surroundRange(range, id, type){
+    var frag = range.extractContents();
+    var mark = document.createElement('mark');
+    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+    mark.setAttribute('data-id', id);
+    mark.appendChild(frag);
+    range.insertNode(mark);
+  }
+  document.addEventListener('mouseup', function(){
+    setTimeout(function(){
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0){ hideBubble(); return; }
+      var text = sel.toString().trim();
+      if(text.length < 1 || text.length > 2000){ hideBubble(); return; }
+      var range = sel.getRangeAt(0);
+      var c = range.commonAncestorContainer;
+      var check = (c.nodeType === 3) ? c.parentNode : c;
+      if(inExcludedZone(check)){ hideBubble(); return; }
+      pendingRange = range.cloneRange();
+      var rect = range.getBoundingClientRect();
+      BUBBLE.style.display = 'flex';
+      BUBBLE.style.left = (rect.left + rect.width/2 - 62 + window.scrollX) + 'px';
+      BUBBLE.style.top = (rect.top + window.scrollY - 42) + 'px';
+    }, 12);
+  });
+  function hideBubble(){ BUBBLE.style.display = 'none'; }
+  BUBBLE.addEventListener('mousedown', function(e){ if(e.target.closest('.abtn')) e.preventDefault(); });
+  BUBBLE.addEventListener('click', function(e){
+    var btn = e.target.closest('.abtn');
+    if(!btn) return;
+    if(!pendingRange){ hideBubble(); return; }
+    var sel = window.getSelection();
+    var text = sel.toString().trim();
+    if(!text){ hideBubble(); return; }
+    var type = btn.getAttribute('data-type');
+    var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
+    try { surroundRange(pendingRange, id, type); } catch(err){}
+    annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
+    save(); render();
+    sel.removeAllRanges(); hideBubble();
+    panelOf(type).classList.add('open');
+    showTip(type === 'important' ? '已标为重要（左面板）' : '已标注待查（右面板），可加笔记');
+  });
+  document.addEventListener('mousedown', function(e){
+    if(e.target === BUBBLE || BUBBLE.contains(e.target)) return;
+    setTimeout(hideBubble, 0);
+  });
+  function makeItem(a){
+    var t = typeOf(a);
+    var found = document.querySelector('mark.anno[data-id="' + a.id + '"]');
+    var item = document.createElement('div');
+    item.className = 'anno-item' + (t === 'important' ? ' imp' : '');
+    var miss = found ? '' : ' <span class="miss">（原文未定位）</span>';
+    var html = '<div class="ai-text" data-id="' + a.id + '">' + escapeHtml(a.text) + miss + '</div>';
+    item.innerHTML = html;
+    var foot = document.createElement('div');
+    foot.className = 'ai-foot';
+    var time = document.createElement('span');
+    time.className = 'ai-time'; time.textContent = (a.createdAt || '');
+    var del = document.createElement('button');
+    del.className = 'ai-del'; del.textContent = '删除';
+    del.addEventListener('click', function(){ removeAnno(a.id); });
+    foot.appendChild(time); foot.appendChild(del);
+    if(t === 'query'){
+      var ta = document.createElement('textarea');
+      ta.placeholder = '写解释 / 笔记...（自动保存）';
+      ta.value = a.note || '';
+      ta.addEventListener('input', function(){ a.note = ta.value; save(); });
+      item.appendChild(ta);
+    }
+    item.appendChild(foot);
+    item.querySelector('.ai-text').addEventListener('click', function(){ jumpTo(a.id); });
+    return item;
+  }
+  function setBadge(el, n){ if(n > 0){ el.style.display = 'flex'; el.textContent = n; } else { el.style.display = 'none'; } }
+  function renderList(type){
+    var container = type === 'important' ? LIST_IMP : LIST_QRY;
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    container.innerHTML = '';
+    if(list.length === 0){
+      var hint = type === 'important' ? '选中正文点「★ 重要」' : '选中正文点「📌 待查」';
+      container.innerHTML = '<div class="col-empty">还没有' + (type === 'important' ? '重要' : '待查') + '标注<br>' + hint + '</div>';
+    } else { list.forEach(function(a){ container.appendChild(makeItem(a)); }); }
+  }
+  function render(){
+    renderList('important'); renderList('query');
+    var imps = annos.filter(function(a){ return typeOf(a) === 'important'; });
+    var qrys = annos.filter(function(a){ return typeOf(a) === 'query'; });
+    COUNT_L.textContent = imps.length + ' 条'; COUNT_R.textContent = qrys.length + ' 条';
+    setBadge(BADGE_L, imps.length); setBadge(BADGE_R, qrys.length);
+  }
+  function jumpTo(id){
+    var el = document.querySelector('mark.anno[data-id="' + id + '"]');
+    if(!el){ showTip('该标注在原文未定位'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function unwrapMark(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild){ parent.insertBefore(mark.firstChild, mark); }
+    parent.removeChild(mark); parent.normalize();
+  }
+  function removeAnno(id){
+    if(!confirm('删除该标注及其笔记？')) return;
+    annos = annos.filter(function(a){ return a.id !== id; });
+    document.querySelectorAll('mark.anno[data-id="' + id + '"]').forEach(unwrapMark);
+    save(); render(); showTip('已删除');
+  }
+  function findAndHighlight(text, id, type){
+    if(!text) return false;
+    var root = document.body;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(node){ return isAnnotableText(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    var full = '', map = [];
+    nodes.forEach(function(node){ var len = node.nodeValue.length; map.push({ node: node, start: full.length, end: full.length + len }); full += node.nodeValue; });
+    var idx = full.indexOf(text);
+    if(idx === -1) return false;
+    var end = idx + text.length;
+    var hits = map.filter(function(m){ return m.start < end && m.end > idx; });
+    if(hits.length === 0) return false;
+    try {
+      var range = document.createRange();
+      var first = hits[0], last = hits[hits.length - 1];
+      range.setStart(first.node, Math.max(0, idx - first.start));
+      range.setEnd(last.node, end - last.start);
+      surroundRange(range, id, type);
+      return true;
+    } catch(e){ return false; }
+  }
+  function restore(){
+    annos.forEach(function(a){
+      if(document.querySelector('mark.anno[data-id="' + a.id + '"]')) return;
+      findAndHighlight(a.text, a.id, typeOf(a));
+    });
+    render();
+  }
+  TOGGLE_L.addEventListener('click', function(){ PANEL_L.classList.toggle('open'); });
+  TOGGLE_R.addEventListener('click', function(){ PANEL_R.classList.toggle('open'); });
+  PANEL_L.querySelector('.ap-close').addEventListener('click', function(){ PANEL_L.classList.remove('open'); });
+  PANEL_R.querySelector('.ap-close').addEventListener('click', function(){ PANEL_R.classList.remove('open'); });
+  function exportType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可导出的' + (type === 'important' ? '重要' : '待查') + '标注'); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    var txt = 'FDE Day2 ' + label + '标注笔记（' + new Date().toLocaleString('zh-CN') + '）\n\n';
+    txt += list.map(function(a, i){
+      var line = (i+1) + '. ' + a.text;
+      if(type === 'query'){ line += '\n   笔记：' + (a.note || '(暂无)'); }
+      line += '\n   时间：' + (a.createdAt || '');
+      return line;
+    }).join('\n\n');
+    var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'Day2-' + label + '-标注笔记.txt'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showTip('已导出 ' + label + ' ' + list.length + ' 条');
+  }
+  function clearType(type){
+    var list = annos.filter(function(a){ return typeOf(a) === type; });
+    if(list.length === 0){ showTip('没有可清空的' + (type === 'important' ? '重要' : '待查')); return; }
+    var label = type === 'important' ? '重要' : '待查';
+    if(!confirm('确定清空全部' + label + '标注和笔记？此操作不可撤销。')) return;
+    list.forEach(function(a){ document.querySelectorAll('mark.anno[data-id="' + a.id + '"]').forEach(unwrapMark); });
+    annos = annos.filter(function(a){ return typeOf(a) !== type; });
+    save(); render(); showTip('已清空' + label);
+  }
+  document.querySelectorAll('[data-export]').forEach(function(btn){ btn.addEventListener('click', function(){ exportType(btn.getAttribute('data-export')); }); });
+  document.querySelectorAll('[data-clear]').forEach(function(btn){ btn.addEventListener('click', function(){ clearType(btn.getAttribute('data-clear')); }); });
+  document.addEventListener('click', function(e){
+    var m = e.target.closest ? e.target.closest('mark.anno') : null;
+    if(m){
+      var aid = m.getAttribute('data-id');
+      var fa = annos.find(function(a){ return a.id === aid; });
+      if(fa) panelOf(typeOf(fa)).classList.add('open');
+      jumpTo(aid);
+    }
+  });
+  restore();
+})();
+</script>
+
+</body>
+</html>
