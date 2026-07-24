@@ -24,6 +24,24 @@
   pre { background: #f6f4ee; border: 1px solid #e5e3dd; border-radius: 6px; padding: 12px 14px; overflow-x: auto; margin-bottom: 12px; font-size: 13px; line-height: 1.6; }
   pre code { background: none; padding: 0; color: #1a1a1a; }
   .formula { background: #f6f4ee; border-left: 3px solid #185FA5; padding: 10px 16px; border-radius: 4px; margin: 10px 0; font-family: "SF Mono", Menlo, monospace; font-size: 14px; text-align: center; color: #0C447C; }
+  .decision-tree { margin: 12px 0 18px; background: #fff; border: 1px solid #d8e3ed; border-left: 4px solid #185FA5; border-radius: 6px; overflow: hidden; }
+  .decision-step { display: grid; grid-template-columns: minmax(250px, .9fr) minmax(0, 1.1fr); gap: 18px; align-items: center; padding: 13px 16px; border-bottom: 1px solid #e5eaf0; }
+  .decision-step:last-child { border-bottom: 0; }
+  .decision-question { display: flex; align-items: flex-start; gap: 10px; color: #1a1a1a; font-weight: 600; line-height: 1.55; }
+  .decision-index { flex: 0 0 28px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; background: #185FA5; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 700; line-height: 1; }
+  .decision-branches { display: grid; gap: 6px; }
+  .decision-branch { display: grid; grid-template-columns: 28px 14px minmax(0, 1fr); gap: 5px; align-items: start; font-size: 13.5px; line-height: 1.55; }
+  .decision-answer { display: inline-flex; align-items: center; justify-content: center; min-height: 24px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+  .decision-answer.yes { background: #E1F5EE; color: #0F6E56; }
+  .decision-answer.no { background: #F1EFE8; color: #555; }
+  .decision-arrow { color: #8a98a6; font-weight: 700; }
+  .decision-result { color: #0F6E56; font-weight: 600; }
+  .decision-next { color: #185FA5; font-weight: 600; }
+  .decision-note { color: #777; font-weight: 400; }
+  @media (max-width: 640px) {
+    .decision-step { grid-template-columns: 1fr; gap: 9px; padding: 13px 12px; }
+    .decision-branches { padding-left: 38px; }
+  }
   .info { background: #E6F1FB; border-left: 4px solid #185FA5; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
   .info strong { color: #185FA5; }
   .warn { background: #FAEEDA; border-left: 4px solid #BA7517; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 14px; }
@@ -145,16 +163,35 @@
 <!-- ============ 2. 决策树 ============ -->
 <h2 id="s2">二、决策树：从一个需求到一种方案</h2>
 <p>面试要能口头画出一棵"需求 → 方案"的决策树。下面给出标准骨架，面试时可据此展开。</p>
-<div class="formula">
-需求 → 是否需要"模型理解语义/生成"？
-  ├─ 否 → 规则引擎 / 查表 / 正则（确定性问题）
-  └─ 是 → 知识是否私有 / 高频变动 / 需溯源？
-            ├─ 是 → RAG（知识在库外，模型只负责"读+答"）
-            └─ 否 → 是否需改变模型"固有行为/风格/稳定格式"？
-                      ├─ 是（且数据量足、长期复用）→ 微调
-                      └─ 否 → 是否对成本/延迟/隐私极敏感？
-                                ├─ 是 → 小模型/本地模型（或规则兜底）
-                                └─ 否 → 直接用闭源大模型 + 优化 Prompt
+<div class="decision-tree" aria-label="模型选型决策树">
+  <div class="decision-step">
+    <div class="decision-question"><span class="decision-index">1</span><span>是否需要模型理解语义或生成内容？</span></div>
+    <div class="decision-branches">
+      <div class="decision-branch"><span class="decision-answer no">否</span><span class="decision-arrow">→</span><span class="decision-result">规则引擎 / 查表 / 正则</span></div>
+      <div class="decision-branch"><span class="decision-answer yes">是</span><span class="decision-arrow">↓</span><span class="decision-next">继续判断知识特征</span></div>
+    </div>
+  </div>
+  <div class="decision-step">
+    <div class="decision-question"><span class="decision-index">2</span><span>知识是否私有、高频变动或需要溯源？</span></div>
+    <div class="decision-branches">
+      <div class="decision-branch"><span class="decision-answer yes">是</span><span class="decision-arrow">→</span><span class="decision-result">RAG <span class="decision-note">（模型负责“读 + 答”）</span></span></div>
+      <div class="decision-branch"><span class="decision-answer no">否</span><span class="decision-arrow">↓</span><span class="decision-next">继续判断模型行为</span></div>
+    </div>
+  </div>
+  <div class="decision-step">
+    <div class="decision-question"><span class="decision-index">3</span><span>是否需要改变模型的固有行为、风格或稳定格式？</span></div>
+    <div class="decision-branches">
+      <div class="decision-branch"><span class="decision-answer yes">是</span><span class="decision-arrow">→</span><span class="decision-result">微调 <span class="decision-note">（数据量足、长期复用）</span></span></div>
+      <div class="decision-branch"><span class="decision-answer no">否</span><span class="decision-arrow">↓</span><span class="decision-next">继续判断工程约束</span></div>
+    </div>
+  </div>
+  <div class="decision-step">
+    <div class="decision-question"><span class="decision-index">4</span><span>是否对成本、延迟或隐私极度敏感？</span></div>
+    <div class="decision-branches">
+      <div class="decision-branch"><span class="decision-answer yes">是</span><span class="decision-arrow">→</span><span class="decision-result">小模型 / 本地模型 <span class="decision-note">（规则兜底）</span></span></div>
+      <div class="decision-branch"><span class="decision-answer no">否</span><span class="decision-arrow">→</span><span class="decision-result">闭源大模型 + 优化 Prompt</span></div>
+    </div>
+  </div>
 </div>
 <h3>2.1 决策节点的判断条件</h3>
 <table>
