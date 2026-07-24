@@ -399,16 +399,48 @@
     if(!p) return false;
     if(p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return false;
     if(p.classList && p.classList.contains('anno')) return false;
+    if(p.closest && p.closest('mark.anno')) return false;
     if(inExcludedZone(node)) return false;
     return true;
   }
   function surroundRange(range, id, type){
-    var frag = range.extractContents();
-    var mark = document.createElement('mark');
-    mark.className = 'anno' + (type === 'important' ? ' imp' : '');
-    mark.setAttribute('data-id', id);
-    mark.appendChild(frag);
-    range.insertNode(mark);
+    var root = range.commonAncestorContainer;
+    var nodes = [];
+    if(root.nodeType === 3){
+      if(isAnnotableText(root)) nodes.push(root);
+    } else {
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode: function(node){
+          if(!isAnnotableText(node)) return NodeFilter.FILTER_REJECT;
+          try { return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; }
+          catch(e){ return NodeFilter.FILTER_REJECT; }
+        }
+      });
+      var current;
+      while((current = walker.nextNode())) nodes.push(current);
+    }
+
+    var parts = [];
+    nodes.forEach(function(node){
+      var start = node === range.startContainer ? range.startOffset : 0;
+      var end = node === range.endContainer ? range.endOffset : node.nodeValue.length;
+      if(start < end && node.nodeValue.slice(start, end).trim()){
+        parts.push({ node: node, start: start, end: end });
+      }
+    });
+
+    for(var i = parts.length - 1; i >= 0; i--){
+      var part = parts[i];
+      var selected = part.node;
+      if(part.end < selected.nodeValue.length) selected.splitText(part.end);
+      if(part.start > 0) selected = selected.splitText(part.start);
+      var mark = document.createElement('mark');
+      mark.className = 'anno' + (type === 'important' ? ' imp' : '');
+      mark.setAttribute('data-id', id);
+      selected.parentNode.insertBefore(mark, selected);
+      mark.appendChild(selected);
+    }
+    return parts.length;
   }
   document.addEventListener('mouseup', function(){
     setTimeout(function(){
@@ -438,7 +470,9 @@
     if(!text){ hideBubble(); return; }
     var type = btn.getAttribute('data-type');
     var id = 'a' + Date.now() + Math.floor(Math.random()*1000);
-    try { surroundRange(pendingRange, id, type); } catch(err){}
+    var highlighted = 0;
+    try { highlighted = surroundRange(pendingRange, id, type); } catch(err){}
+    if(!highlighted){ hideBubble(); showTip('无法标注当前选区'); return; }
     annos.push({ id: id, text: text, type: type, note: '', createdAt: new Date().toLocaleString('zh-CN') });
     save(); render();
     sel.removeAllRanges(); hideBubble();
@@ -528,8 +562,7 @@
       var first = hits[0], last = hits[hits.length - 1];
       range.setStart(first.node, Math.max(0, idx - first.start));
       range.setEnd(last.node, end - last.start);
-      surroundRange(range, id, type);
-      return true;
+      return surroundRange(range, id, type) > 0;
     } catch(e){ return false; }
   }
   function restore(){
